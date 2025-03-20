@@ -10,7 +10,7 @@ const studentSceheme = new mongoose.Schema({
     },
     userName:{
         type:String,
-        uniq:true,
+        unique: true,
         required:true
     },
     numberID:{

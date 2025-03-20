@@ -32,9 +32,9 @@ const addManager = async (req, res) => {
 const updateManager = async (req, res) => {
     const{_id}=req.user
     console.log(_id)
-    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area } = req.body
+    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password } = req.body
 
-    if (!_id || !firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area) {
+    if (!_id || !firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password ) {
         return res.status(400).json({ message: 'fields are required' })
     }
 
@@ -51,7 +51,7 @@ const updateManager = async (req, res) => {
         manager.phone = phone,
         manager.email = email,
         manager.password = hashedPwd,
-        manager.area = area
+        manager.area =  manager.area
 
     await manager.save()
     const managers = await Manager.find({},{password:0}).sort({ firstNane: 1, lastName: 1 }).lean()

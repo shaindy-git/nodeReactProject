@@ -21,7 +21,6 @@ app.use("/manager", require("./routes/manager"))
 app.use("/student", require("./routes/student"))
 
 mongoose.connection.once('open', () => {
-    console.log('Connected to MongoDB')
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
 })
 mongoose.connection.on('error', err => {

@@ -13,7 +13,7 @@ router.put("/updateTeacher", teacherController.updateTeacher)
 //router.get("/getTeacherById/:id", teacherController.getTeacherById)
 router.put("/addAvailableClasses", teacherController.addAvailableClasses)
 router.put("/settingTest", teacherController.settingTest)
-
+router.put("/addLessonToStudent", teacherController.addLessonToStudent)
 
 
 module.exports = router

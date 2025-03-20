@@ -43,11 +43,16 @@ const managerSceheme = new mongoose.Schema({
     // ולמנהל ישלח מייל שיש בקשה חדשה הבקשות ישלחו לרשימה זו!!!
     RequestList: {
         type: [{
-            id: { type: Number },
-            teacherid: {
-                type: mongoose.Schema.ObjectId,
-                ref: "Teacher"
-            }
+            firstName: { type: String },
+            lastName: { type: String },
+            userName: { type: String },
+            numberID: { type: String },
+            dateOfBirth: {type: mongoose.Schema.Types.Date, format: ("yyyy-MM-dd ")},
+            phone: { type: String },
+            email: { type: String },
+            password: { type: String },
+            area: { type: String },
+            gender: { type: String }
         }]
     }
 }, {

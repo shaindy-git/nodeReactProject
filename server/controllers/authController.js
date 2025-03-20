@@ -15,7 +15,7 @@ const login = async (req, res) => {
     const foundT = await Teacher.findOne({ userName }).lean()
     const foundS = await Student.findOne({ userName }).lean()
     if (!foundM && !foundT && !foundS) {
-        console.log("jkfjgkfjgkf");
+        
         return res.status(401).json({ message: 'Unauthorized' })
     }
 
@@ -37,7 +37,7 @@ const login = async (req, res) => {
             area: foundM.area
         }
         const accessToken = jwt.sign(MInfo, process.env.ACCESS_TOKEN_SECRET)
-        res.json({ accessToken: accessToken })
+        return res.status(200).json({ accessToken: accessToken })
 
     }
 
@@ -61,7 +61,7 @@ const login = async (req, res) => {
             gender: foundT.gender
         }
         const accessToken = jwt.sign(TInfo, process.env.ACCESS_TOKEN_SECRET)
-        res.json({ accessToken: accessToken })
+        return res.status(200).json({ accessToken: accessToken })
 
     }
 
@@ -87,7 +87,7 @@ const login = async (req, res) => {
             dateforLessonsAndTest: foundS.dateforLessonsAndTest
         }
         const accessToken = jwt.sign(SInfo, process.env.ACCESS_TOKEN_SECRET)
-        res.json({ accessToken: accessToken })
+        return res.status(200).json({ accessToken: accessToken })
     }
 
 
@@ -95,7 +95,6 @@ const login = async (req, res) => {
 
 const registerS = async (req, res) => {
     const { firstName, lastName, userName, numberID, dateOfBirth, phone, email,password } = req.body
-   
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password) {
         return res.status(400).json({ message: "all fields are required" })
     }
@@ -103,13 +102,15 @@ const registerS = async (req, res) => {
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+
+
     if (doubleUserNameT || doubleUserNameM || doubleUserNameS) {
         return res.status(400).json({ message: "doubleUserName" })
     }
-    // if (new Date() - dateOfBirth > 50 || new Date() - dateOfBirth < 18) {
-    //     const reason = "The age is not appropriate"
-    //     return res.status(400).json({ message: "The age is not appropriate" })
-    // }
+    if ((new Date() - new Date(dateOfBirth ))> 70*31536000000|| (new Date() - new Date(dateOfBirth ))< 18*31536000000 ) {//מציג את 1/1000 השניה בשנה
+        return res.status(400).json({ message: "The age is not appropriate" })
+    }
+
     const hashedPwd = await bcrypt.hash(password, 10)
     const student = await Student.create({
         firstName, lastName, userName, numberID, dateOfBirth, phone, email, password: hashedPwd
@@ -125,33 +126,42 @@ const registerS = async (req, res) => {
 
 const registerT = async (req, res) => {
     const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area, gender } = req.body
+    
 
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
         return res.status(400).json({ message: "files are required" })
+    }
+
+    const meneger = await Manager.findOne({ area: area }).exec()
+    if(!meneger){
+        return res.status(400).json({ message: "not area" })
     }
 
 
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS) {
+    const doubleUserNameR = (userName, meneger) => {
+        return meneger.RequestList.some(request => request.userName === userName);
+    };
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS||doubleUserNameR) {
         return res.status(400).json({ message: "doubleUserName" })
     }
-    // if (new Date() - dateOfBirth > 60 || new Date() - dateOfBirth < 40) {
-    //     const reason = "The age is not appropriate"
-    //     return res.status(400).json({ message: "The age is not appropriate" })
-    // }
+    if ((new Date() - new Date(dateOfBirth ))> 60*31536000000|| (new Date() - new Date(dateOfBirth ))< 40*31536000000 ) {//מציג את 1/1000 השניה בשנה
+        return res.status(400).json({ message: "The age is not appropriate" })
+    }
     const hashedPwd = await bcrypt.hash(password, 10)
-    const teacher = await Teacher.create({
+    const teacher = ({
         firstName, lastName, userName, numberID, dateOfBirth, phone, email, password: hashedPwd, area, gender
     })
-    if (teacher) {
-        const teachers = await Teacher.find({},{password:0}).sort({ firstNane: 1, lastName: 1 }).lean()
-       console.log({ teachers, role: 'Teacher' })
-        return res.status(200).json(teacher)
-    } else {
-        return res.status(400).json({ message: 'Invalid Teacher ' })
-    }
+
+    console.log( meneger.RequestList )
+    meneger.RequestList = [... meneger.RequestList, teacher]
+    // meneger.RequestList.push(teacher)
+    await meneger.save()
+    console.log( meneger.RequestList )
+    return res.status(200).json(meneger)
+    
 }
 module.exports = {
     login,

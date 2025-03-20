@@ -16,5 +16,7 @@ router.put("/addRecommendation", studentController.addRecommendation)
 router.put("/settingLesson", studentController.settingLesson)
 router.put("/cancellationLesson", studentController.cancellationLesson)
 router.put("/testRequest", studentController.testRequest)
+router.delete("/deleteStudent", studentController.deleteStudent)
+
 
 module.exports = router

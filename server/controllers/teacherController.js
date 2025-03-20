@@ -1,36 +1,75 @@
 const Student = require("../models/Student")
 const Manager = require("../models/Manager")
 const Teacher = require("../models/Teacher")
-const { format, hoursToMinutes } = require("date-fns")
+const { format, hoursToMinutes, getDate } = require("date-fns")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 
 const addTeacher = async (req, res) => {
+    //הפונקציה הזו רושמת את המורה עם הסיסמא המוצפנת שלו , כשהו הגיש את בקשת הרשמות קודדה הסיסמא לכן כעת לא
+    const { _id } = req.user
+    const maneger = await Manager.findOne({ _id: _id }).exec()
+    if (!maneger) {
+        return res.status(400).json({ message: "maneger not found" })
+    }
+
     const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area, gender } = req.body
-    //console.log( format(new Date(),"yyyy-MM-dd ")-dateOfBirth);
 
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
         return res.status(400).json({ message: "files are required" })
     }
+
+    if (maneger.area != area) {
+        if (area != maneger.area) {
+            return res.status(400).json({ message: 'No Access for this manneger' })
+        }
+    }
+
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
     if (doubleUserNameT || doubleUserNameM || doubleUserNameS) {
         return res.status(400).json({ message: "doubleUserName" })
     }
-    // if (new Date() - dateOfBirth > 60 || new Date() - dateOfBirth < 40) {
-    //     const reason = "The age is not appropriate"
-    //     return res.status(400).json({ message: "The age is not appropriate" })
-    // }
-    const hashedPwd = await bcrypt.hash(password, 10)
-    const teacher = await Teacher.create({
-        firstName, lastName, userName, numberID, dateOfBirth, phone, email, password: hashedPwd, area, gender
-    })
+    if ((new Date() - new Date(dateOfBirth)) > 60 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 40 * 31536000000) {//מציג את 1/1000 השניה בשנה
+        return res.status(400).json({ message: "The age is not appropriate" })
+    }
 
+    const reqest = { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area, gender }
+
+    const foundItem = maneger.RequestList.find((a) => {
+        return (
+            a.firstName === firstName &&
+            a.lastName === lastName &&
+            a.userName === userName &&
+            a.numberID === numberID &&
+            new Date(a.dateOfBirth).toISOString() === new Date(dateOfBirth).toISOString() &&
+            a.phone === phone &&
+            a.email === email &&
+            a.password === password &&
+            a.area === area &&
+            a.gender === gender
+        );
+    });
+
+
+    if (!foundItem) {
+
+        return res.status(400).json({ message: "not reqest" })
+    }
+    console.log(foundItem);
+
+    const teacher = await Teacher.create({
+        firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area, gender
+    })
     if (teacher) {
-        const teachers = await Teacher.find().sort({ firstNane: 1, lastName: 1 }).lean()
-        return res.status(200).json({ teachers, role: 'Teacher' })
+
+        maneger.RequestList = maneger.RequestList.filter(item => item !== foundItem);
+        await maneger.save();
+        const teachers = await Teacher.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+        // console.log({ maneger, teachers })
+        return res.status(200).json(teacher)
     } else {
         return res.status(400).json({ message: 'Invalid Teacher ' })
     }
@@ -87,27 +126,35 @@ const deleteTeacher = async (req, res) => {
         console.log(newteacher._id);
         const student = await Student.find({ myTeacher: idTeacher }).sort({ firstNane: 1, lastName: 1 }).exec()
         if (student?.length) {
-            const student_id = await Student.find({ myTeacher: idTeacher }, {_id:1}).sort({ firstNane: 1, lastName: 1 }).lean()
+            const student_id = await Student.find({ myTeacher: idTeacher }, { _id: 1 }).sort({ firstNane: 1, lastName: 1 }).lean()
             console.log(student_id)
 
-            
+
             student.map(async s => {
                 newteacher.listOfStudent.push(s._id)
                 s.myTeacher = newteacher
+                lesonns = s.dateforLessonsAndTest
+                lesonns.forEach(async l => {
+                    if (((l.date)) > ((new Date()))) {
+                        s.lessonsLearned = s.lessonsLearned - 1
+                        s.lessonsRemaining = s.lessonsRemaining + 1
+
+                    }
+                });
+                s.dateforLessonsAndTest = [];
                 await s.save()
 
             });
-            
+
         }
-       
+
         await newteacher.save()
     }
 
     await teacher.deleteOne()
-    res.json(await Teacher.find({ area: manneger.area }, { password: 0 }).lean())
+    res.status(200).json(await Teacher.find({ area: manneger.area }, { password: 0 }).lean())
 
 }
-
 
 
 const updateTeacher = async (req, res) => {
@@ -207,18 +254,18 @@ const settingTest = async (req, res) => {
     if (!studentId || !date || !hour) {
         return res.status(400).json({ message: "files are required" })
     }
-    const student = await Student.findById({ _id:studentId }, { password: 0 }).exec()
+    const student = await Student.findById({ _id: studentId }, { password: 0 }).exec()
     if (!student) {
         return res.status(400).json({ message: 'No student found' })
     }
     const teacher = await Teacher.findById({ _id }, { password: 0 }).exec()
     if (!teacher) {
-        return res.status(400).json({ message: 'No teacher found' })    
+        return res.status(400).json({ message: 'No teacher found' })
     }
-    if(student.myTeacher!=_id){
+    if (student.myTeacher != _id) {
         return res.status(400).json({ message: 'No Access' })
     }
-    const listreq= teacher.listOfRequires
+    const listreq = teacher.listOfRequires
     let req1
     const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
     if (!searchD) {
@@ -227,12 +274,12 @@ const settingTest = async (req, res) => {
     const oneOnDay = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
     if (oneOnDay) {
         listreq.forEach(r => {
-            if(r.studentId === studentId && r.date===date){
-                req1=r
+            if (r.studentId === studentId && r.date === date) {
+                req1 = r
                 return
             }
         });
-    
+
         const tmp = teacher.listOfRequires.indexOf(req1)
         teacher.listOfRequires.splice(tmp, 1)
         await teacher.save()
@@ -241,12 +288,12 @@ const settingTest = async (req, res) => {
     const searchH = searchD.hours.find((e) => ((e.hour).toString()) === (hour))
     if (!searchH) {
         listreq.forEach(r => {
-            if(r.studentId === studentId && r.date===date){
-                req1=r
+            if (r.studentId === studentId && r.date === date) {
+                req1 = r
                 return
             }
         });
-    
+
         const tmp = teacher.listOfRequires.indexOf(req1)
         teacher.listOfRequires.splice(tmp, 1)
         await teacher.save()
@@ -258,14 +305,14 @@ const settingTest = async (req, res) => {
     searchH.full = true
     searchH.typeOfHour = "Test"
 
-    
+
     const newDateAndHour = { date: date, hour: hour, typeOfHour: "Test" }
     student.dateforLessonsAndTest = [...student.dateforLessonsAndTest, newDateAndHour]
 
-    
+
     listreq.forEach(r => {
-        if(r.studentId === studentId && r.date===date){
-            req1=r
+        if (r.studentId === studentId && r.date === date) {
+            req1 = r
             return
         }
     });
@@ -274,9 +321,28 @@ const settingTest = async (req, res) => {
     teacher.listOfRequires.splice(tmp, 1)
     await teacher.save()
     await student.save()
-  
 
-    res.json({ teacher, student })
+
+    res.status(200).json({ teacher, student })
+
+}
+const addLessonToStudent = async (req, res) => {
+    const { _id } = req.user
+    const { studentId } = req.body
+    if (!_id || !studentId) {
+        return res.status(400).json({ message: "files are required" })
+    }
+    const student = await Student.findById(studentId).exec()
+    if (!student) {
+        return res.status(400).json({ message: "student is not found" })
+    }
+    if (student.myTeacher != _id) {
+        return res.status(400).json({ message: "No Access" })
+    }
+    student.lessonsRemaining = student.lessonsRemaining + 1
+    student.save()
+    res.status(200).json(student)
+
 
 }
 
@@ -287,7 +353,8 @@ module.exports = {
     updateTeacher,
     //getTeacherById,
     addAvailableClasses,
-    settingTest
+    settingTest,
+    addLessonToStudent
 
 
 }

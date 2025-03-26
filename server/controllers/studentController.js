@@ -49,14 +49,16 @@ const getAllStudents = async (req, res) => {
         const studentsT = await Student.find({ myTeacher: _id }).sort({ firstNane: 1, lastName: 1 }).lean()
         if (!studentsT?.length) {
             return res.status(400).json({ message: 'No students found' })
+            
         }
         return res.json(studentsT)
     }
-    const allStudents = await Student.find({ area: foundM.area }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+    const allStudents = await Student.find({ area: foundM.area }, { password: 0 }).sort({ firstName: 1, lastName: 1 }).lean()
     if (!allStudents?.length) {
         return res.status(400).json({ message: 'No students found' })
+        
     }
-    res.json(allStudents)
+    res.status(200).json(allStudents)
 }
 
 
@@ -95,8 +97,19 @@ const choosingArea = async (req, res) => {
     const { _id } = req.user
     const { area } = req.body
 
+const cities=["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
+    "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov", 
+    "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center", 
+    "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar", 
+    "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
+
+    
+
     if (!area || !_id) {
         return res.status(400).json({ message: 'fields are required' })
+    }
+    if(!cities.includes(area)){
+        return res.status(400).json({ message: 'This area is not validate' })
     }
     const student = await Student.findById(_id).exec()
     if (!student) {
@@ -343,24 +356,38 @@ const deleteStudent = async (req, res) => {
 
     const currentDate = new Date();
 
-// עבור על כל השיעורים של התלמיד ועדכן את המורה
-for (const h of student.dateforLessonsAndTest) {
-    const lesson = teacher1.dateforLessonsAndTests.find(item => {
-        // בדוק אם התאריך והשעור הספציפי תואמים
-        return item.date.toISOString().split('T')[0] === h.date && 
-               item.hours.some(hourItem => hourItem.hour === h.hour);
-    });
-
-    if (lesson && lesson.date > currentDate) { // אם השיעור עוד לא התקיים
-        lesson.hours.forEach(hour => {
-            if (hour.hour === h.hour) { // עדכן רק את השעה הספציפית
-                hour.full = false; // הפוך ל-FALSE
+    for (const d of student.dateforLessonsAndTest) {
+        for(const l of teacher1.dateforLessonsAndTests){
+            if (l.date > currentDate&&d.date===l.date){
+                for(const  h of l.hours){
+                    if(h===d.hour){
+                        l.full=false
+                        await eacher1.save()
+                    }
+                }
             }
-        });
+        }
     }
-}
 
-await teacher1.save();
+
+// // עבור על כל השיעורים של התלמיד ועדכן את המורה
+// for (const h of student.dateforLessonsAndTest) {
+//     const lesson = teacher1.dateforLessonsAndTests.find(item => {
+//         // בדוק אם התאריך והשעור הספציפי תואמים
+//         return item.date.toISOString().split('T')[0] === h.date && 
+//                item.hours.some(hourItem => hourItem.hour === h.hour);
+//     });
+
+//     if (lesson && lesson.date > currentDate) { // אם השיעור עוד לא התקיים
+//         lesson.hours.forEach(hour => {
+//             if (hour.hour === h.hour) { // עדכן רק את השעה הספציפית
+//                 hour.full = false; // הפוך ל-FALSE
+//             }
+//         });
+//     }
+// }
+
+// await teacher1.save();
 
     // const savePromises = student.dateforLessonsAndTest.map(async h => {
     //     teacher1.dateforLessonsAndTests = teacher1.dateforLessonsAndTests.filter(item => {

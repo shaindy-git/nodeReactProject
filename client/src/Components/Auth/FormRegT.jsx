@@ -15,7 +15,23 @@ import './FromReg.css';
 
 import './FromReg.css';
 
+
+
+
+
 const FormRegT = (props) => {
+
+    const [selectedCity, setSelectedCity] = useState(null);
+
+    const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
+        "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
+        "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
+        "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
+        "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
+
+    const [selectedGender, setSelectedGender] = useState(null);
+    
+    const genders = ['male', 'female']
 
     const [showMessage, setShowMessage] = useState(false);
     const [formData, setFormData] = useState({});
@@ -32,13 +48,6 @@ const FormRegT = (props) => {
         dateOfBirth: null,
         accept: false
     })
-
-    const RegisterT = async () => {
-
-
-    }
-
-
 
 
 
@@ -120,11 +129,14 @@ const FormRegT = (props) => {
         </React.Fragment>
     );
 
+
+
+
     return (
         <div className="form-demo">
 
             <Dialog visible={showMessage} onHide={() => setShowMessage(false)} position="top" footer={dialogFooter} showHeader={false} breakpoints={{ '960px': '80vw' }} style={{ width: '100vw' }}>
-                <div className="flex justify-content-center flex-column pt-6 px-3">
+                <div className="justify-content-center flex-column pt-6 px-3">
                     <i className="pi pi-check-circle" style={{ fontSize: '5rem', color: 'var(--green-500)' }}></i>
                     <h5>Registration Successful!</h5>
                     <p style={{ lineHeight: 1.5, textIndent: '1rem' }}>
@@ -190,15 +202,18 @@ const FormRegT = (props) => {
                             </div>
 
                             <div className="field">
-                                <span className="p-float-label" >
-                                    <Controller name="gender" control={control} rules={{ required: 'gender is required.' }} render={({ field, fieldState }) => (
-                                        <InputText id={field.name} {...field} className={classNames({ 'p-invalid': fieldState.invalid })}
-                                            onChange={(e) => (field.onChange(e.target.value), setDefaultValues(prevValues => ({ ...prevValues, gender: e.target.value })))}
-                                        />
-                                    )} />
-                                    <label htmlFor="username" className={classNames({ 'p-error': errors.name })}>gender*</label>
-                                </span>
-                                {getFormErrorMessage('username')}
+                                <Dropdown
+                                    className="w-full"
+                                    dir='ltr'
+                                    value={selectedGender}
+                                    onChange={(e) => {
+                                        setSelectedGender(e.value);
+                                        setDefaultValues(prevValues => ({ ...prevValues, gender: e.value })); // עדכון עם e.value
+                                    }}
+                                    options={genders}
+                                    optionLabel="name"
+                                    placeholder="Select a Gender"
+                                />
                             </div>
 
                             <div className="field">
@@ -213,20 +228,21 @@ const FormRegT = (props) => {
                                 {getFormErrorMessage('phone')}
                             </div>
 
+
                             <div className="field">
-                                <span className="p-float-label" >
-                                    <Controller name="area" control={control} rules={{ required: 'area is required.' }} render={({ field, fieldState }) => (
-                                        <InputText id={field.name} {...field} className={classNames({ 'p-invalid': fieldState.invalid })}
-                                            onChange={(e) => (field.onChange(e.target.value), setDefaultValues(prevValues => ({ ...prevValues, area: e.target.value })))}
-                                        />
-                                    )} />
-                                    <label htmlFor="area" className={classNames({ 'p-error': errors.name })}>area*</label>
-                                </span>
-                                {getFormErrorMessage('area')}
+                                <Dropdown
+                                    className="w-full"
+                                    dir='ltr'
+                                    value={selectedCity}
+                                    onChange={(e) => {
+                                        setSelectedCity(e.value);
+                                        setDefaultValues(prevValues => ({ ...prevValues, area: e.value })); // עדכון עם e.value
+                                    }}
+                                    options={cities}
+                                    optionLabel="name"
+                                    placeholder="Select a City"
+                                />
                             </div>
-
-
-
 
                             <div className="field">
                                 <span className="p-float-label p-input-icon-right " >
@@ -246,14 +262,17 @@ const FormRegT = (props) => {
                             <div className="field">
                                 <span className="p-float-label"  >
                                     <Controller name="password" control={control} rules={{ required: 'Password is required.' }} render={({ field, fieldState }) => (
-                                        <Password id={field.name} {...field} toggleMask className={classNames({ 'p-invalid': fieldState.invalid })} header={passwordHeader} footer={passwordFooter}
+                                        <Password id={field.name} {...field} toggleMask className={classNames({ 'p-invalid': fieldState.invalid })}
                                             onChange={(e) => (field.onChange(e.target.value), setDefaultValues(prevValues => ({ ...prevValues, password: e.target.value })))}
+                                            header={passwordHeader}
+                                            footer={passwordFooter}
                                         />
                                     )} />
                                     <label htmlFor="password" className={classNames({ 'p-error': errors.password })}>Password*</label>
                                 </span>
                                 {getFormErrorMessage('password')}
                             </div>
+
 
                             <div className="field">
                                 <span className="p-float-label" dir='ltr'>
@@ -266,19 +285,21 @@ const FormRegT = (props) => {
                                                 <Calendar
                                                     id={field.name}
                                                     value={field.value}
-                                                    onChange={(e) => (field.onChange(e.target.value), setDefaultValues(prevValues => ({ ...prevValues, dateOfBirth: e.target.value })))} // Update value in react-hook-form
+                                                    onChange={(e) => {
+                                                        field.onChange(e.value); // עדכון השדה
+                                                        setDefaultValues(prevValues => ({ ...prevValues, dateOfBirth: e.value })); // עדכון defaultValues
+                                                    }}
                                                     dateFormat="yy-mm-dd"
                                                     mask="9999-99-99"
                                                     showIcon
-                                                    className={classNames({ 'p-invalid': fieldState.invalid })} // Apply class for invalid state
+                                                    className={classNames({ 'p-invalid': fieldState.invalid })} // החלת מחלקה עבור מצב לא תקין
                                                 />
                                             </>
                                         )}
                                     />
-                                    <label htmlFor="dateOfBirth" className={classNames({ 'p-error': !!errors.date })}>*dateOfBirth</label>
+                                    <label htmlFor="dateOfBirth" className={classNames({ 'p-error': !!errors.dateOfBirth })}>*Date of Birth</label>
                                 </span>
-                                {getFormErrorMessage('date')}
-
+                                {getFormErrorMessage('dateOfBirth')} {/* Ensure this reflects the correct field */}
                             </div>
 
 
@@ -286,11 +307,11 @@ const FormRegT = (props) => {
 
 
                             </div>
-                            <div className="field-checkbox" >
+                            <div className="field-checkbox" dir='ltr'>
                                 <Controller name="accept" control={control} rules={{ required: true }} render={({ field, fieldState }) => (
                                     <Checkbox inputId={field.name} onChange={(e) => field.onChange(e.checked)} checked={field.value} className={classNames({ 'p-invalid': fieldState.invalid })} />
                                 )} />
-                                <label htmlFor="accept" className={classNames({ 'p-error': errors.accept })}>I agree to the terms and conditions*</label>
+                                <label htmlFor="accept" className={classNames({ 'p-error': errors.accept })}>*I agree to the terms and conditions</label>
 
                             </div>
 
@@ -303,5 +324,5 @@ const FormRegT = (props) => {
         </div>
     );
 }
-export default FormRegT
 
+export default FormRegT

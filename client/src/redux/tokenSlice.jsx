@@ -9,7 +9,6 @@ const tokenSlice = createSlice({
         setToken(state, action) {
             state.token = action.payload
             
-            console.log("rrrrrrr",state.token);
         },
         logOut(state, action) {
             state.token = null;

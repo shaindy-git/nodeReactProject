@@ -11,6 +11,7 @@ const login = async (req, res) => {
 
     }
 
+
     const foundM = await Manager.findOne({ userName }).lean()
     const foundT = await Teacher.findOne({ userName }).lean()
     const foundS = await Student.findOne({ userName }).lean()
@@ -18,6 +19,7 @@ const login = async (req, res) => {
         
         return res.status(401).json({ message: 'Unauthorized' })
     }
+  
 
     else if (foundM) {
         const match = await bcrypt.compare(password, foundM.password)
@@ -26,7 +28,7 @@ const login = async (req, res) => {
             console.log("foundM");
         const MInfo = {
             _id: foundM._id,
-            firstName: foundM.firstname,
+            firstName: foundM.firstName,
             lastName: foundM.lastName,
             userName: foundM.userName,
             numberID: foundM.numberID,
@@ -34,10 +36,11 @@ const login = async (req, res) => {
             phone: foundM.phone,
             email: foundM.email,
             password: foundM.password,
-            area: foundM.area
+            area: foundM.area,
+            role: "M"
         }
         const accessToken = jwt.sign(MInfo, process.env.ACCESS_TOKEN_SECRET)
-        return res.status(200).json({ accessToken: accessToken })
+        return res.status(200).json({ accessToken: accessToken,role : MInfo.role })
 
     }
 
@@ -49,7 +52,7 @@ const login = async (req, res) => {
 
         const TInfo = {
             _id: foundT._id,
-            firstName: foundT.firstname,
+            firstName: foundT.firstName,
             lastName: foundT.lastName,
             userName: foundT.userName,
             numberID: foundT.numberID,
@@ -58,10 +61,11 @@ const login = async (req, res) => {
             email: foundT.email,
             password: foundT.password,
             area: foundT.area,
-            gender: foundT.gender
+            gender: foundT.gender,
+            role:"T"
         }
         const accessToken = jwt.sign(TInfo, process.env.ACCESS_TOKEN_SECRET)
-        return res.status(200).json({ accessToken: accessToken })
+        return res.status(200).json({ accessToken: accessToken, role : TInfo.role })
 
     }
 
@@ -73,7 +77,7 @@ const login = async (req, res) => {
 
         const SInfo = {
             _id: foundS._id,
-            firstName: foundS.firstname,
+            firstName: foundS.firstName,
             lastName: foundS.lastName,
             userName: foundS.userName,
             numberID: foundS.numberID,
@@ -84,10 +88,11 @@ const login = async (req, res) => {
             myTeacher: foundS.myTeacher,
             lessonsRemaining: foundS.lessonsRemaining,
             lessonsLearned: foundS.lessonsLearned,
-            dateforLessonsAndTest: foundS.dateforLessonsAndTest
+            dateforLessonsAndTest: foundS.dateforLessonsAndTest,
+            role:"S"
         }
         const accessToken = jwt.sign(SInfo, process.env.ACCESS_TOKEN_SECRET)
-        return res.status(200).json({ accessToken: accessToken })
+        return res.status(200).json({accessToken: accessToken, role : SInfo.role})
     }
 
 
@@ -136,6 +141,11 @@ const registerT = async (req, res) => {
     if(!meneger){
         return res.status(400).json({ message: "not area" })
     }
+    const genders=["male", "female"]
+    
+        if(!genders.includes(gender)){
+            return res.status(400).json({ message: 'This gender is not validate' })
+        }
 
 
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()

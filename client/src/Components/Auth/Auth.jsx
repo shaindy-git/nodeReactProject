@@ -8,9 +8,10 @@ import 'primeicons/primeicons.css';
 import { Dialog } from 'primereact/dialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { setToken, logOut } from '../../redux/tokenSlice'
+import { useNavigate } from 'react-router-dom';
+import { Link, Route, Routes } from 'react-router-dom'
 import FormRegT from "./FormRegT";
 import FormRegS from "./FormRegS";
-
 
 
 
@@ -21,11 +22,12 @@ const Auth = () => {
     const [userName, setuserName] = useState("");
     const [password, setPassword] = useState("");
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const accesstoken = useSelector((state) => state.token.token)
+
 
 
     const login = async () => {
-
-
 
         try {
             const res = await axios({
@@ -37,13 +39,25 @@ const Auth = () => {
                     password: password// This is the body part
                 }
             });
-          
 
             if (res.status === 200) {
-
                 dispatch(setToken(res.data.accessToken))
-
-                alert("You Com In")
+                const userRole = (res.data.role); // Extract the role from the decoded token
+                
+                // Navigate based on user role
+                if (userRole === 'M') {
+                // <Link to={'/Manager/MHome'}></Link>
+                    navigate('/Manager/MHome');
+                } else if (userRole === 'T') {
+                    //  <Link to={'/Teacher/THome'}></Link>
+                    navigate('/Teacher/THome');
+                } else if (userRole === 'S') {
+                // <Link to={'/Student/SHome'}></Link>
+                    navigate('/Student/SHome');
+                }
+                
+                
+      
             }
         } catch (e) {
             console.error(e);
@@ -58,8 +72,10 @@ const Auth = () => {
 
 
     return (
+
+        // <div className="flex justify-content-center align-items-center min-h-screen">
         <div className="card">
-            <div className="flex flex-column md:flex-row">
+            <div className="flex flex-row md:flex-row ">
                 {/* Login Section */}
                 <div className="w-full md:w-5 flex flex-column align-items-center justify-content-center gap-3 py-5">
                     <div className="flex flex-wrap justify-content-center align-items-center gap-2">
@@ -74,7 +90,7 @@ const Auth = () => {
                 </div>
 
                 {/* Divider Section */}
-                <div className="w-full md:w-2">
+                <div className="w-full md:w-2" >
                     <Divider layout="vertical" className="hidden md:flex" />
                     <Divider layout="horizontal" className="flex md:hidden" align="center" />
                 </div>
@@ -88,7 +104,9 @@ const Auth = () => {
                 </div>
             </div>
 
-        </div>
+           </div>
+
+        // </div>
     )
 }
 
@@ -102,3 +120,17 @@ export default Auth
 //     dispatch(logOut())
 
 // },[])
+ //חילוץ
+//  const decodeToken = (token) => {
+//     if (!token) {
+//         throw new Error('No token provided');
+//     }
+    
+//     try {
+//         const decoded = jwtDecode(token);
+//         return decoded; // Returns the content of the token
+//     } catch (error) {
+//         console.error('Token is invalid or expired', error);
+//         return null;
+//     }
+// };

@@ -10,8 +10,8 @@ const MShowteacher = (props) => {
     useEffect(() => {
         if (props.teacher) {
             Studentlist(); // קריאה לפונקציה כדי להביא תלמידים
-            console.log(studetByTeacher);
-            console.log(accesstoken);
+            
+            
         }
     }, [props.teacher]); // ההשפעה תקרה כאשר המורה משתנה
 
@@ -25,10 +25,10 @@ const MShowteacher = (props) => {
             });
 
             if (res.status === 200) {
-                console.log(props.teacher.numberID);
-                const filteredStudents = res.data.filter(student => student.myTeacher === props.teacher.numberID);
+                
+                const filteredStudents = res.data.filter(student => student.myTeacher === props.teacher._id);
                 setStudetByTeacher(filteredStudents);
-                console.log(studetByTeacher);
+                
             }
         } catch (e) {
             if (e.response && e.response.status === 400) {
@@ -44,15 +44,17 @@ const MShowteacher = (props) => {
             <Dialog 
                 header={`${props.teacher ? props.teacher.firstName : "No teacher selected."} ${props.teacher && props.teacher.lastName ? props.teacher.lastName : ""}`}
                 visible={props.visibleT}
-                style={{ width: '25vw', height: "30vw" }}
+                style={{ width: '25vw', height: "25vw" }}
                 onHide={() => { props.setVisibleT(false); }}
                 dir="ltr"
             >
                 {props.teacher ? (
                     <>
-                        <div>{props.teacher.firstName}</div>
-                        <div>{props.teacher.numberID}</div>
+                        <div className="student-info" ><span style={{fontWeight:"bold"}}>Name: </span> <span className="info-value">{props.teacher.firstName} {props.teacher.lastName}</span></div>
+                        <div className="student-info" ><span style={{fontWeight:"bold"}}>Email: </span><span className="info-value">{props.teacher.email}</span></div>
+                        <div className="student-info" ><span style={{fontWeight:"bold"}}>Phone: </span><span className="info-value">{props.teacher.phone}</span></div>
                         <div>
+                            <label htmlFor=""><span style={{fontWeight:"bold"}}>Students: </span></label>
                             {studetByTeacher.map((s) => (
                                 <div key={s.id}>{s.firstName} {s.lastName}</div>
                             ))}

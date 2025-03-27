@@ -43,7 +43,7 @@ const MHome = () => {
             }
         };
 
-       
+
         const Studentlist = async () => {
             try {
                 const res = await axios({
@@ -66,39 +66,11 @@ const MHome = () => {
                 }
             }
         };
-        
+
         Teacherlist();
 
         Studentlist();
     }, [ID]);
-
-
-    // useEffect(() => {
-    //     const Studentlist = async () => {
-    //         try {
-    //             const res = await axios({
-    //                 method: 'get',
-    //                 url: 'http://localhost:7000/student/getAllStudents',
-    //                 headers: { Authorization: "Bearer " + accesstoken },
-    //                 data: {}
-    //             });
-    //             if (res.status === 200) {
-    //                 setStudents(res.data);
-    //             }
-
-    //         } catch (e) {
-    //             if (e.response && e.response.status === 400) {
-    //                 setStudents([]);
-    //             }
-    //             else {
-    //                 console.error(e);
-    //                 alert("Unauthorized user - S");
-    //             }
-    //         }
-    //     };
-
-    //     Studentlist();
-    // }, [ID]);
 
 
     const itemTemplateteacher = (teacher) => {
@@ -155,13 +127,12 @@ const MHome = () => {
 
                 <div className="card flex justify-content-center" >
                     <ListBox
-
                         filter
                         value={selectstudent}
                         onChange={(e) => {
                             setSelectedstudent(e.value);
-                            setRelevantstudent((e.value) === null ? relevantstudent : e.value)
-                            setVisibleS(true)
+                            setRelevantstudent((e.value) === null ? relevantstudent : e.value);
+                            setVisibleS(true);
                         }}
                         options={students.length > 0 ? students : [{ label: 'No Students Available', value: null }]}
                         itemTemplate={students.length > 0 ? itemTemplatestudent : () => itemTemplateEmpty('No Students Available')}

@@ -6,6 +6,10 @@ import { jwtDecode } from 'jwt-decode';
 import { Button } from 'primereact/button';
 import MShowteacher from './MShowteacher';
 import MShowstudent from './MShowstudent';
+import { useRef } from 'react';
+import { Toast } from 'primereact/toast'; // Toast להודעות
+
+
 
 const MHome = () => {
     const accesstoken = useSelector((state) => state.token.token);
@@ -19,6 +23,8 @@ const MHome = () => {
     const [relevantstudent, setRelevantstudent] = useState(null);
     const [visibleT, setVisibleT] = useState(false);
     const [visibleS, setVisibleS] = useState(false);
+
+    const toast = useRef(null);
 
     useEffect(() => {
         const Teacherlist = async () => {
@@ -38,8 +44,10 @@ const MHome = () => {
                 }
                 else {
                     console.error(e);
+                    setTeachers([]);
                     alert("Unauthorized user - T");
                 }
+                
             }
         };
 
@@ -50,7 +58,7 @@ const MHome = () => {
                     method: 'get',
                     url: 'http://localhost:7000/student/getAllStudents',
                     headers: { Authorization: "Bearer " + accesstoken },
-                    data: {}
+
                 });
                 if (res.status === 200) {
                     setStudents(res.data);
@@ -64,6 +72,7 @@ const MHome = () => {
                     console.error(e);
                     alert("Unauthorized user - S");
                 }
+               
             }
         };
 
@@ -71,6 +80,9 @@ const MHome = () => {
 
         Studentlist();
     }, [ID]);
+
+
+
 
 
     const itemTemplateteacher = (teacher) => {
@@ -98,55 +110,72 @@ const MHome = () => {
         );
     };
 
+    const removeTeacherFromList = (idToRemove) => {
+        setTeachers(prev => prev.filter(s => s._id !== idToRemove));
+    };
+
+    const removeStudentFromList = (idToRemove) => {
+        setStudents(prev => prev.filter(s => s._id !== idToRemove));
+    };
 
 
     return (
-        <div className="card">
-            <div className="flex flex-row md:flex-row" >
+        <>
+            <Toast ref={toast} />
+            <div className="card">
+                <div className="flex flex-row md:flex-row" >
 
-                <div className="card flex justify-content-center" >
-                    <ListBox
+                    <div className="card flex justify-content-center" >
+                        <ListBox
+                            filter
+                            value={selectteacher}
+                            onChange={(e) => {
+                                setSelectedteacher(e.value);
+                                setRelevantteacher((e.value) === null ? relevantteacher : e.value)
+                                setVisibleT(true)
+                            }}
+                            options={teachers.length > 0 ? teachers : [{ label: 'No Teachers Available', value: null }]}
+                            itemTemplate={teachers.length > 0 ? itemTemplateteacher : () => itemTemplateEmpty('No Teachers Available')}
+                            className="w-full md:w-14rem"
+                            listStyle={{ maxHeight: '500px' }}
+                            filterBy="firstName"
+                        />
 
-                        filter
-                        value={selectteacher}
-                        onChange={(e) => {
-                            setSelectedteacher(e.value);
-                            setRelevantteacher((e.value) === null ? relevantteacher : e.value)
-                            setVisibleT(true)
-                        }}
-                        options={teachers.length > 0 ? teachers : [{ label: 'No Teachers Available', value: null }]}
-                        itemTemplate={teachers.length > 0 ? itemTemplateteacher : () => itemTemplateEmpty('No Teachers Available')}
-                        className="w-full md:w-14rem"
-                        listStyle={{ maxHeight: '500px' }}
-                        filterBy="firstName"
-                    />
+                        {<MShowteacher
+                            setVisibleT={setVisibleT}
+                            visibleT={visibleT}
+                            teacher={relevantteacher}
+                            removeTeacher={removeTeacherFromList}
+                        />}
+                    </div>
 
-                    {<MShowteacher setVisibleT={setVisibleT} visibleT={visibleT} teacher={relevantteacher} />}
+                    <div className="card flex justify-content-center" >
+                        <ListBox
+                            filter
+                            value={selectstudent}
+                            onChange={(e) => {
+                                setSelectedstudent(e.value);
+                                setRelevantstudent((e.value) === null ? relevantstudent : e.value);
+                                setVisibleS(true);
+                            }}
+                            options={students.length > 0 ? students : [{ label: 'No Students Available', value: null }]}
+                            itemTemplate={students.length > 0 ? itemTemplatestudent : () => itemTemplateEmpty('No Students Available')}
+                            className="w-full md:w-14rem"
+                            listStyle={{ maxHeight: '500px' }}
+                            filterBy="firstName"
+                        />
+
+                        <MShowstudent
+                            setVisibleS={setVisibleS}
+                            visibleS={visibleS}
+                            student={relevantstudent}
+                            removeStudent={removeStudentFromList}
+                        />
+                    </div>
+
                 </div>
-
-
-                <div className="card flex justify-content-center" >
-                    <ListBox
-                        filter
-                        value={selectstudent}
-                        onChange={(e) => {
-                            setSelectedstudent(e.value);
-                            setRelevantstudent((e.value) === null ? relevantstudent : e.value);
-                            setVisibleS(true);
-                        }}
-                        options={students.length > 0 ? students : [{ label: 'No Students Available', value: null }]}
-                        itemTemplate={students.length > 0 ? itemTemplatestudent : () => itemTemplateEmpty('No Students Available')}
-                        className="w-full md:w-14rem"
-                        listStyle={{ maxHeight: '500px' }}
-                        filterBy="firstName"
-                    />
-
-                    {<MShowstudent setVisibleS={setVisibleS} visibleS={visibleS} student={relevantstudent} />}
-                </div>
-
             </div>
-        </div>
-
+        </>
     );
 }
 

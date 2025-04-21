@@ -22,8 +22,12 @@ const addManager = async (req, res) => {
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+    const doublarea = await Manager.findOne({ area: area }).lean()
     if (doubleUserNameT || doubleUserNameM || doubleUserNameS) {
         return res.status(400).json({ message: "doubleUserName" })
+    }
+    if (doublarea) {
+        return res.status(400).json({ message: "doublarea" })
     }
     const hashedPwd = await bcrypt.hash(password, 10)
     const manager = await Manager.create({

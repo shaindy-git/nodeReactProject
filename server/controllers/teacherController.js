@@ -117,58 +117,125 @@ const getAllTeachers = async (req, res) => {
 }
 
 
+// const deleteTeacher = async (req, res) => {
+//     const { _id } = req.user
+//     const { idTeacher } = req.body
+
+//     const manneger = await Manager.findById({ _id }, { password: 0 }).exec()
+//     const teacher = await Teacher.findById({ _id: idTeacher }, { password: 0 }).exec()
+
+//     if (!manneger) {
+//         return res.status(400).json({ message: 'manneger not found' })
+//     }
+
+//     if (!teacher) {
+//         return res.status(400).json({ message: 'teacher not found' })
+//     }
+//     if (teacher.area != manneger.area) {
+//         return res.status(400).json({ message: 'No Access for this manneger' })
+//     }
+//     if (teacher.listOfStudent?.length) {
+//         const newteacher = await Teacher.findOne({ area: { $eq: teacher.area }, _id: { $ne: teacher._id } }, { _id: 1, listOfStudent: 1 }).exec()
+
+//         console.log(newteacher._id);
+//         const student = await Student.find({ myTeacher: idTeacher }).sort({ firstNane: 1, lastName: 1 }).exec()
+//         if (student?.length) {
+//             const student_id = await Student.find({ myTeacher: idTeacher }, { _id: 1 }).sort({ firstNane: 1, lastName: 1 }).lean()
+//             console.log(student_id)
+
+
+//             student.map(async s => {
+//                 newteacher.listOfStudent.push(s._id)
+//                 s.myTeacher = newteacher
+//                 lesonns = s.dateforLessonsAndTest
+//                 lesonns.forEach(async l => {
+//                     if (((l.date)) > ((new Date()))) {
+//                         s.lessonsLearned = s.lessonsLearned - 1
+//                         s.lessonsRemaining = s.lessonsRemaining + 1
+
+//                     }
+//                 });
+//                 s.dateforLessonsAndTest = [];
+//                 await s.save()
+
+//             });
+
+//         }
+
+//         await newteacher.save()
+//     }
+
+//     await teacher.deleteOne()
+//     res.status(200).json(await Teacher.find({ area: manneger.area }, { password: 0 }).lean())
+
+// }
+
+
 const deleteTeacher = async (req, res) => {
-    const { _id } = req.user
-    const { idTeacher } = req.body
+    try {
+        const { _id } = req.user;
+        const { idTeacher } = req.body;
 
-    const manneger = await Manager.findById({ _id }, { password: 0 }).exec()
-    const teacher = await Teacher.findById({ _id: idTeacher }, { password: 0 }).exec()
-
-    if (!manneger) {
-        return res.status(400).json({ message: 'manneger not found' })
-    }
-
-    if (!teacher) {
-        return res.status(400).json({ message: 'teacher not found' })
-    }
-    if (teacher.area != manneger.area) {
-        return res.status(400).json({ message: 'No Access for this manneger' })
-    }
-    if (teacher.listOfStudent?.length) {
-        const newteacher = await Teacher.findOne({ area: { $eq: teacher.area }, _id: { $ne: teacher._id } }, { _id: 1, listOfStudent: 1 }).exec()
-
-        console.log(newteacher._id);
-        const student = await Student.find({ myTeacher: idTeacher }).sort({ firstNane: 1, lastName: 1 }).exec()
-        if (student?.length) {
-            const student_id = await Student.find({ myTeacher: idTeacher }, { _id: 1 }).sort({ firstNane: 1, lastName: 1 }).lean()
-            console.log(student_id)
-
-
-            student.map(async s => {
-                newteacher.listOfStudent.push(s._id)
-                s.myTeacher = newteacher
-                lesonns = s.dateforLessonsAndTest
-                lesonns.forEach(async l => {
-                    if (((l.date)) > ((new Date()))) {
-                        s.lessonsLearned = s.lessonsLearned - 1
-                        s.lessonsRemaining = s.lessonsRemaining + 1
-
-                    }
-                });
-                s.dateforLessonsAndTest = [];
-                await s.save()
-
-            });
-
+        const manneger = await Manager.findById({ _id }, { password: 0 }).exec();
+        if (!manneger) {
+            return res.status(400).json({ message: 'Manager not found' });
         }
 
-        await newteacher.save()
+        const teacher = await Teacher.findById({ _id: idTeacher }, { password: 0 }).exec();
+        if (!teacher) {
+            return res.status(400).json({ message: 'Teacher not found' });
+        }
+
+        if (teacher.area !== manneger.area) {
+            return res.status(403).json({ message: 'No access to this teacher' });
+        }
+
+        // אם יש לתלמיד תלמידים, חובה לבדוק האם יש מורה חילופי
+        if (teacher.listOfStudent?.length) {
+            const newteacher = await Teacher.findOne({
+                area: teacher.area,
+                _id: { $ne: teacher._id }
+            }, { _id: 1, listOfStudent: 1 }).exec();
+
+            if (!newteacher) {
+                return res.status(400).json({ message: 'Cannot delete teacher: No alternative teacher available for student transfer.' });
+            }
+
+            const students = await Student.find({ myTeacher: idTeacher }).sort({ firstName: 1, lastName: 1 }).exec();
+
+            for (const s of students) {
+                newteacher.listOfStudent.push(s._id);
+                s.myTeacher = newteacher._id;
+
+                if (Array.isArray(s.dateforLessonsAndTest)) {
+                    s.dateforLessonsAndTest = s.dateforLessonsAndTest.filter(l => {
+                        const isFuture = new Date(l.date) > new Date();
+                        if (isFuture) {
+                            s.lessonsLearned -= 1;
+                            s.lessonsRemaining += 1;
+                        }
+                        return false;
+                    });
+                }
+
+                await s.save();
+            }
+
+            await newteacher.save();
+        }
+
+        await teacher.deleteOne();
+
+        const teachersInArea = await Teacher.find({ area: manneger.area }, { password: 0 }).lean();
+        return res.status(200).json(teachersInArea);
+
+    } catch (err) {
+        console.error('Unexpected error:', err);
+        return res.status(500).json({ message: 'Unexpected server error' });
     }
+};
 
-    await teacher.deleteOne()
-    res.status(200).json(await Teacher.find({ area: manneger.area }, { password: 0 }).lean())
 
-}
 
 
 const updateTeacher = async (req, res) => {
@@ -205,14 +272,15 @@ const updateTeacher = async (req, res) => {
 }
 
 const getTeacherById = async (req, res) => {
-  
     const { id } = req.params
-    const teacher = await Teacher.findById({ _id: id }, { firstName:0, lastName:0 }).lean()
+    const teacher = await Teacher.findById(id, { password: 0 }).lean()
     
     if (!teacher) {
         return res.status(400).json({ message: 'teacher not found' })
     }
-    res.json(teacher)
+    console.log(teacher.firstName);
+    
+    return res.status(200).json({firstName: teacher.firstName,lastName: teacher.lastName });
 }
 
 const addAvailableClasses = async (req, res) => {

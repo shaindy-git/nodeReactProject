@@ -12,7 +12,6 @@ router.post("/addTeacher", teacherController.addTeacher)
 router.get("/getAllTeachers", teacherController.getAllTeachers)
 router.delete("/deleteTeacher",teacherController.deleteTeacher )
 router.put("/updateTeacher", teacherController.updateTeacher)
-
 router.put("/addAvailableClasses", teacherController.addAvailableClasses)
 router.put("/settingTest", teacherController.settingTest)
 router.put("/addLessonToStudent", teacherController.addLessonToStudent)

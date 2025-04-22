@@ -19,20 +19,20 @@ const addTeacher = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
         return res.status(400).json({ message: "files are required" })
     }
-    const cities=["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
-        "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov", 
-        "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center", 
-        "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar", 
+    const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
+        "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
+        "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
+        "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
         "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
-    
-        const genders=["male", "female"]
-    
-        if(!cities.includes(area)){
-            return res.status(400).json({ message: 'This area is not validate' })
-        }
-        if(!genders.includes(gender)){
-            return res.status(400).json({ message: 'This gender is not validate' })
-        }
+
+    const genders = ["male", "female"]
+
+    if (!cities.includes(area)) {
+        return res.status(400).json({ message: 'This area is not validate' })
+    }
+    if (!genders.includes(gender)) {
+        return res.status(400).json({ message: 'This gender is not validate' })
+    }
 
     if (maneger.area != area) {
         if (area != maneger.area) {
@@ -89,6 +89,7 @@ const addTeacher = async (req, res) => {
     }
 
 }
+
 
 
 const getAllTeachers = async (req, res) => {
@@ -176,12 +177,12 @@ const deleteTeacher = async (req, res) => {
         const { _id } = req.user;
         const { idTeacher } = req.body;
 
-        const manneger = await Manager.findById({ _id }, { password: 0 }).exec();
+        const manneger = await Manager.findById(_id, { password: 0 }).exec();
         if (!manneger) {
             return res.status(400).json({ message: 'Manager not found' });
         }
 
-        const teacher = await Teacher.findById({ _id: idTeacher }, { password: 0 }).exec();
+        const teacher = await Teacher.findById(idTeacher, { password: 0 }).exec();
         if (!teacher) {
             return res.status(400).json({ message: 'Teacher not found' });
         }
@@ -194,7 +195,7 @@ const deleteTeacher = async (req, res) => {
         if (teacher.listOfStudent?.length) {
             const newteacher = await Teacher.findOne({
                 area: teacher.area,
-                _id: { $ne: teacher._id }
+                _id: { $ne: teacher._id },
             }, { _id: 1, listOfStudent: 1 }).exec();
 
             if (!newteacher) {
@@ -206,6 +207,7 @@ const deleteTeacher = async (req, res) => {
             for (const s of students) {
                 newteacher.listOfStudent.push(s._id);
                 s.myTeacher = newteacher._id;
+
 
                 if (Array.isArray(s.dateforLessonsAndTest)) {
                     s.dateforLessonsAndTest = s.dateforLessonsAndTest.filter(l => {
@@ -274,13 +276,13 @@ const updateTeacher = async (req, res) => {
 const getTeacherById = async (req, res) => {
     const { id } = req.params
     const teacher = await Teacher.findById(id, { password: 0 }).lean()
-    
+
     if (!teacher) {
         return res.status(400).json({ message: 'teacher not found' })
     }
     console.log(teacher.firstName);
-    
-    return res.status(200).json({firstName: teacher.firstName,lastName: teacher.lastName });
+
+    return res.status(200).json({ firstName: teacher.firstName, lastName: teacher.lastName });
 }
 
 const addAvailableClasses = async (req, res) => {
@@ -426,7 +428,8 @@ module.exports = {
     getTeacherById,
     addAvailableClasses,
     settingTest,
-    addLessonToStudent
+    addLessonToStudent,
+
 
 
 }

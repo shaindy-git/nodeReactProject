@@ -72,9 +72,70 @@ const updateManager = async (req, res) => {
 
 }
 
+const removeReqest = async (req, res) => {
+    //איתור הבקשה
+    const { _id } = req.user
+    const maneger = await Manager.findOne({ _id: _id }).exec()
+    if (!maneger) {
+        return res.status(400).json({ message: "maneger not found" })
+    }
+
+    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area, gender } = req.body
+
+    if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
+        return res.status(400).json({ message: "files are required" })
+    }
+    const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
+        "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
+        "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
+        "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
+        "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
+
+    const genders = ["male", "female"]
+
+    if (!cities.includes(area)) {
+        return res.status(400).json({ message: 'This area is not validate' })
+    }
+    if (!genders.includes(gender)) {
+        return res.status(400).json({ message: 'This gender is not validate' })
+    }
+
+    if (maneger.area != area) {
+        if (area != maneger.area) {
+            return res.status(400).json({ message: 'No Access for this manneger' })
+        }
+    }
+
+    const reqest = { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area, gender }
+
+    const foundItem = maneger.RequestList.find((a) => {
+        return (
+            a.firstName === firstName &&
+            a.lastName === lastName &&
+            a.userName === userName &&
+            a.numberID === numberID &&
+            new Date(a.dateOfBirth).toISOString() === new Date(dateOfBirth).toISOString() &&
+            a.phone === phone &&
+            a.email === email &&
+            a.password === password &&
+            a.area === area &&
+            a.gender === gender
+        );
+    });
+    //מחיקת הבקשה
+    maneger.RequestList = maneger.RequestList.filter(item => item !== foundItem);
+    await maneger.save();
+
+    //res
+    return res.status(400).json({ message: 'The deletion was successful' })
+
+}
+
 
 
 module.exports = {
     addManager,
-    updateManager
+    updateManager,
+    removeReqest
+
 }

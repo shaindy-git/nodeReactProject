@@ -37,6 +37,7 @@ const login = async (req, res) => {
             email: foundM.email,
             password: foundM.password,
             area: foundM.area,
+            RequestList: foundM.RequestList,
             role: "M"
         }
         const accessToken = jwt.sign(MInfo, process.env.ACCESS_TOKEN_SECRET)

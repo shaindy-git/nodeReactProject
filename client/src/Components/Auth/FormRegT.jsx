@@ -88,7 +88,7 @@ const FormRegT = (props) => {
                 setShowMessage(true);
 
                 reset();
-                alert("You have successfully registered")
+                
             }
             else {
 

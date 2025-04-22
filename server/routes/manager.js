@@ -7,6 +7,7 @@ const mangerController = require("../controllers/mangerController")
 
 router.post("/addManager", mangerController.addManager)
 router.put("/updateManager",verifyJWT, mangerController.updateManager)
+router.put("/removeReqest",verifyJWT, mangerController.removeReqest)
 
 module.exports = router
 

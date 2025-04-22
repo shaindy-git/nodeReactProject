@@ -65,7 +65,6 @@ const MShowstudent = (props) => {
                     life: 3000
                 });
 
-                // עדכון הרשימה במסך הראשי (MHome)
                 props.removeStudent(props.student._id);
 
                 setTimeout(() => {

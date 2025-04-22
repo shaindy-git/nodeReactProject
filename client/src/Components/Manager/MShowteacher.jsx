@@ -53,10 +53,10 @@ const MShowteacher = (props) => {
                 url: `http://localhost:7000/teacher/deleteTeacher`,
                 headers: { Authorization: "Bearer " + accesstoken },
                 data: {
-                    teacherID: props.teacher._id
+                    idTeacher: props.teacher._id
                 }
             });
-
+    
             if (res.status === 200) {
                 toast.current.show({
                     severity: 'success',
@@ -64,15 +64,15 @@ const MShowteacher = (props) => {
                     detail: 'The teacher was successfully deleted',
                     life: 3000
                 });
-
+    
                 // עדכון הרשימה במסך הראשי (MHome)
                 props.removeTeacher(props.teacher._id);
-
+                // הוסף כאן קריאה מחדש לרשימת התלמידים
+                await Studentlist(); // קריאה לרשימת התלמידים כדי לעדכן
                 setTimeout(() => {
                     props.setVisibleT(false);
                 }, 3000);
             }
-
         } catch (e) {
             console.error(e);
             toast.current.show({
@@ -82,6 +82,7 @@ const MShowteacher = (props) => {
                 life: 3000
             });
         }
+    
     };
 
     return (

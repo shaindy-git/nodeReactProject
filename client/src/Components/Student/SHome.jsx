@@ -5,7 +5,7 @@ const SHome=()=>{
     return(
         <div>
             
-            <a>Student</a>  
+            <h1>האתר בשיפוצים...</h1>  
         
         </div>
     )

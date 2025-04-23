@@ -121,7 +121,7 @@ const choosingArea = async (req, res) => {
     student.area = area
     await student.save()
     // const students = await Student.find({},{password:0}).sort({ firstNane: 1, lastName: 1 }).lean()
-    console.log({ area })
+    // console.log({ area })
     return res.status(200).json(student)
 
 }
@@ -159,7 +159,7 @@ const teacherSelection = async (req, res) => {
     await teacher.save()
     student.myTeacher = teacherId
     await student.save()
-    res.json({ student, teacher })
+    res.status(200).json({ student, teacher })
 
 }
 
@@ -174,7 +174,7 @@ const getmyteacher = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
-    res.json(teacher)
+    return res.status(200).json(teacher)
 
 }
 
@@ -196,7 +196,7 @@ const addRecommendation = async (req, res) => {
     const recommend = { name: student.firstName + " " + student.lastName, rec }
     teacher.recommendations = [...teacher.recommendations, recommend]
     await teacher.save()
-    res.json({ teacher, recommend: rec })
+    return res.status(200).json({ teacher, recommend: rec })
 
 }
 
@@ -239,7 +239,7 @@ const settingLesson = async (req, res) => {
     student.lessonsRemaining = student.lessonsRemaining - 1
     student.lessonsLearned = student.lessonsLearned + 1
     await student.save()
-    res.json({ teacher, student })
+    return res.status(200).json({ teacher, student })
 
 }
 
@@ -320,7 +320,7 @@ const testRequest = async (req, res) => {
     const newreq = { studentId: _id, date }
     teacher.listOfRequires = [...teacher.listOfRequires, newreq]
     await teacher.save()
-    res.json(teacher)
+    return res.status(200).json(teacher)
 
 }
 
@@ -377,7 +377,7 @@ const deleteStudent = async (req, res) => {
 
 
     await student.deleteOne();
-    res.status(200).json({ message: 'Student deleted successfully' });
+    return res.status(200).json({ message: 'Student deleted successfully' });
 
 };
 

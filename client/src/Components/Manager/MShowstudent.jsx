@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
+import { setToken, logOut } from '../../redux/tokenSlice'
 
 
 const MShowstudent = (props) => {
@@ -39,7 +40,7 @@ const MShowstudent = (props) => {
                 setTeacher([]);
             } else {
                 console.error(e);
-                alert("Unauthorized user - S");
+                alert("Unauthorized user - S / MShowStudent");
             }
         }
 
@@ -65,11 +66,33 @@ const MShowstudent = (props) => {
                     life: 3000
                 });
 
+                  await props.fetchData();
+
                 props.removeStudent(props.student._id);
 
                 setTimeout(() => {
                     props.setVisibleS(false);
                 }, 3000);
+
+
+
+                try {
+                    const teacherRes = await axios({
+                        method: 'get',
+                        url: 'http://localhost:7000/teacher/getAllTeachers',
+                        headers: { Authorization: "Bearer " + accesstoken },
+                    });
+                    if (teacherRes.status === 200) {
+                        props.setTeachers(teacherRes.data);
+                    }
+                } catch (e) {
+                    if (e.response && e.response.status === 400) {
+                        props.setTeachers([]);
+                    } else {
+                        console.error(e);
+                        alert("Unauthorized user - T / MShowStudent");
+                    }
+                }
             }
 
         } catch (e) {

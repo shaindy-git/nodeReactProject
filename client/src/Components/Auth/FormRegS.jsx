@@ -10,15 +10,22 @@ import { Checkbox } from 'primereact/checkbox';
 import { Dialog } from 'primereact/dialog';
 import { Divider } from 'primereact/divider';
 import { classNames } from 'primereact/utils';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setToken, logOut } from '../../redux/tokenSlice'
+import './FromReg.css';
 import './FromReg.css';
 
 
-import './FromReg.css';
+
 
 const FormRegS = (props) => {
 
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [showMessage, setShowMessage] = useState(false);
     const [formData, setFormData] = useState({});
+    const accesstoken = useSelector((state) => state.token.token)
 
     const [defaultValues, setDefaultValues] = useState({
         firstName: '',
@@ -65,8 +72,9 @@ const FormRegS = (props) => {
                 setFormData(data);
                 setShowMessage(true);
 
+
                 reset();
-                
+
             }
             else {
 
@@ -87,6 +95,32 @@ const FormRegS = (props) => {
         }
     }
 
+    const OK = async () => {
+        setShowMessage(false);
+
+        try {
+            const res = await axios({
+                method: 'post',
+                url: 'http://localhost:7000/auth/login',
+                headers: {},
+                data: {
+                    userName: defaultValues.userName,
+                    password: defaultValues.password
+                }
+            });
+            if (res.status === 200) {
+                dispatch(setToken(res.data.accessToken))
+                navigate('/Student/SHome');
+            }
+
+
+        } catch (e) {
+            console.error(e);
+            alert("Unauthorized user")
+
+        }
+    }
+
 
 
 
@@ -99,7 +133,7 @@ const FormRegS = (props) => {
         return errors[name] && <small className="p-error">{errors[name].message}</small>
     };
 
-    const dialogFooter = <div className="flex justify-content-center"><Button label="OK" className="p-button-text" autoFocus onClick={() => setShowMessage(false)} /></div>;
+    const dialogFooter = <div className="flex justify-content-center"><Button label="OK" className="p-button-text" autoFocus onClick={OK} /></div>;
     const passwordHeader = <h6>Pick a password</h6>;
     const passwordFooter = (
         <React.Fragment>

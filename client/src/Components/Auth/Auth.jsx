@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setToken, logOut } from '../../redux/tokenSlice'
 import { useNavigate } from 'react-router-dom';
 import { Link, Route, Routes } from 'react-router-dom'
+
 import FormRegT from "./FormRegT";
 import FormRegS from "./FormRegS";
 

@@ -10,6 +10,7 @@ import MShowreq from './MShowreq';
 import { useRef } from 'react';
 import { Toast } from 'primereact/toast'; // Toast להודעות
 
+
 const MHome = () => {
     const accesstoken = useSelector((state) => state.token.token);
     const decoded = accesstoken ? jwtDecode(accesstoken) : null;
@@ -36,7 +37,9 @@ const MHome = () => {
 
 
     useEffect(() => {
-        const fetchData = async () => {
+
+
+        const Techer = async () => {
             try {
                 const teacherRes = await axios({
                     method: 'get',
@@ -51,10 +54,13 @@ const MHome = () => {
                     setTeachers([]);
                 } else {
                     console.error(e);
-                    alert("Unauthorized user - T");
+                    alert("Unauthorized user - T / MHome");
                 }
             }
-    
+        }
+
+        const Student = async () => {
+
             try {
                 const studentRes = await axios({
                     method: 'get',
@@ -69,17 +75,19 @@ const MHome = () => {
                     setStudents([]);
                 } else {
                     console.error(e);
-                    alert("Unauthorized user - S");
+                    alert("Unauthorized user - S / MHome");
                 }
             }
-    
-            // עדכון relevantques לפי decoded
-            setRelevantques(decoded ? decoded.RequestList : []);
-        };
-    
-        fetchData();
+        }
 
-    }, [ID, decoded]); // עדכון לתלות ב-ID וב-decoded
+        if (Reqlist) {
+            setQues(Reqlist);
+        }
+
+        Techer();
+        Student();
+
+    }, [ID]); // עדכון לתלות ב-ID וב-decoded
 
 
     const itemTemplateteacher = (teacher) => {
@@ -156,6 +164,7 @@ const MHome = () => {
                         visibleT={visibleT}
                         teacher={relevantteacher}
                         removeTeacher={removeTeacherFromList}
+                        setStudents={setStudents}
                     />}
                 </div>
 
@@ -179,8 +188,12 @@ const MHome = () => {
                         visibleS={visibleS}
                         student={relevantstudent}
                         removeStudent={removeStudentFromList}
+                        setTeachers={setTeachers}
+
                     />
                 </div>
+
+                
 
                 <div className="flex-item" style={{ flex: 1, margin: '5px' }}>
                     <ListBox
@@ -194,7 +207,7 @@ const MHome = () => {
                         options={ques.length > 0 ? ques : [{ label: 'No Requests Available', value: null }]}
                         itemTemplate={ques.length > 0 ? itemTemplateques : () => itemTemplateEmpty('No Requests Available')}
                         className="w-full"
-                        listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '60vh' }}  // הגבלת גובה עם גלילה
+                        listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '60vh' }}
                         filterBy="firstName"
                     />
                     <MShowreq
@@ -202,10 +215,14 @@ const MHome = () => {
                         visibleQ={visibleQ}
                         req={relevantques}
                         removeQues={removeQuesFromList}
+                        setQues={setQues}
+                        oldtoken={decoded}
+                        
                     />
                 </div>
             </div>
         </>
+
     );
 }
 export default MHome;

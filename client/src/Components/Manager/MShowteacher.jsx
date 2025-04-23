@@ -65,13 +65,33 @@ const MShowteacher = (props) => {
                     life: 3000
                 });
     
+                // קריאה מחדש לרשימת התלמידים כדי לעדכן
+                await props.fetchData();
+    
                 // עדכון הרשימה במסך הראשי (MHome)
                 props.removeTeacher(props.teacher._id);
-                // הוסף כאן קריאה מחדש לרשימת התלמידים
-                await Studentlist(); // קריאה לרשימת התלמידים כדי לעדכן
+    
                 setTimeout(() => {
                     props.setVisibleT(false);
                 }, 3000);
+
+                try {
+                    const studentRes = await axios({
+                        method: 'get',
+                        url: 'http://localhost:7000/student/getAllStudents',
+                        headers: { Authorization: "Bearer " + accesstoken },
+                    });
+                    if (studentRes.status === 200) {
+                        props.setStudents(studentRes.data);
+                    }
+                } catch (e) {
+                    if (e.response && e.response.status === 400) {
+                        props.setStudents([]);
+                    } else {
+                        console.error(e);
+                        alert("Unauthorized user - S / MShowTeacher");
+                    }
+                }
             }
         } catch (e) {
             console.error(e);
@@ -82,9 +102,7 @@ const MShowteacher = (props) => {
                 life: 3000
             });
         }
-    
     };
-
     return (
         <div className="card flex justify-content-center">
             <Toast ref={toast} />

@@ -10,6 +10,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { Dialog } from 'primereact/dialog';
 import { Divider } from 'primereact/divider';
 import { classNames } from 'primereact/utils';
+import { useNavigate } from 'react-router-dom';
 import './FromReg.css';
 
 
@@ -20,6 +21,8 @@ import './FromReg.css';
 
 
 const FormRegT = (props) => {
+
+    const navigate = useNavigate();
 
     const [selectedCity, setSelectedCity] = useState(null);
 
@@ -86,6 +89,7 @@ const FormRegT = (props) => {
             if (res.status === 200) {
                 setFormData(data);
                 setShowMessage(true);
+                
 
                 reset();
                 
@@ -114,7 +118,7 @@ const FormRegT = (props) => {
         return errors[name] && <small className="p-error">{errors[name].message}</small>
     };
 
-    const dialogFooter = <div className="flex justify-content-center"><Button label="OK" className="p-button-text" autoFocus onClick={() => setShowMessage(false)} /></div>;
+    const dialogFooter = <div className="flex justify-content-center"><Button label="OK" className="p-button-text" autoFocus onClick={() => {setShowMessage(false); navigate('/');}} /></div>;
     const passwordHeader = <h6>Pick a password</h6>;
     const passwordFooter = (
         <React.Fragment>

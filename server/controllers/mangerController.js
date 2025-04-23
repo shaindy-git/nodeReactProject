@@ -127,7 +127,7 @@ const removeReqest = async (req, res) => {
     await maneger.save();
 
     //res
-    return res.status(400).json({ message: 'The deletion was successful' })
+    return res.status(200).json({ message: 'The deletion was successful' })
 
 }
 

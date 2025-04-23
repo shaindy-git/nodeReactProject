@@ -95,7 +95,6 @@ const addTeacher = async (req, res) => {
 const getAllTeachers = async (req, res) => {
 
     const { _id, area } = req.user
-    console.log(_id, area)
     const foundM = await Manager.findOne({ _id }).lean()
     const foundT = await Teacher.findOne({ _id }).lean()
     const foundS = await Student.findOne({ _id }).lean()
@@ -238,8 +237,6 @@ const deleteTeacher = async (req, res) => {
 };
 
 
-
-
 const updateTeacher = async (req, res) => {
     const { _id } = req.user
     const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area, gender } = req.body
@@ -317,10 +314,8 @@ const addAvailableClasses = async (req, res) => {
         teacher.dateforLessonsAndTests = [...teacher.dateforLessonsAndTests, newDateAndHour]
     }
     await teacher.save()
-    res.json(teacher)
+    return res.status(200).json(teacher)
 }
-
-
 
 const settingTest = async (req, res) => {
     const { _id } = req.user
@@ -415,7 +410,7 @@ const addLessonToStudent = async (req, res) => {
     }
     student.lessonsRemaining = student.lessonsRemaining + 1
     student.save()
-    res.status(200).json(student)
+    return res.status(200).json(student)
 
 
 }

@@ -19,7 +19,6 @@ const teacherSceheme = new mongoose.Schema({
     },
     dateOfBirth: {
         type: mongoose.Schema.Types.Date,
-        format: ("yyyy-MM-dd "),
         required: true
     },
     phone: {
@@ -67,7 +66,6 @@ const teacherSceheme = new mongoose.Schema({
         type: [{
             date: {
                 type: Date,
-                format: ("yyyy-MM-dd"),
                 required: true,
             },
             hours: [{
@@ -101,7 +99,6 @@ const teacherSceheme = new mongoose.Schema({
             date:
             {
                 type: Date,
-                format: ("yyyy-MM-dd"),
                 required: true,
             },
         }]

@@ -19,7 +19,6 @@ const studentSceheme = new mongoose.Schema({
     },
     dateOfBirth:{
         type:mongoose.Schema.Types.Date,
-        format:("yyyy-MM-dd "),
         required :true
     },
     phone:{

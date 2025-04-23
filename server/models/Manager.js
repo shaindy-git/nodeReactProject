@@ -11,7 +11,7 @@ const managerSceheme = new mongoose.Schema({
     },
     userName: {
         type: String,
-        uniq: true,
+        unique: true,
         required: true
     },
     numberID: {
@@ -20,7 +20,6 @@ const managerSceheme = new mongoose.Schema({
     },
     dateOfBirth: {
         type: mongoose.Schema.Types.Date,
-        format: ("yyyy-MM-dd "),
         required: true
     },
     phone: {
@@ -51,7 +50,7 @@ const managerSceheme = new mongoose.Schema({
             lastName: { type: String },
             userName: { type: String },
             numberID: { type: String },
-            dateOfBirth: {type: mongoose.Schema.Types.Date, format: ("yyyy-MM-dd ")},
+            dateOfBirth: {type: mongoose.Schema.Types.Date},
             phone: { type: String },
             email: { type: String },
             password: { type: String },

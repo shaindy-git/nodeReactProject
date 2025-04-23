@@ -10,15 +10,15 @@ const addManager = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area) {
         return res.status(400).json({ message: "files are required" })
     }
-    const cities=["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
-        "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov", 
-        "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center", 
-        "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar", 
+    const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
+        "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
+        "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
+        "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
         "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
-    
-        if(!cities.includes(area)){
-            return res.status(400).json({ message: 'This area is not validate' })
-        }
+
+    if (!cities.includes(area)) {
+        return res.status(400).json({ message: 'This area is not validate' })
+    }
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
@@ -43,11 +43,11 @@ const addManager = async (req, res) => {
 
 }
 const updateManager = async (req, res) => {
-    const{_id}=req.user
+    const { _id } = req.user
     console.log(_id)
     const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password } = req.body
 
-    if (!_id || !firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password ) {
+    if (!_id || !firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password) {
         return res.status(400).json({ message: 'fields are required' })
     }
 
@@ -56,7 +56,7 @@ const updateManager = async (req, res) => {
         return res.status(400).json({ message: 'Manager not found' })
     }
     const hashedPwd = await bcrypt.hash(password, 10)
-        manager.firstName = firstName,
+    manager.firstName = firstName,
         manager.lastName = lastName,
         manager.userName = userName,
         manager.numberID = numberID,
@@ -64,13 +64,29 @@ const updateManager = async (req, res) => {
         manager.phone = phone,
         manager.email = email,
         manager.password = hashedPwd,
-        manager.area =  manager.area
+        manager.area = manager.area
 
     await manager.save()
-    const managers = await Manager.find({},{password:0}).sort({ firstNane: 1, lastName: 1 }).lean()
+    const managers = await Manager.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
     return res.status(200).json({ managers, role: 'Manager' })
 
 }
+
+
+const getRequestsByManagerId = async (req, res) => {
+
+    const { _id } = req.user
+    const manager = await Manager.findById(_id, { password: 0 });
+
+    if (!manager) {
+        return res.status(400).json({ message: 'no manager found' });
+    }
+
+    // מחזיר את רשימת הבקשות
+    res.status(200).json(manager.RequestList);
+
+
+};
 
 const removeReqest = async (req, res) => {
     //איתור הבקשה
@@ -133,9 +149,13 @@ const removeReqest = async (req, res) => {
 
 
 
+
+
+
 module.exports = {
     addManager,
     updateManager,
+    getRequestsByManagerId,
     removeReqest
 
 }

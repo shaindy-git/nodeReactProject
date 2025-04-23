@@ -62,7 +62,7 @@ const MShowteacher = (props) => {
                     severity: 'success',
                     summary: 'Success',
                     detail: 'The teacher was successfully deleted',
-                    life: 3000
+                    life: 2000
                 });
     
                 // קריאה מחדש לרשימת התלמידים כדי לעדכן
@@ -73,7 +73,7 @@ const MShowteacher = (props) => {
     
                 setTimeout(() => {
                     props.setVisibleT(false);
-                }, 3000);
+                }, 2000);
 
                 try {
                     const studentRes = await axios({
@@ -99,7 +99,7 @@ const MShowteacher = (props) => {
                 severity: 'error',
                 summary: 'Error',
                 detail: e.response?.data?.message || 'Failed to delete teacher',
-                life: 3000
+                life: 2000
             });
         }
     };

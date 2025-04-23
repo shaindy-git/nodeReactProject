@@ -63,7 +63,7 @@ const MShowstudent = (props) => {
                     severity: 'success',
                     summary: 'Success',
                     detail: 'The student was successfully deleted',
-                    life: 3000
+                    life: 2000
                 });
 
                   await props.fetchData();
@@ -72,7 +72,7 @@ const MShowstudent = (props) => {
 
                 setTimeout(() => {
                     props.setVisibleS(false);
-                }, 3000);
+                }, 2000);
 
 
 
@@ -101,7 +101,7 @@ const MShowstudent = (props) => {
                 severity: 'error',
                 summary: 'Error',
                 detail: 'Failed to delete student',
-                life: 3000
+                life: 2000
             });
         }
     };

@@ -4,21 +4,18 @@ import { Dialog } from 'primereact/dialog';
 import { useSelector } from 'react-redux';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { useDispatch } from 'react-redux';
-import { setToken, logOut } from '../../redux/tokenSlice'
-import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
+import { setToken, logOut } from '../../redux/tokenSlice'
 
-const MShowreq = (props) => {
+
+const MShowsreq = (props) => {
+
     const accesstoken = useSelector((state) => state.token.token);
+    const [req, setReq] = useState([]);
     const toast = useRef(null);
-    const dispatch = useDispatch()
 
 
-
-    useEffect(() => {
-        // כאן אפשר להוסיף לוגויקה כדי להציג פרטי הבקשה לפי הצורך
-    }, [props.req]);
 
     const deleteRequest = async () => {
         try {
@@ -45,41 +42,15 @@ const MShowreq = (props) => {
                     severity: 'success',
                     summary: 'Success',
                     detail: 'The request was successfully deleted',
-                    life: 3000
+                    life: 2000
 
                 });
-                //------------------------------------------
-                try {
-                    const res = await axios({
-                        method: 'post',
-                        url: 'http://localhost:7000/auth/login',
-                        headers: {},
-                        data: {
-                            userName: props.oldtoken.userName,
-                            password: props.oldtoken.password// This is the body part
-                        }
-                    });
 
-                    if (res.status === 200) {
-                        dispatch(setToken(res.data.accessToken))
-                        const decoded = accesstoken ? jwtDecode(accesstoken) : null;
-                        const Reqlist = decoded ? decoded.RequestList : null;
-                        props.setQues(Reqlist)
-
-
-                    }
-                } catch (e) {
-                    console.error(e);
-                    alert("Unauthorized user")
-
-                }
-
-                //------------------------------------
-
-                props.removeQues(props.req._id);
-                props.setVisibleQ(false);
-
-
+                // await props.fetchData();
+                props.removeReq(props.req._id);
+                setTimeout(() => {
+                    props.setVisibleR(false);
+                }, 2000);
 
             }
         } catch (e) {
@@ -88,12 +59,12 @@ const MShowreq = (props) => {
                 severity: 'error',
                 summary: 'Error',
                 detail: 'Failed to delete request',
-                life: 3000
+                life: 2000
             });
         }
     };
 
-    const addRequest = async () => {
+    const addTeacher = async () => {
         try {
             const res = await axios({
                 method: 'post',
@@ -117,12 +88,34 @@ const MShowreq = (props) => {
                 toast.current.show({
                     severity: 'success',
                     summary: 'Success',
-                    detail: 'Teacher added successfully',
-                    life: 3000
+                    detail: 'The request was successfully deleted',
+                    life: 2000
+
                 });
 
-                props.removeQues(props.req._id);
-                props.setVisibleQ(false);
+                // await props.fetchData();
+                props.removeReq(props.req._id);
+                setTimeout(() => {
+                    props.setVisibleR(false);
+                }, 2000);
+
+                try {
+                    const teacherRes = await axios({
+                        method: 'get',
+                        url: 'http://localhost:7000/teacher/getAllTeachers',
+                        headers: { Authorization: "Bearer " + accesstoken },
+                    });
+                    if (teacherRes.status === 200) {
+                        props.setTeachers(teacherRes.data);
+                    }
+                } catch (e) {
+                    if (e.response && e.response.status === 400) {
+                        props.setTeachers([]);
+                    } else {
+                        console.error(e);
+                        alert("Unauthorized user - T / MShowSreq");
+                    }
+                }
 
             }
         } catch (e) {
@@ -130,21 +123,20 @@ const MShowreq = (props) => {
             toast.current.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Failed to add teacher',
-                life: 3000
+                detail: 'Failed to delete request',
+                life: 2000
             });
         }
     };
-
 
     return (
         <div className="card flex justify-content-center">
             <Toast ref={toast} />
             <Dialog
                 header={`${props.req ? `Request Details` : "No request selected."}`}
-                visible={props.visibleQ}
+                visible={props.visibleR}
                 style={{ width: '25vw', height: "25vw" }}
-                onHide={() => { props.setVisibleQ(false); }}
+                onHide={() => { props.setVisibleR(false); }}
                 dir="ltr"
                 footer={
                     <div className="dialog-footer" style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -161,14 +153,14 @@ const MShowreq = (props) => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                marginRight: '10px', // רווח בין הכפתורים
+                                marginRight: '10px',
                             }}
                             aria-label="Delete"
                             onClick={deleteRequest}
                         />
 
                         <Button
-                            icon="pi pi-user-plus" // ניתן לשים סמל אחר אם תרצה
+                            icon="pi pi-user-plus"
                             style={{
                                 width: '2.5rem',
                                 height: '2.5rem',
@@ -182,7 +174,7 @@ const MShowreq = (props) => {
                                 justifyContent: 'center',
                             }}
                             aria-label="Add"
-                            onClick={addRequest} // פונקציה לסגירת הדיאלוג
+                        onClick={addTeacher} 
                         />
                     </div>
                 }
@@ -201,4 +193,4 @@ const MShowreq = (props) => {
     );
 }
 
-export default MShowreq;
+export default MShowsreq;

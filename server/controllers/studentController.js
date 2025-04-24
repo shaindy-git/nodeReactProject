@@ -81,7 +81,9 @@ const updateStudent = async (req, res) => {
 
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
         const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
-        const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+        const doubleUserNameS = await Student.findOne({
+            userName: userName,
+            _id: { $ne: _id }}).lean()
         const allManagers = await Manager.find().exec();
         const userExistsInRequests = allManagers.some(manager =>
             manager.RequestList.some(request => request.userName === userName)

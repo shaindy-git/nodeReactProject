@@ -48,7 +48,7 @@ const addManager = async (req, res) => {
 const updateManager = async (req, res) => {
     const { _id } = req.user
     console.log(_id)
-    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email} = req.body
+    const { firstName, lastName, userName, phone, email} = req.body
 
     if (!_id || !firstName || !lastName || !userName  || !phone || !email ) {
         return res.status(400).json({ message: 'fields are required' })
@@ -59,7 +59,9 @@ const updateManager = async (req, res) => {
         return res.status(400).json({ message: 'Manager not found' })
     }
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
-        const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+        const doubleUserNameM = await Manager.findOne({
+            userName: userName,
+            _id: { $ne: _id }}).lean()
         const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
         const allManagers = await Manager.find().exec();
         const userExistsInRequests = allManagers.some(manager =>

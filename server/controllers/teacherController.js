@@ -40,16 +40,14 @@ const addTeacher = async (req, res) => {
         }
     }
 
-    const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
-        const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
-        const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-        const allManagers = await Manager.find().exec();
-        const userExistsInRequests = allManagers.some(manager =>
-            manager.RequestList.some(request => request.userName === userName)
-        );
-        if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
-            return res.status(400).json({ message: "doubleUserName" })
-        }
+    // const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
+    //     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+    //     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+    //     const allManagers = await Manager.find().exec();
+        
+    //     if (doubleUserNameT || doubleUserNameM || doubleUserNameS ) {
+    //         return res.status(400).json({ message: "doubleUserName" })
+    //     }
     if ((new Date() - new Date(dateOfBirth)) > 60 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 40 * 31536000000) {//מציג את 1/1000 השניה בשנה
         return res.status(400).json({ message: "The age is not appropriate" })
     }
@@ -257,7 +255,9 @@ const updateTeacher = async (req, res) => {
         return res.status(400).json({ message: 'Teacher not found' })
     }
 
-    const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
+    const doubleUserNameT = await Teacher.findOne({
+        userName: userName,
+        _id: { $ne: _id }}).lean()
         const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
         const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
         const allManagers = await Manager.find().exec();

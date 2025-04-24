@@ -10,7 +10,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setToken, logOut } from '../../redux/tokenSlice'
 import { useNavigate } from 'react-router-dom';
 import { Link, Route, Routes } from 'react-router-dom'
-
 import FormRegT from "./FormRegT";
 import FormRegS from "./FormRegS";
 
@@ -31,6 +30,7 @@ const Auth = () => {
     const login = async () => {
 
         try {
+
             const res = await axios({
                 method: 'post',
                 url: 'http://localhost:7000/auth/login',
@@ -135,3 +135,45 @@ export default Auth
 //         return null;
 //     }
 // };
+
+
+// import React, { useEffect } from 'react';
+// import { useDispatch } from 'react-redux';
+// import { logOut, setToken } from '../../redux/tokenSlice';
+// import { useNavigate } from 'react-router-dom';
+// import { jwtDecode } from 'jwt-decode';
+
+// function Auth() {
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     // מתבצעת התנתקות בכל כניסה למסך ההתחברות
+//     dispatch(logOut());
+//   }, [dispatch]);
+
+//   const handleLogin = () => {
+//     // טוקן לדוגמה שמכיל מידע על המשתמש
+//     const fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+//       "eyJmaXJzdE5hbWUiOiJKb2huIiwibGFzdE5hbWUiOiJEb2UiLCJyb2xlIjoiTWFuYWdlciJ9." +
+//       "fake-signature";
+
+//     dispatch(setToken(fakeToken));
+
+//     const decoded = jwtDecode(fakeToken);
+//     if (decoded.role === 'Manager') navigate('/Manager/MHome');
+//     else if (decoded.role === 'Teacher') navigate('/Teacher/THome');
+//     else if (decoded.role === 'Student') navigate('/Student/SHome');
+//   };
+
+//   return (
+//     <div className="auth-container">
+//       <h2>Login Page</h2>
+//       <button onClick={handleLogin}>Login</button>
+//     </div>
+//   );
+// }
+
+// export default Auth;
+
+

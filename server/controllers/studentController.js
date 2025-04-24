@@ -11,12 +11,16 @@ const addStudent = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password) {
         return res.status(400).json({ message: "files are required" })
     }
-    const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
-    const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
-    const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS) {
-        return res.status(400).json({ message: "doubleUserName" })
-    }
+   const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
+       const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+       const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+       const allManagers = await Manager.find().exec();
+       const userExistsInRequests = allManagers.some(manager =>
+           manager.RequestList.some(request => request.userName === userName)
+       );
+       if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+           return res.status(400).json({ message: "doubleUserName" })
+       }
 
     if ((new Date() - new Date(dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 18 * 31536000000) {//מציג את 1/1000 השניה בשנה
         return res.status(400).json({ message: "The age is not appropriate" })
@@ -65,25 +69,33 @@ const getAllStudents = async (req, res) => {
 
 const updateStudent = async (req, res) => {
     const { _id } = req.user
-    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password } = req.body
+    const { firstName, lastName, userName, phone, email } = req.body
 
-    if (!_id || !firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password) {
+    if (!_id || !firstName || !lastName || !userName || !phone || !email ) {
         return res.status(400).json({ message: 'fields are required' })
     }
-    const hashedPwd = await bcrypt.hash(password, 10)
     const student = await Student.findById(_id).exec()
     if (!student) {
         return res.status(400).json({ message: 'Student not found' })
     }
 
+    const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
+        const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+        const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+        const allManagers = await Manager.find().exec();
+        const userExistsInRequests = allManagers.some(manager =>
+            manager.RequestList.some(request => request.userName === userName)
+        );
+        if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+            return res.status(400).json({ message: "doubleUserName" })
+        }
+
     student.firstName = firstName,
         student.lastName = lastName,
         student.userName = userName,
-        student.numberID = numberID,
-        student.dateOfBirth = dateOfBirth,
         student.phone = phone,
         student.email = email,
-        student.password = hashedPwd,
+    
 
         await student.save()
     //student=await Student.findById({_id},{password:0}).exec()

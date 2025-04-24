@@ -19,13 +19,16 @@ const addManager = async (req, res) => {
     if (!cities.includes(area)) {
         return res.status(400).json({ message: 'This area is not validate' })
     }
-    const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
-    const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
-    const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-    const doublarea = await Manager.findOne({ area: area }).lean()
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS) {
-        return res.status(400).json({ message: "doubleUserName" })
-    }
+   const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
+       const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+       const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+       const allManagers = await Manager.find().exec();
+       const userExistsInRequests = allManagers.some(manager =>
+           manager.RequestList.some(request => request.userName === userName)
+       );
+       if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+           return res.status(400).json({ message: "doubleUserName" })
+       }
     if (doublarea) {
         return res.status(400).json({ message: "doublarea" })
     }
@@ -45,9 +48,9 @@ const addManager = async (req, res) => {
 const updateManager = async (req, res) => {
     const { _id } = req.user
     console.log(_id)
-    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password } = req.body
+    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email} = req.body
 
-    if (!_id || !firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password) {
+    if (!_id || !firstName || !lastName || !userName  || !phone || !email ) {
         return res.status(400).json({ message: 'fields are required' })
     }
 
@@ -55,15 +58,25 @@ const updateManager = async (req, res) => {
     if (!manager) {
         return res.status(400).json({ message: 'Manager not found' })
     }
-    const hashedPwd = await bcrypt.hash(password, 10)
+    const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
+        const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+        const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+        const allManagers = await Manager.find().exec();
+        const userExistsInRequests = allManagers.some(manager =>
+            manager.RequestList.some(request => request.userName === userName)
+        );
+        if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+            return res.status(400).json({ message: "doubleUserName" })
+        }
+   
     manager.firstName = firstName,
         manager.lastName = lastName,
         manager.userName = userName,
-        manager.numberID = numberID,
-        manager.dateOfBirth = dateOfBirth,
+        manager.numberID = manager.numberID,
+        manager.dateOfBirth =  manager.dateOfBirth,
         manager.phone = phone,
         manager.email = email,
-        manager.password = hashedPwd,
+        manager.password =  manager.password,
         manager.area = manager.area
 
     await manager.save()

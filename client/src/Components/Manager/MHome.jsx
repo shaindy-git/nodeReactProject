@@ -32,6 +32,8 @@ const MHome = () => {
     const toast = useRef(null);
 
     useEffect(() => {
+        if (!accesstoken || !ID) return;
+
         const Techer = async () => {
             try {
                 const teacherRes = await axios({
@@ -42,9 +44,9 @@ const MHome = () => {
                 if (teacherRes.status === 200) setTeachers(teacherRes.data);
             } catch (e) {
                 if (e.response?.status === 400) setTeachers([]);
-                else alert("Unauthorized user - T / MHome");
+                else console.error("Unauthorized user - T / MHome"); // אפשר גם Toast
             }
-        }
+        };
 
         const Student = async () => {
             try {
@@ -56,9 +58,9 @@ const MHome = () => {
                 if (studentRes.status === 200) setStudents(studentRes.data);
             } catch (e) {
                 if (e.response?.status === 400) setStudents([]);
-                else alert("Unauthorized user - S / MHome");
+                else console.error("Unauthorized user - S / MHome");
             }
-        }
+        };
 
         const Request = async () => {
             try {
@@ -70,14 +72,16 @@ const MHome = () => {
                 if (reqRes.status === 200) setReq(reqRes.data);
             } catch (e) {
                 if (e.response?.status === 400) setReq([]);
-                else alert("Unauthorized user - R / MHome");
+                else console.error("Unauthorized user - R / MHome");
             }
-        }
+        };
 
+        // הפונקציות ירוצו רק אם יש טוקן תקף
         Techer();
         Student();
         Request();
-    }, [ID]);
+
+    }, [accesstoken, ID]); // הוספת accesstoken לתלות
 
     const itemTemplateteacher = (teacher) => (
         <div>{teacher.firstName} {teacher.lastName}</div>
@@ -113,16 +117,16 @@ const MHome = () => {
             <div className="card" style={{ display: 'flex', height: '70vh' }}>
                 <div className="flex-item" style={{ flex: 1, margin: '20px' }}>
                     <ListBox
-                        
+
                         filter
                         filterPlaceholder="Search Teacher"
                         filterInputProps={{
                             style: {
-                              direction: 'ltr',
-                              opacity: 0.5,
-                              color: '#666'
+                                direction: 'ltr',
+                                opacity: 0.5,
+                                color: '#666'
                             }
-                          }}
+                        }}
                         value={selectteacher}
                         onChange={(e) => {
                             setSelectedteacher(e.value);
@@ -146,16 +150,16 @@ const MHome = () => {
 
                 <div className="flex-item" style={{ flex: 1, margin: '20px' }}>
                     <ListBox
-                       
+
                         filter
                         filterPlaceholder="Search Student"
                         filterInputProps={{
                             style: {
-                              direction: 'ltr',
-                              opacity: 0.5,
-                              color: '#666'
+                                direction: 'ltr',
+                                opacity: 0.5,
+                                color: '#666'
                             }
-                          }}
+                        }}
                         value={selectstudent}
                         onChange={(e) => {
                             setSelectedstudent(e.value);
@@ -179,16 +183,16 @@ const MHome = () => {
 
                 <div className="flex-item" style={{ flex: 1, margin: '20px' }}>
                     <ListBox
-                        
+
                         filter
                         filterPlaceholder="Search Request"
                         filterInputProps={{
                             style: {
-                              direction: 'ltr',
-                              opacity: 0.5,
-                              color: '#666'
+                                direction: 'ltr',
+                                opacity: 0.5,
+                                color: '#666'
                             }
-                          }}
+                        }}
                         value={selectreqs}
                         onChange={(e) => {
                             setSelectreqs(e.value);

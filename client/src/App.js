@@ -1,6 +1,7 @@
 import './App.css';
 import Auth from './Components/Auth/Auth';
 import Logout from './Components/Auth/Logout';
+import TermsPage from './Components/Auth/TermsPage';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import 'primeicons/primeicons.css';
@@ -19,39 +20,66 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 import Logo from './Pictures/Ministry of Transportation.jpg';
-
+import { Dialog } from 'primereact/dialog';
+import { Button } from 'primereact/button';
+import { useState, useEffect } from 'react';
+import FormUpdate from './Components/Auth/FromUpdate'
+import { setToken } from './redux/tokenSlice';
 function App() {
+
+
+  const [visibleU, setVisibleU] = useState(false);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const accesstoken = useSelector((state) => state.token.token)
 
   const decoded = accesstoken ? jwtDecode(accesstoken) : null;
-  const text = decoded ? `${decoded.firstName} ${decoded.lastName}` : "user";
+
+  const [text, setText] = useState("user");
+  // const text = decoded ? `${decoded.firstName} ${decoded.lastName}` : "user";
+
+  useEffect(() => {
+    if (accesstoken) {
+      const decoded = jwtDecode(accesstoken);
+      setText(`${decoded.firstName} ${decoded.lastName}`);
+    } else {
+      setText("user");
+    }
+  }, [accesstoken]);
 
   const items = [
     {
-      label: <img src={Logo} alt="Logo" style={{ height: '60px',  width: 'auto'}} />, // Image on the right
+      label: <img src={Logo} alt="Logo" style={{ height: '60px', width: 'auto' }} />, // Image on the right
       command: () => { },
     },
     {
       label: 'Login',
       icon: 'pi pi-sign-in',
       command: () => {
-        navigate('./Auth/Auth');
+        navigate('/Auth/Auth');
+        dispatch(setToken(null));
       }
     },
     {
       label: 'Logout',
       icon: 'pi pi-sign-out',
       command: () => {
-        navigate('./Auth/Logout');
+        navigate('/Auth/Logout');
       },
     },
     {
       label: <p style={{ fontWeight: "bold" }}>Hello <b>{text}</b></p>,
       icon: 'pi pi-user',
-      command: () => { },
-    },
-    
+      command: () => {
+        if (decoded) {
+          setVisibleU(true);
+        }
+      }
+
+    }
+
+
   ];
 
   return (
@@ -65,8 +93,17 @@ function App() {
         <Route path="/Manager/MHome" element={<MHome />} />
         <Route path="/Teacher/THome" element={<THome />} />
         <Route path="/Student/SHome" element={<SHome />} />
+        <Route path="/Auth/terms" element={<TermsPage />} />
       </Routes>
+
+
+      {visibleU && accesstoken && (
+        <FormUpdate visibleU={visibleU} setVisibleU={setVisibleU} />
+      )}
+
     </div>
+
+
   );
 }
 

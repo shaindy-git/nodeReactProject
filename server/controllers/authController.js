@@ -35,7 +35,6 @@ const login = async (req, res) => {
             dateOfBirth: foundM.dateOfBirth,
             phone: foundM.phone,
             email: foundM.email,
-            password: foundM.password,
             area: foundM.area,
             RequestList: foundM.RequestList,
             role: "M"
@@ -60,7 +59,6 @@ const login = async (req, res) => {
             dateOfBirth: foundT.dateOfBirth,
             phone: foundT.phone,
             email: foundT.email,
-            password: foundT.password,
             area: foundT.area,
             gender: foundT.gender,
             role: "T"
@@ -85,7 +83,6 @@ const login = async (req, res) => {
             dateOfBirth: foundS.dateOfBirth,
             phone: foundS.phone,
             email: foundS.email,
-            password: foundS.password,
             myTeacher: foundS.myTeacher,
             lessonsRemaining: foundS.lessonsRemaining,
             lessonsLearned: foundS.lessonsLearned,
@@ -108,9 +105,11 @@ const registerS = async (req, res) => {
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-
-
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS) {
+    const allManagers = await Manager.find().exec();
+    const userExistsInRequests = allManagers.some(manager =>
+        manager.RequestList.some(request => request.userName === userName)
+    );
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
     if ((new Date() - new Date(dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 18 * 31536000000) {//מציג את 1/1000 השניה בשנה
@@ -150,26 +149,8 @@ const registerT = async (req, res) => {
 
 
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
-    console.log("1");
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
-    console.log("2");
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-    console.log("3");
-    // const doubleUserNameR = async (userName) => {
-    //     console.log("4");
-
-    // const boll=Manager.findOne(m=>{
-    //         m.RequestList.find(r=>r.userName===userName)
-    //         return true;
-    // })
-    // return boll
-    // return Manager.findOne(m=>m.RequestList.findOne(request => request.userName === userName));
-
-
-
-
-    // };
-
     const allManagers = await Manager.find().exec();
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)

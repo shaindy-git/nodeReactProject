@@ -41,11 +41,15 @@ const addTeacher = async (req, res) => {
     }
 
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
-    const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
-    const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS) {
-        return res.status(400).json({ message: "doubleUserName" })
-    }
+        const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+        const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+        const allManagers = await Manager.find().exec();
+        const userExistsInRequests = allManagers.some(manager =>
+            manager.RequestList.some(request => request.userName === userName)
+        );
+        if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+            return res.status(400).json({ message: "doubleUserName" })
+        }
     if ((new Date() - new Date(dateOfBirth)) > 60 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 40 * 31536000000) {//מציג את 1/1000 השניה בשנה
         return res.status(400).json({ message: "The age is not appropriate" })
     }
@@ -105,6 +109,9 @@ const getAllTeachers = async (req, res) => {
     if (foundT) {
 
         return res.status(400).json({ message: 'No Access for Teachers' })
+    }
+    if (!foundM) {
+        return res.status(400).json({ message: "No Access" })
     }
     if (!area) {
         return res.status(400).json({ message: "files are required" })
@@ -239,30 +246,36 @@ const deleteTeacher = async (req, res) => {
 
 const updateTeacher = async (req, res) => {
     const { _id } = req.user
-    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area, gender } = req.body
+    const { firstName, lastName, userName,phone, email } = req.body
 
-    if (!_id || !firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
+    if (!_id || !firstName || !lastName || !userName || !phone || !email) {
 
         return res.status(400).json({ message: 'fields are required' })
     }
-    const hashedPwd = await bcrypt.hash(password, 10)
     let teacher = await Teacher.findById(_id).exec()
     if (!teacher) {
         return res.status(400).json({ message: 'Teacher not found' })
     }
 
+    const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
+        const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+        const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+        const allManagers = await Manager.find().exec();
+        const userExistsInRequests = allManagers.some(manager =>
+            manager.RequestList.some(request => request.userName === userName)
+        );
+        if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+            return res.status(400).json({ message: "doubleUserName" })
+        }
+
     teacher.firstName = firstName,
         teacher.lastName = lastName,
         teacher.userName = userName,
-        teacher.numberID = numberID,
-        teacher.dateOfBirth = dateOfBirth,
         teacher.phone = phone,
         teacher.email = email,
-        teacher.password = hashedPwd,
-        teacher.area = area,
-        teacher.gender = gender
 
-    await teacher.save()
+
+        await teacher.save()
     teacher = await Teacher.findById({ _id }, { password: 0 }).exec()
     const teachers = await Teacher.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
     console.log({ teachers, role: 'Teacher' })

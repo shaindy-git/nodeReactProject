@@ -65,10 +65,10 @@ const MShowteacher = (props) => {
                     life: 2000
                 });
     
-                // קריאה מחדש לרשימת התלמידים כדי לעדכן
-                await props.fetchData();
+                
+                // await props.fetchData();
     
-                // עדכון הרשימה במסך הראשי (MHome)
+                
                 props.removeTeacher(props.teacher._id);
     
                 setTimeout(() => {

@@ -93,7 +93,7 @@ const MShowsreq = (props) => {
 
                 });
 
-                // await props.fetchData();
+                await props.fetchData();
                 props.removeReq(props.req._id);
                 setTimeout(() => {
                     props.setVisibleR(false);

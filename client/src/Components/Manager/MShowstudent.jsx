@@ -66,7 +66,7 @@ const MShowstudent = (props) => {
                     life: 2000
                 });
 
-                  await props.fetchData();
+                //   await props.fetchData();
 
                 props.removeStudent(props.student._id);
 

@@ -302,6 +302,14 @@ const FormRegS = (props) => {
                                     <Checkbox inputId={field.name} onChange={(e) => field.onChange(e.checked)} checked={field.value} className={classNames({ 'p-invalid': fieldState.invalid })} />
                                 )} />
                                 <label htmlFor="accept" className={classNames({ 'p-error': errors.accept })}>*I agree to the terms and conditions</label>
+                                <a
+                                    href="/Auth/terms"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ textDecoration: 'underline', color: '#007bff', display: 'block', marginTop: '4px' }}
+                                >
+                                    Website Terms and Conditions
+                                </a>
 
                             </div>
 

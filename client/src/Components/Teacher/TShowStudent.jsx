@@ -21,6 +21,62 @@ const TShowStudent = (props) => {
         }
     }, [idS]);
 
+    const AddLesson = async ()=>{
+        try {
+            const res = await axios({
+                method: 'put',
+                url: `http://localhost:7000/teacher/addLessonToStudent`,
+                headers: { Authorization: "Bearer " + accesstoken },
+                data: {
+                    studentId: props.student._id
+                }
+            });
+
+            if (res.status === 200) {
+                toast.current.show({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Lessons were successfully added to the student',
+                    life: 2000
+                });
+
+                
+                setTimeout(() => {
+                    props.setVisibleS(false);
+                }, 2000);
+
+                try {
+                    const studentRes = await axios({
+                        method: 'get',
+                        url: 'http://localhost:7000/student/getAllStudents',
+                        headers: { Authorization: "Bearer " + accesstoken },
+                    });
+                    if (studentRes.status === 200) {
+                        props.setStudents(studentRes.data);
+                    }
+                } catch (e) {
+                    if (e.response && e.response.status === 400) {
+                        props.setStudents([]);
+                    } else {
+                        console.error(e);
+                        alert("Unauthorized user - S / MShowTeacher");
+                    }
+                }
+
+            }
+
+        } catch (e) {
+            console.error(e);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Adding a lesson failed',
+                life: 2000
+            });
+        }
+
+    }
+
 
 
     const deleteStudent = async () => {
@@ -91,7 +147,7 @@ const TShowStudent = (props) => {
                 onHide={() => { props.setVisibleS(false); }}
                 dir="ltr"
                 footer={
-                    <div className="dialog-footer">
+                    <div className="dialog-footer" style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <Button
                             icon="pi pi-trash"
                             style={{
@@ -105,10 +161,28 @@ const TShowStudent = (props) => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                marginLeft: 'auto',
+                                marginRight: '10px',
                             }}
                             aria-label="Delete"
                             onClick={deleteStudent}
+                        />
+
+                        <Button
+                            icon="pi pi-calendar-plus"
+                            style={{
+                                width: '2.5rem',
+                                height: '2.5rem',
+                                borderRadius: '50%',
+                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                border: '2px solid #000000',
+                                color: 'white',
+                                padding: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                            aria-label="AddLesson"
+                            onClick={AddLesson} 
                         />
                     </div>
                 }

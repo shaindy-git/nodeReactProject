@@ -15,6 +15,6 @@ router.put("/updateTeacher", teacherController.updateTeacher)
 router.put("/addAvailableClasses", teacherController.addAvailableClasses)
 router.put("/settingTest", teacherController.settingTest)
 router.put("/addLessonToStudent", teacherController.addLessonToStudent)
-
+router.get("/getClasses", teacherController.getClasses)
 
 module.exports = router

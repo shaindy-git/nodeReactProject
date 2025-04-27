@@ -88,16 +88,16 @@ const updateManager = async (req, res) => {
     // return res.status(200).json({ managers, role: 'Manager' })
 
      const MInfo = {
-                _id: foundM._id,
-                firstName: foundM.firstName,
-                lastName: foundM.lastName,
-                userName: foundM.userName,
-                numberID: foundM.numberID,
-                dateOfBirth: foundM.dateOfBirth,
-                phone: foundM.phone,
-                email: foundM.email,
-                area: foundM.area,
-                RequestList: foundM.RequestList,
+                _id: manager._id,
+                firstName: manager.firstName,
+                lastName: manager.lastName,
+                userName: manager.userName,
+                numberID: manager.numberID,
+                dateOfBirth: manager.dateOfBirth,
+                phone: manager.phone,
+                email: manager.email,
+                area: manager.area,
+                RequestList: manager.RequestList,
                 role: "M"
             }
             const accessToken = jwt.sign(MInfo, process.env.ACCESS_TOKEN_SECRET)
@@ -183,9 +183,9 @@ const removeReqest = async (req, res) => {
 const changePassword = async (req, res) => {
     const { _id } = req.user
     const { oldPassword , newPassword} = req.body
-    const student = await Student.findById(_id).exec();
+    const student = await Manager.findById(_id).exec();
     if(!student){
-        return res.status(400).json({ message: 'student not found' });
+        return res.status(400).json({ message: 'manager not found' });
     }
     const match = await bcrypt.compare(oldPassword, student.password)
     if (!match) return res.status(401).json({ message: 'Incorrect password' })

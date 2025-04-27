@@ -107,17 +107,17 @@ const updateStudent = async (req, res) => {
     // return res.status(200).json(student)
     const SInfo = {
         _id: foundS._id,
-        firstName: foundS.firstName,
-        lastName: foundS.lastName,
-        userName: foundS.userName,
-        numberID: foundS.numberID,
-        dateOfBirth: foundS.dateOfBirth,
-        phone: foundS.phone,
-        email: foundS.email,
-        myTeacher: foundS.myTeacher,
-        lessonsRemaining: foundS.lessonsRemaining,
-        lessonsLearned: foundS.lessonsLearned,
-        dateforLessonsAndTest: foundS.dateforLessonsAndTest,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        userName: student.userName,
+        numberID: student.numberID,
+        dateOfBirth: student.dateOfBirth,
+        phone: student.phone,
+        email: student.email,
+        myTeacher: student.myTeacher,
+        lessonsRemaining: student.lessonsRemaining,
+        lessonsLearned: student.lessonsLearned,
+        dateforLessonsAndTest: student.dateforLessonsAndTest,
         role: "S"
     }
     const accessToken = jwt.sign(SInfo, process.env.ACCESS_TOKEN_SECRET)

@@ -86,7 +86,7 @@ const addTeacher = async (req, res) => {
         await maneger.save();
         const teachers = await Teacher.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
         // console.log({ maneger, teachers })
-        return res.status(200).json({teacher:teacher,teachers:teachers})
+        return res.status(200).json({ teacher: teacher, teachers: teachers })
     } else {
         return res.status(400).json({ message: 'Invalid Teacher ' })
     }
@@ -98,12 +98,24 @@ const addTeacher = async (req, res) => {
 const getAllTeachers = async (req, res) => {
 
     const { _id, area } = req.user
+    const{gender}=req.body
     const foundM = await Manager.findOne({ _id }).lean()
     const foundT = await Teacher.findOne({ _id }).lean()
     const foundS = await Student.findOne({ _id }).lean()
 
     if (foundS) {
-        return res.status(400).json({ message: 'No Access for Students' })
+        if(gender){
+            const teachers = await Teacher.find({ area: area, gender:gender }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+            if (!teachers?.length) {
+                return res.status(400).json({ message: 'No teachers found' })
+            }
+            res.status(200).json(teachers)
+        }
+        const teachers = await Teacher.find({ area: area }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+        if (!teachers?.length) {
+            return res.status(400).json({ message: 'No teachers found' })
+        }
+        res.status(200).json(teachers)
     }
     if (foundT) {
 
@@ -121,6 +133,7 @@ const getAllTeachers = async (req, res) => {
     }
     res.status(200).json(teachers)
 }
+
 
 
 // const deleteTeacher = async (req, res) => {
@@ -234,8 +247,8 @@ const deleteTeacher = async (req, res) => {
         await teacher.deleteOne();
 
         const teachersInArea = await Teacher.find({ area: manneger.area }, { password: 0 }).lean();
-        const studentInArea=await Student.find({ area: manneger.area }, { password: 0 }).lean();
-        return res.status(200).json({teachersInArea:teachersInArea,studentInArea:studentInArea});
+        const studentInArea = await Student.find({ area: manneger.area }, { password: 0 }).lean();
+        return res.status(200).json({ teachersInArea: teachersInArea, studentInArea: studentInArea });
 
     } catch (err) {
         console.error('Unexpected error:', err);
@@ -283,21 +296,21 @@ const updateTeacher = async (req, res) => {
     // const teachers = await Teacher.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
     // console.log({ teachers, role: 'Teacher' })
     // return res.status(200).json(teacher)
-     const TInfo = {
-                _id: foundT._id,
-                firstName: foundT.firstName,
-                lastName: foundT.lastName,
-                userName: foundT.userName,
-                numberID: foundT.numberID,
-                dateOfBirth: foundT.dateOfBirth,
-                phone: foundT.phone,
-                email: foundT.email,
-                area: foundT.area,
-                gender: foundT.gender,
-                role: "T"
-            }
-            const accessToken = jwt.sign(TInfo, process.env.ACCESS_TOKEN_SECRET)
-            return res.status(200).json({ accessToken: accessToken, role: TInfo.role })
+    const TInfo = {
+        _id: foundT._id,
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
+        userName: teacher.userName,
+        numberID: teacher.numberID,
+        dateOfBirth: teacher.dateOfBirth,
+        phone: teacher.phone,
+        email: teacher.email,
+        area: teacher.area,
+        gender: teacher.gender,
+        role: "T"
+    }
+    const accessToken = jwt.sign(TInfo, process.env.ACCESS_TOKEN_SECRET)
+    return res.status(200).json({ accessToken: accessToken, role: TInfo.role })
 
 }
 
@@ -392,7 +405,7 @@ const getClasses = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' });
     }
-    
+
     return res.status(200).json(teacher.dateforLessonsAndTests);
 }
 
@@ -497,16 +510,16 @@ const addLessonToStudent = async (req, res) => {
 
 const changePassword = async (req, res) => {
     const { _id } = req.user
-    const { oldPassword , newPassword} = req.body
-    const student = await Student.findById(_id).exec();
-    if(!student){
-        return res.status(400).json({ message: 'student not found' });
+    const { oldPassword, newPassword } = req.body
+    const student = await Teacher.findById(_id).exec();
+    if (!student) {
+        return res.status(400).json({ message: 'teacher not found' });
     }
     const match = await bcrypt.compare(oldPassword, student.password)
     if (!match) return res.status(401).json({ message: 'Incorrect password' })
-    student.password=await bcrypt.hash(newPassword, 10)
-await student.save()
-return res.status(200).json({ message: 'Password changed successfully.' })
+    student.password = await bcrypt.hash(newPassword, 10)
+    await student.save()
+    return res.status(200).json({ message: 'Password changed successfully.' })
 }
 
 module.exports = {

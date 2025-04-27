@@ -190,8 +190,9 @@ const FormUpdate = (props) => {
 
         const OK = async () => {
             setShowMessage(false);
-            const accesstoken = useSelector((state) => state.token.token)
-           // navigate('./Auth/Auth');
+            // const accesstoken = useSelector((state) => state.token.token)
+            // decoded = accesstoken ? jwtDecode(accesstoken) : null;
+           navigate('./Auth/Auth');
             props.setVisibleU(false);
         }
 

@@ -9,43 +9,19 @@ import { useRef } from 'react';
 import { setToken, logOut } from '../../redux/tokenSlice'
 
 
-const MShowstudent = (props) => {
+const TShowStudent = (props) => {
     const idS = props.student ? props.student._id : null;
     const accesstoken = useSelector((state) => state.token.token);
     const [teacher, setTeacher] = useState([]);
-    const toast = useRef(null); 
-    const navigate = useNavigate(); 
+    const toast = useRef(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (props.student) {
-            Teacher();
         }
     }, [idS]);
 
-    const Teacher = async () => {
-        try {
 
-            const res = await axios({
-                method: 'get',
-                url: `http://localhost:7000/teacher/getTeacherById/${props.student.myTeacher}`,
-                headers: {},
-            });
-            if (res.status === 200) {
-
-                setTeacher([res.data]);
-            }
-
-        } catch (e) {
-            if (e.response && e.response.status === 400) {
-                setTeacher([]);
-            } else {
-                console.error(e);
-                alert("Unauthorized user - S / MShowStudent");
-            }
-        }
-
-
-    };
 
     const deleteStudent = async () => {
         try {
@@ -74,25 +50,6 @@ const MShowstudent = (props) => {
                     props.setVisibleS(false);
                 }, 2000);
 
-
-
-                try {
-                    const teacherRes = await axios({
-                        method: 'get',
-                        url: 'http://localhost:7000/teacher/getAllTeachers',
-                        headers: { Authorization: "Bearer " + accesstoken },
-                    });
-                    if (teacherRes.status === 200) {
-                        props.setTeachers(teacherRes.data);
-                    }
-                } catch (e) {
-                    if (e.response && e.response.status === 400) {
-                        props.setTeachers([]);
-                    } else {
-                        console.error(e);
-                        alert("Unauthorized user - T / MShowStudent");
-                    }
-                }
 
                 try {
                     const studentRes = await axios({
@@ -161,7 +118,11 @@ const MShowstudent = (props) => {
                         <div className="student-info" ><span style={{ fontWeight: "bold" }}>Name: </span> <span className="info-value">{props.student.firstName} {props.student.lastName}</span></div>
                         <div className="student-info" ><span style={{ fontWeight: "bold" }}>Email: </span><span className="info-value">{props.student.email}</span></div>
                         <div className="student-info" ><span style={{ fontWeight: "bold" }}>Phone: </span><span className="info-value">{props.student.phone}</span></div>
-                        <div className="student-info" ><span style={{ fontWeight: "bold" }}>Teacher: </span><span className="info-value">{teacher.length > 0 ? `${teacher[0].firstName} ${teacher[0].lastName}` : "Not assigned"}</span></div>
+                        <br></br><br></br>
+                        <div className="student-info" ><span style={{ fontWeight: "bold" }}>Number of lessons learned: </span><span className="info-value">{props.student.lessonsLearned}</span></div>
+                        <div className="student-info" ><span style={{ fontWeight: "bold" }}>Number of lessons remaining: </span><span className="info-value">{props.student.lessonsRemaining}</span></div>
+
+
                     </div>
                 ) : (
                     <div>No student selected.</div>
@@ -171,4 +132,4 @@ const MShowstudent = (props) => {
     );
 }
 
-export default MShowstudent;
+export default TShowStudent;

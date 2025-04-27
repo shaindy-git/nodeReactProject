@@ -235,7 +235,7 @@ const FormUpdate = (props) => {
 
                     <div className="flex justify-content-center">
                         <div className="card">
-                            <h5 className="text-center">Update user information</h5>
+                            <h5 className="text-center">Update user details</h5>
                             <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
 
 

@@ -137,7 +137,7 @@ const MHome = () => {
                         itemTemplate={teachers.length > 0 ? itemTemplateteacher : () => itemTemplateEmpty('No Teachers Available')}
                         className="w-full"
                         listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '60vh' }}
-                        filterBy="firstName"
+                        filterBy={["firstName", "lastName"]}
                     />
                     <MShowteacher
                         setVisibleT={setVisibleT}
@@ -145,6 +145,7 @@ const MHome = () => {
                         teacher={relevantteacher}
                         removeTeacher={removeTeacherFromList}
                         setStudents={setStudents}
+                        setTeachers={setTeachers}
                     />
                 </div>
 
@@ -170,7 +171,7 @@ const MHome = () => {
                         itemTemplate={students.length > 0 ? itemTemplatestudent : () => itemTemplateEmpty('No Students Available')}
                         className="w-full"
                         listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '60vh' }}
-                        filterBy="firstName"
+                        filterBy={["firstName", "lastName"]}
                     />
                     <MShowstudent
                         setVisibleS={setVisibleS}
@@ -178,6 +179,7 @@ const MHome = () => {
                         student={relevantstudent}
                         removeStudent={removeStudentFromList}
                         setTeachers={setTeachers}
+                        setStudents={setStudents}
                     />
                 </div>
 
@@ -203,7 +205,7 @@ const MHome = () => {
                         itemTemplate={req.length > 0 ? itemTemplatereq : () => itemTemplateEmpty('No Requests Available')}
                         className="w-full"
                         listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '60vh' }}
-                        filterBy="firstName"
+                        filterBy={["firstName", "lastName"]}
                     />
                     <MShowreq
                         setVisibleR={setVisibleR}

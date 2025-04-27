@@ -11,16 +11,16 @@ const addStudent = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password) {
         return res.status(400).json({ message: "files are required" })
     }
-   const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
-       const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
-       const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-       const allManagers = await Manager.find().exec();
-       const userExistsInRequests = allManagers.some(manager =>
-           manager.RequestList.some(request => request.userName === userName)
-       );
-       if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
-           return res.status(400).json({ message: "doubleUserName" })
-       }
+    const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
+    const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+    const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+    const allManagers = await Manager.find().exec();
+    const userExistsInRequests = allManagers.some(manager =>
+        manager.RequestList.some(request => request.userName === userName)
+    );
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+        return res.status(400).json({ message: "doubleUserName" })
+    }
 
     if ((new Date() - new Date(dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 18 * 31536000000) {//מציג את 1/1000 השניה בשנה
         return res.status(400).json({ message: "The age is not appropriate" })
@@ -71,7 +71,7 @@ const updateStudent = async (req, res) => {
     const { _id } = req.user
     const { firstName, lastName, userName, phone, email } = req.body
 
-    if (!_id || !firstName || !lastName || !userName || !phone || !email ) {
+    if (!_id || !firstName || !lastName || !userName || !phone || !email) {
         return res.status(400).json({ message: 'fields are required' })
     }
     const student = await Student.findById(_id).exec()
@@ -80,65 +80,83 @@ const updateStudent = async (req, res) => {
     }
 
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
-        const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
-        const doubleUserNameS = await Student.findOne({
-            userName: userName,
-            _id: { $ne: _id }}).lean()
-        const allManagers = await Manager.find().exec();
-        const userExistsInRequests = allManagers.some(manager =>
-            manager.RequestList.some(request => request.userName === userName)
-        );
-        if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
-            return res.status(400).json({ message: "doubleUserName" })
-        }
+    const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+    const doubleUserNameS = await Student.findOne({
+        userName: userName,
+        _id: { $ne: _id }
+    }).lean()
+    const allManagers = await Manager.find().exec();
+    const userExistsInRequests = allManagers.some(manager =>
+        manager.RequestList.some(request => request.userName === userName)
+    );
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+        return res.status(400).json({ message: "doubleUserName" })
+    }
 
     student.firstName = firstName,
         student.lastName = lastName,
         student.userName = userName,
         student.phone = phone,
         student.email = email,
-    
+
 
         await student.save()
     //student=await Student.findById({_id},{password:0}).exec()
-    const students = await Student.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
-    console.log({ students, role: 'Student' })
-    return res.status(200).json(student)
+    // const students = await Student.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+    // console.log({ students, role: 'Student' })
+    // return res.status(200).json(student)
+    const SInfo = {
+        _id: foundS._id,
+        firstName: foundS.firstName,
+        lastName: foundS.lastName,
+        userName: foundS.userName,
+        numberID: foundS.numberID,
+        dateOfBirth: foundS.dateOfBirth,
+        phone: foundS.phone,
+        email: foundS.email,
+        myTeacher: foundS.myTeacher,
+        lessonsRemaining: foundS.lessonsRemaining,
+        lessonsLearned: foundS.lessonsLearned,
+        dateforLessonsAndTest: foundS.dateforLessonsAndTest,
+        role: "S"
+    }
+    const accessToken = jwt.sign(SInfo, process.env.ACCESS_TOKEN_SECRET)
+    return res.status(200).json({ accessToken: accessToken, role: SInfo.role })
 
 }
 
-const choosingArea = async (req, res) => {
-    const { _id } = req.user
-    const { area } = req.body
+// const choosingArea = async (req, res) => {
+//     const { _id } = req.user
+//     const { area } = req.body
 
-    const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
-        "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
-        "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
-        "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
-        "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
+//     const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
+//         "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
+//         "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
+//         "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
+//         "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
 
 
 
-    if (!area || !_id) {
-        return res.status(400).json({ message: 'fields are required' })
-    }
-    if (!cities.includes(area)) {
-        return res.status(400).json({ message: 'This area is not validate' })
-    }
-    const student = await Student.findById(_id).exec()
-    if (!student) {
-        return res.status(400).json({ message: 'Student not found' })
-    }
-    if (student.area != null) {
-        return res.status(400).json({ message: 'You cant move area' })
-    }
-    student.area = area
-    await student.save()
-    // const students = await Student.find({},{password:0}).sort({ firstNane: 1, lastName: 1 }).lean()
-    // console.log({ area })
-    return res.status(200).json(student)
+//     if (!area || !_id) {
+//         return res.status(400).json({ message: 'fields are required' })
+//     }
+//     if (!cities.includes(area)) {
+//         return res.status(400).json({ message: 'This area is not validate' })
+//     }
+//     const student = await Student.findById(_id).exec()
+//     if (!student) {
+//         return res.status(400).json({ message: 'Student not found' })
+//     }
+//     if (student.area != null) {
+//         return res.status(400).json({ message: 'You cant move area' })
+//     }
+//     student.area = area
+//     await student.save()
+//     // const students = await Student.find({},{password:0}).sort({ firstNane: 1, lastName: 1 }).lean()
+//     // console.log({ area })
+//     return res.status(200).json(student)
 
-}
+// }
 //לא בדקנו
 // const getstudentById = async (req, res) => {
 //     const { _id } = req.user
@@ -172,6 +190,7 @@ const teacherSelection = async (req, res) => {
     teacher.listOfStudent = [...teacher.listOfStudent, _id]
     await teacher.save()
     student.myTeacher = teacherId
+    student.area = teacher.area
     await student.save()
     res.status(200).json({ student, teacher })
 
@@ -388,18 +407,43 @@ const deleteStudent = async (req, res) => {
         await teacher1.save();
     }
 
+    const teachersInArea = await Teacher.find({ area: student.area }, { password: 0 }).lean();
 
 
     await student.deleteOne();
-    return res.status(200).json({ message: 'Student deleted successfully' });
+
+    const studentInArea = await Student.find({ area: student.area }, { password: 0 }).lean();
+    const studentByTeacher = await Student.find({ myTeacher: student.myTeacher.toString() }, { password: 0 }).lean();
+    console.log();
+
+
+    return res.status(200).json({
+        message: 'Student deleted successfully',
+        teachersInArea: teachersInArea, studentInArea: studentInArea, studentByTeacher: studentByTeacher
+    });
 
 };
+
+const changePassword = async (req, res) => {
+    const { _id } = req.user
+    const { oldPassword , newPassword} = req.body
+    const student = await Student.findById(_id).exec();
+    if(!student){
+        return res.status(400).json({ message: 'student not found' });
+    }
+    const match = await bcrypt.compare(oldPassword, student.password)
+    if (!match) return res.status(401).json({ message: 'Incorrect password' })
+    student.password=await bcrypt.hash(newPassword, 10)
+await student.save()
+return res.status(200).json({ message: 'Password changed successfully.' })
+}
+
 
 module.exports = {
     addStudent,
     getAllStudents,
     updateStudent,
-    choosingArea,
+    // choosingArea,
     //getstudentById,
     teacherSelection,
     getmyteacher,
@@ -407,6 +451,7 @@ module.exports = {
     settingLesson,
     cancellationLesson,
     testRequest,
-    deleteStudent
+    deleteStudent,
+    changePassword
 
 }

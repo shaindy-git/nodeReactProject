@@ -44,24 +44,24 @@ const TShowStudent = (props) => {
                 setTimeout(() => {
                     props.setVisibleS(false);
                 }, 2000);
-
-                try {
-                    const studentRes = await axios({
-                        method: 'get',
-                        url: 'http://localhost:7000/student/getAllStudents',
-                        headers: { Authorization: "Bearer " + accesstoken },
-                    });
-                    if (studentRes.status === 200) {
-                        props.setStudents(studentRes.data);
-                    }
-                } catch (e) {
-                    if (e.response && e.response.status === 400) {
-                        props.setStudents([]);
-                    } else {
-                        console.error(e);
-                        alert("Unauthorized user - S / MShowTeacher");
-                    }
-                }
+                props.setStudents(res.data.studentByTeacher);
+                // try {
+                //     const studentRes = await axios({
+                //         method: 'get',
+                //         url: 'http://localhost:7000/student/getAllStudents',
+                //         headers: { Authorization: "Bearer " + accesstoken },
+                //     });
+                //     if (studentRes.status === 200) {
+                //         props.setStudents(studentRes.data);
+                //     }
+                // } catch (e) {
+                //     if (e.response && e.response.status === 400) {
+                //         props.setStudents([]);
+                //     } else {
+                //         console.error(e);
+                //         alert("Unauthorized user - S / MShowTeacher");
+                //     }
+                // }
 
             }
 

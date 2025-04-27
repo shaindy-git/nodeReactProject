@@ -84,8 +84,24 @@ const updateManager = async (req, res) => {
         manager.area = manager.area
 
     await manager.save()
-    const managers = await Manager.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
-    return res.status(200).json({ managers, role: 'Manager' })
+    // const managers = await Manager.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+    // return res.status(200).json({ managers, role: 'Manager' })
+
+     const MInfo = {
+                _id: foundM._id,
+                firstName: foundM.firstName,
+                lastName: foundM.lastName,
+                userName: foundM.userName,
+                numberID: foundM.numberID,
+                dateOfBirth: foundM.dateOfBirth,
+                phone: foundM.phone,
+                email: foundM.email,
+                area: foundM.area,
+                RequestList: foundM.RequestList,
+                role: "M"
+            }
+            const accessToken = jwt.sign(MInfo, process.env.ACCESS_TOKEN_SECRET)
+            return res.status(200).json({ accessToken: accessToken, role: MInfo.role })
 
 }
 
@@ -164,6 +180,19 @@ const removeReqest = async (req, res) => {
 
 }
 
+const changePassword = async (req, res) => {
+    const { _id } = req.user
+    const { oldPassword , newPassword} = req.body
+    const student = await Student.findById(_id).exec();
+    if(!student){
+        return res.status(400).json({ message: 'student not found' });
+    }
+    const match = await bcrypt.compare(oldPassword, student.password)
+    if (!match) return res.status(401).json({ message: 'Incorrect password' })
+    student.password=await bcrypt.hash(newPassword, 10)
+await student.save()
+return res.status(200).json({ message: 'Password changed successfully.' })
+}
 
 
 
@@ -173,6 +202,7 @@ module.exports = {
     addManager,
     updateManager,
     getRequestsByManagerId,
-    removeReqest
+    removeReqest,
+    changePassword
 
 }

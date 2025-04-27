@@ -64,6 +64,12 @@ const MShowteacher = (props) => {
                     detail: 'The teacher was successfully deleted',
                     life: 2000
                 });
+                debugger
+                console.log(res.data.teachersInArea,res.data.studentInArea);
+                props.setTeachers(res.data.teachersInArea)
+                props.setStudents(res.data.studentInArea)
+                
+                
     
                 
                 // await props.fetchData();
@@ -75,41 +81,6 @@ const MShowteacher = (props) => {
                     props.setVisibleT(false);
                 }, 2000);
 
-                try {
-                    const studentRes = await axios({
-                        method: 'get',
-                        url: 'http://localhost:7000/student/getAllStudents',
-                        headers: { Authorization: "Bearer " + accesstoken },
-                    });
-                    if (studentRes.status === 200) {
-                        props.setStudents(studentRes.data);
-                    }
-                } catch (e) {
-                    if (e.response && e.response.status === 400) {
-                        props.setStudents([]);
-                    } else {
-                        console.error(e);
-                        alert("Unauthorized user - S / MShowTeacher");
-                    }
-                }
-
-                try {
-                    const teacherRes = await axios({
-                        method: 'get',
-                        url: 'http://localhost:7000/teacher/getAllTeachers',
-                        headers: { Authorization: "Bearer " + accesstoken },
-                    });
-                    if (teacherRes.status === 200) {
-                        props.setTeachers(teacherRes.data);
-                    }
-                } catch (e) {
-                    if (e.response && e.response.status === 400) {
-                        props.setTeachers([]);
-                    } else {
-                        console.error(e);
-                        alert("Unauthorized user - T / MShowStudent");
-                    }
-                }
             }
         } catch (e) {
             console.error(e);

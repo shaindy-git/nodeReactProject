@@ -99,23 +99,7 @@ const MShowsreq = (props) => {
                     props.setVisibleR(false);
                 }, 2000);
 
-                try {
-                    const teacherRes = await axios({
-                        method: 'get',
-                        url: 'http://localhost:7000/teacher/getAllTeachers',
-                        headers: { Authorization: "Bearer " + accesstoken },
-                    });
-                    if (teacherRes.status === 200) {
-                        props.setTeachers(teacherRes.data);
-                    }
-                } catch (e) {
-                    if (e.response && e.response.status === 400) {
-                        props.setTeachers([]);
-                    } else {
-                        console.error(e);
-                        alert("Unauthorized user - T / MShowSreq");
-                    }
-                }
+                props.setTeachers(res.data.teachers)
 
             }
         } catch (e) {

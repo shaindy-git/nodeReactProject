@@ -86,7 +86,7 @@ const addTeacher = async (req, res) => {
         await maneger.save();
         const teachers = await Teacher.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
         // console.log({ maneger, teachers })
-        return res.status(200).json(teacher)
+        return res.status(200).json({teacher:teacher,teachers:teachers})
     } else {
         return res.status(400).json({ message: 'Invalid Teacher ' })
     }
@@ -234,7 +234,8 @@ const deleteTeacher = async (req, res) => {
         await teacher.deleteOne();
 
         const teachersInArea = await Teacher.find({ area: manneger.area }, { password: 0 }).lean();
-        return res.status(200).json(teachersInArea);
+        const studentInArea=await Student.find({ area: manneger.area }, { password: 0 }).lean();
+        return res.status(200).json({teachersInArea:teachersInArea,studentInArea:studentInArea});
 
     } catch (err) {
         console.error('Unexpected error:', err);
@@ -279,9 +280,24 @@ const updateTeacher = async (req, res) => {
 
         await teacher.save()
     teacher = await Teacher.findById({ _id }, { password: 0 }).exec()
-    const teachers = await Teacher.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
-    console.log({ teachers, role: 'Teacher' })
-    return res.status(200).json(teacher)
+    // const teachers = await Teacher.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+    // console.log({ teachers, role: 'Teacher' })
+    // return res.status(200).json(teacher)
+     const TInfo = {
+                _id: foundT._id,
+                firstName: foundT.firstName,
+                lastName: foundT.lastName,
+                userName: foundT.userName,
+                numberID: foundT.numberID,
+                dateOfBirth: foundT.dateOfBirth,
+                phone: foundT.phone,
+                email: foundT.email,
+                area: foundT.area,
+                gender: foundT.gender,
+                role: "T"
+            }
+            const accessToken = jwt.sign(TInfo, process.env.ACCESS_TOKEN_SECRET)
+            return res.status(200).json({ accessToken: accessToken, role: TInfo.role })
 
 }
 
@@ -479,6 +495,20 @@ const addLessonToStudent = async (req, res) => {
 
 }
 
+const changePassword = async (req, res) => {
+    const { _id } = req.user
+    const { oldPassword , newPassword} = req.body
+    const student = await Student.findById(_id).exec();
+    if(!student){
+        return res.status(400).json({ message: 'student not found' });
+    }
+    const match = await bcrypt.compare(oldPassword, student.password)
+    if (!match) return res.status(401).json({ message: 'Incorrect password' })
+    student.password=await bcrypt.hash(newPassword, 10)
+await student.save()
+return res.status(200).json({ message: 'Password changed successfully.' })
+}
+
 module.exports = {
     addTeacher,
     getAllTeachers,
@@ -488,7 +518,8 @@ module.exports = {
     addAvailableClasses, //לא מימשנו
     settingTest, //לא מימשנו
     addLessonToStudent,
-    getClasses
+    getClasses,
+    changePassword
 
 
 

@@ -190,7 +190,8 @@ const FormUpdate = (props) => {
 
         const OK = async () => {
             setShowMessage(false);
-            navigate('./Auth/Auth');
+            const accesstoken = useSelector((state) => state.token.token)
+           // navigate('./Auth/Auth');
             props.setVisibleU(false);
         }
 

@@ -27,11 +27,9 @@ const TShowHours = (props) => {
         }
 
         const currentSelection = selectedHoursByDate[currentDate] || [];
-        
 
-        // אם השעה כבר נבחרה, אל תעשה כלום
         if (currentSelection.includes(hour)) {
-            return;
+            return; // אם השעה כבר נבחרה, אל תעשה כלום
         }
 
         try {
@@ -40,7 +38,7 @@ const TShowHours = (props) => {
                 url: 'http://localhost:7000/teacher/addAvailableClasses',
                 headers: { Authorization: "Bearer " + accesstoken },
                 data: {
-                    "date": currentDate,
+                    "date": currentDate.toISOString(),
                     "hour": hour
                 }
             });
@@ -77,15 +75,18 @@ const TShowHours = (props) => {
                 dir="ltr"
                 footer={null}
             >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', padding: '10px' }}>
                     {hours.map((hour) => (
                         <div
                             key={hour}
                             style={{
                                 color: selectedHoursForCurrentDate.includes(hour) ? 'red' : 'black',
                                 cursor: 'pointer',
-                                margin: '5px',
-                                fontSize: '16px'
+                                fontSize: '16px',
+                                textAlign: 'center',
+                                padding: '5px', // הוספת padding לשיפור התצוגה
+                                border: '1px solid #ddd', // הוספת גבול כלשהו אם תרצה
+                                borderRadius: '5px', // פינה מעוגלת
                             }}
                             onClick={() => handleHourClick(hour)}
                         >

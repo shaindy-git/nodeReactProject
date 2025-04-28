@@ -37,12 +37,20 @@ function App() {
   const decoded = accesstoken ? jwtDecode(accesstoken) : null;
 
   const [text, setText] = useState("user");
+  const [role, setRole] = useState("");
   // const text = decoded ? `${decoded.firstName} ${decoded.lastName}` : "user";
 
   useEffect(() => {
     if (accesstoken) {
       const decoded = jwtDecode(accesstoken);
-      setText(`${decoded.firstName} ${decoded.lastName}`);
+      if (decoded.role === 'M') {
+        setRole("Manager")
+      } else if (decoded.role === 'T') {
+        setRole("Teacher")
+      } else if (decoded.role === 'S') {
+        setRole("Student"
+      }
+      setText(`${role} ${decoded.firstName} ${decoded.lastName}`);
     } else {
       setText("user");
     }

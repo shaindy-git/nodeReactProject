@@ -44,7 +44,12 @@ const TShowStudent = (props) => {
                 setTimeout(() => {
                     props.setVisibleS(false);
                 }, 2000);
-                props.setStudents(res.data.studentByTeacher);
+
+                console.log(res.data.students);
+                console.log(res.data.student); 
+                props.setRelevantstudent(res.data.student)
+                props.setStudents(res.data.students);
+
                 // try {
                 //     const studentRes = await axios({
                 //         method: 'get',
@@ -81,6 +86,7 @@ const TShowStudent = (props) => {
 
     const deleteStudent = async () => {
         try {
+            debugger
             const res = await axios({
                 method: 'DELETE',
                 url: `http://localhost:7000/student/deleteStudent`,
@@ -105,25 +111,27 @@ const TShowStudent = (props) => {
                 setTimeout(() => {
                     props.setVisibleS(false);
                 }, 2000);
+                props.setStudents(res.data.studentByTeacher)
+                
 
 
-                try {
-                    const studentRes = await axios({
-                        method: 'get',
-                        url: 'http://localhost:7000/student/getAllStudents',
-                        headers: { Authorization: "Bearer " + accesstoken },
-                    });
-                    if (studentRes.status === 200) {
-                        props.setStudents(studentRes.data);
-                    }
-                } catch (e) {
-                    if (e.response && e.response.status === 400) {
-                        props.setStudents([]);
-                    } else {
-                        console.error(e);
-                        alert("Unauthorized user - S / MShowTeacher");
-                    }
-                }
+                // try {
+                //     const studentRes = await axios({
+                //         method: 'get',
+                //         url: 'http://localhost:7000/student/getAllStudents',
+                //         headers: { Authorization: "Bearer " + accesstoken },
+                //     });
+                //     if (studentRes.status === 200) {
+                //         props.setStudents(studentRes.data);
+                //     }
+                // } catch (e) {
+                //     if (e.response && e.response.status === 400) {
+                //         props.setStudents([]);
+                //     } else {
+                //         console.error(e);
+                //         alert("Unauthorized user - S / MShowTeacher");
+                //     }
+                // }
             }
 
         } catch (e) {

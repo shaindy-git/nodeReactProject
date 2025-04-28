@@ -57,6 +57,7 @@ const getAllStudents = async (req, res) => {
         }
         return res.json(studentsT)
     }
+    console.log(foundM.area);
     const allStudents = await Student.find({ area: foundM.area }, { password: 0 }).sort({ firstName: 1, lastName: 1 }).lean()
     if (!allStudents?.length) {
         return res.status(400).json({ message: 'No students found' })
@@ -360,7 +361,6 @@ const testRequest = async (req, res) => {
 
 //לבדוק את מחיקת השעות מהמורה!!!!
 const deleteStudent = async (req, res) => {
-
     const { _id } = req.user;
     const { studentID } = req.body;
 
@@ -371,71 +371,66 @@ const deleteStudent = async (req, res) => {
 
     const manager = await Manager.findById(_id, { password: 0 }).exec();
     const teacher = await Teacher.findById(_id, { password: 0 }).exec();
-    //מור ה אבל לא של התלמיד
+
     if (teacher && student.myTeacher.toString() !== _id.toString()) {
         return res.status(400).json({ message: 'teacher not access' });
     }
-    //מנהל אבל לא של התלמיד
     if (manager && student.area !== manager.area) {
         return res.status(400).json({ message: 'manager not access' });
     }
-
-    // if (!manager && !teacher && _id.toString() !== studentID.toString()) {
-    //     return res.status(400).json({ message: 'no access' });
-    // }
 
     if (student.myTeacher != null) {
         const teacherID = student.myTeacher;
         const teacher1 = await Teacher.findById(teacherID, { password: 0 }).exec();
 
-        const currentDate = new Date();
-
-        for (const d of student.dateforLessonsAndTest) {
-            for (const l of teacher1.dateforLessonsAndTests) {
-                if (l.date > currentDate && d.date === l.date) {
-                    for (const h of l.hours) {
-                        if (h === d.hour) {
-                            l.full = false;
-                            await teacher1.save();
+        if (teacher1) {
+            const currentDate = new Date();
+            for (const d of student.dateforLessonsAndTest) {
+                for (const l of teacher1.dateforLessonsAndTests) {
+                    if (l.date > currentDate && d.date === l.date) {
+                        for (const h of l.hours) {
+                            if (h === d.hour) {
+                                l.full = false;
+                                await teacher1.save();
+                            }
                         }
                     }
                 }
             }
+
+            teacher1.listOfStudent = teacher1.listOfStudent.filter(item => item.toString() !== student._id.toString());
+            await teacher1.save();
+        } else {
+            return res.status(400).json({ message: 'Teacher not found' });
         }
-
-        teacher1.listOfStudent = teacher1.listOfStudent.filter(item => item.toString() !== student._id.toString());
-        await teacher1.save();
     }
-
+    const thisMyTeacher = student.myTeacher.toString()
     const teachersInArea = await Teacher.find({ area: student.area }, { password: 0 }).lean();
-
-
     await student.deleteOne();
 
     const studentInArea = await Student.find({ area: student.area }, { password: 0 }).lean();
-    const studentByTeacher = await Student.find({ myTeacher: student.myTeacher.toString() }, { password: 0 }).lean();
-    console.log();
-
+    const studentByTeacher = await Student.find({ myTeacher: thisMyTeacher }, { password: 0 }).lean();
 
     return res.status(200).json({
         message: 'Student deleted successfully',
-        teachersInArea: teachersInArea, studentInArea: studentInArea, studentByTeacher: studentByTeacher
+        teachersInArea: teachersInArea,
+        studentInArea: studentInArea,
+        studentByTeacher: studentByTeacher
     });
-
 };
 
 const changePassword = async (req, res) => {
     const { _id } = req.user
-    const { oldPassword , newPassword} = req.body
+    const { oldPassword, newPassword } = req.body
     const student = await Student.findById(_id).exec();
-    if(!student){
+    if (!student) {
         return res.status(400).json({ message: 'student not found' });
     }
     const match = await bcrypt.compare(oldPassword, student.password)
     if (!match) return res.status(401).json({ message: 'Incorrect password' })
-    student.password=await bcrypt.hash(newPassword, 10)
-await student.save()
-return res.status(200).json({ message: 'Password changed successfully.' })
+    student.password = await bcrypt.hash(newPassword, 10)
+    await student.save()
+    return res.status(200).json({ message: 'Password changed successfully.' })
 }
 
 

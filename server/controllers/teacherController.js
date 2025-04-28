@@ -98,14 +98,14 @@ const addTeacher = async (req, res) => {
 const getAllTeachers = async (req, res) => {
 
     const { _id, area } = req.user
-    const{gender}=req.body
+    const { gender } = req.body
     const foundM = await Manager.findOne({ _id }).lean()
     const foundT = await Teacher.findOne({ _id }).lean()
     const foundS = await Student.findOne({ _id }).lean()
 
     if (foundS) {
-        if(gender){
-            const teachers = await Teacher.find({ area: area, gender:gender }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+        if (gender) {
+            const teachers = await Teacher.find({ area: area, gender: gender }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
             if (!teachers?.length) {
                 return res.status(400).json({ message: 'No teachers found' })
             }
@@ -362,6 +362,44 @@ const getTeacherById = async (req, res) => {
 //     return res.status(200).json(teacher)
 // }
 
+// const addAvailableClasses = async (req, res) => {
+//     const { _id } = req.user; // מזהה המורה
+//     const { date, hour } = req.body; // תאריך ושעה מהבקשה
+
+//     // בדיקה אם כל השדות הדרושים קיימים
+//     if (!_id || !date || !hour) {
+//         return res.status(400).json({ message: "files are required" });
+//     }
+
+//     // שליפת המורה מהבסיס נתונים
+//     const teacher = await Teacher.findById(_id, { password: 0 }).exec();
+//     if (!teacher) {
+//         return res.status(400).json({ message: 'No teacher found' });
+//     }
+
+//     // קונברסיה לתאריך
+//     const validDate = new Date(date);
+
+//     // חיפוש אם כבר קיים תאריך לבחינות ולימודים
+//     const search = teacher.dateforLessonsAndTests.find((e) => e.date.toISOString() === validDate.toISOString());
+
+//     // אם התאריך קיים, הוסף את השעה
+//     if (search) {
+//         const hourExists = search.hours.find((e) => e.hour.toString() === hour);
+//         if (!hourExists) {
+//             search.hours.push({ hour: hour });
+//         }
+//     } else {
+//         // אם התאריך לא קיים, צור חדש
+//         const newDateAndHour = { date: validDate, hours: [{ hour: hour }] };
+//         teacher.dateforLessonsAndTests.push(newDateAndHour);
+//     }
+
+//     // שמירת השינויים
+//     await teacher.save();
+//     return res.status(200).json(teacher);
+// }
+
 const addAvailableClasses = async (req, res) => {
     const { _id } = req.user;
     const { date, hour } = req.body;
@@ -370,29 +408,36 @@ const addAvailableClasses = async (req, res) => {
         return res.status(400).json({ message: "files are required" });
     }
 
-    const teacher = await Teacher.findById({ _id }, { password: 0 }).exec();
+    const teacher = await Teacher.findById(_id, { password: 0 }).exec();
     if (!teacher) {
-        return res.status(400).json({ message: 'No teacher found' });
+        return res.status(404).json({ message: 'No teacher found' });
     }
 
-    // כאן תשתמש באובייקט Date מהשדה שנשלח
     const validDate = new Date(date);
+    if (isNaN(validDate)) {
+        return res.status(400).json({ message: "Invalid date format" });
+    }
 
     const search = teacher.dateforLessonsAndTests.find((e) => e.date.toISOString() === validDate.toISOString());
 
     if (search) {
-        const h = search.hours.find((e) => e.hour.toString() === hour);
-        if (!h) {
+        const hourExists = search.hours.find((e) => e.hour.toString() === hour);
+        if (!hourExists) {
             search.hours.push({ hour: hour });
         }
     } else {
-        const newDateAndHour = { date: validDate, hours: [{ hour: hour }] }
+        const newDateAndHour = { date: validDate, hours: [{ hour: hour }] };
         teacher.dateforLessonsAndTests.push(newDateAndHour);
     }
 
-    await teacher.save();
-    return res.status(200).json(teacher);
-}
+    try {
+        await teacher.save();
+        return res.status(200).json(teacher);
+    } catch (error) {
+        return res.status(500).json({ message: "Error saving teacher data" });
+    }
+};
+
 
 const getClasses = async (req, res) => {
     const { _id } = req.user;
@@ -503,7 +548,9 @@ const addLessonToStudent = async (req, res) => {
     }
     student.lessonsRemaining = student.lessonsRemaining + 1
     student.save()
-    return res.status(200).json(student)
+    const students = await Student.find({ myTeacher: _id }, { password: 0 }).lean()
+    console.log(students);
+    return res.status(200).json({ students: students, student: student })
 
 
 }

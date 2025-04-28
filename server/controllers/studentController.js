@@ -2,6 +2,7 @@
 const Student = require("../models/Student")
 const Manager = require("../models/Manager")
 const Teacher = require("../models/Teacher")
+const Admin = require("../models/Admin")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -14,11 +15,12 @@ const addStudent = async (req, res) => {
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+     const doubleUserNameA = await Admin.findOne({ userName: userName }).lean()
     const allManagers = await Manager.find().exec();
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA||userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
 
@@ -82,6 +84,7 @@ const updateStudent = async (req, res) => {
 
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
+    const doubleUserNameA = await Admin.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({
         userName: userName,
         _id: { $ne: _id }
@@ -90,7 +93,7 @@ const updateStudent = async (req, res) => {
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA||userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
 
@@ -362,7 +365,7 @@ const testRequest = async (req, res) => {
 //לבדוק את מחיקת השעות מהמורה!!!!
 const deleteStudent = async (req, res) => {
     const { _id } = req.user;
-    const { studentID } = req.body;
+    const { studentID } = req.params;
 
     const student = await Student.findById(studentID, { password: 0 }).exec();
     if (!student) {

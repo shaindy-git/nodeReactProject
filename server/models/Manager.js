@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Teacher = require('./Teacher')
-const managerSceheme = new mongoose.Schema({
+const managerScehema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true,
@@ -61,4 +61,4 @@ const managerSceheme = new mongoose.Schema({
 }, {
     timestamps: true
 })
-module.exports = mongoose.model('Manager', managerSceheme)
+module.exports = mongoose.model('Manager', managerScehema)

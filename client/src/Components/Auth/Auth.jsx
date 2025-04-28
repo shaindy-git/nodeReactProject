@@ -47,15 +47,15 @@ const Auth = () => {
                 
                 // Navigate based on user role
                 if (userRole === 'M') {
-                // <Link to={'/Manager/MHome'}></Link>
                     navigate('/Manager/MHome');
                 } else if (userRole === 'T') {
-                    //  <Link to={'/Teacher/THome'}></Link>
                     navigate('/Teacher/THome');
                 } else if (userRole === 'S') {
-                // <Link to={'/Student/SHome'}></Link>
                     navigate('/Student/SHome');
                 }
+                else if (userRole === 'A') {
+                        navigate('/Admin/ADHome');
+                    }
                 
                 
       

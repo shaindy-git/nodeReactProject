@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
@@ -19,14 +19,53 @@ const TShowHours = (props) => {
         "21:00", "22:00", "23:00", "24:00"
     ];
 
+
+    useEffect(() => {
+        if (!accesstoken || !props.date) return;
+
+        const fetchSelectedHours = async () => {
+            try {
+                const formattedDate = props.date.toISOString().split('T')[0]; // פורמט תאריך YYYY-MM-DD
+
+                const HourRes = await axios({
+                    method: 'get',
+                    url: `http://localhost:7000/teacher/getClassesByDate/${formattedDate}`,
+                    headers: { Authorization: "Bearer " + accesstoken },
+                });
+
+                if (HourRes.status === 200) {
+                    // עדכון ה־state של השעות שנבחרו באותו יום
+                    setSelectedHoursByDate((prev) => ({
+                        ...prev,
+                        [props.date.toLocaleDateString()]: HourRes.data.hours,
+                    }));
+                }
+            } catch (e) {
+                if (e.response?.status === 404) {
+                    // אם אין שעות באותו יום, שים רשימה ריקה
+                    setSelectedHoursByDate((prev) => ({
+                        ...prev,
+                        [props.date.toLocaleDateString()]: [],
+                    }));
+                } else {
+                    console.error("Error fetching hours:", e);
+                    toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch hours' });
+                }
+            }
+        };
+
+        fetchSelectedHours();
+    }, [accesstoken, props.date]);
+
+
     const handleHourClick = async (hour) => {
-        const currentDate = props.date ? props.date.toLocaleDateString() : null;
+        const currentDate = props.date instanceof Date ? props.date : new Date(props.date);
 
         if (!currentDate) {
             return;
         }
 
-        const currentSelection = selectedHoursByDate[currentDate] || [];
+        const currentSelection = selectedHoursByDate[currentDate.toLocaleDateString()] || [];
 
         if (currentSelection.includes(hour)) {
             return; // אם השעה כבר נבחרה, אל תעשה כלום
@@ -57,7 +96,7 @@ const TShowHours = (props) => {
 
         setSelectedHoursByDate(prev => ({
             ...prev,
-            [currentDate]: [...currentSelection, hour] // הוספת השעה
+            [currentDate.toLocaleDateString()]: [...currentSelection, hour]
         }));
     };
 

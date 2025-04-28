@@ -19,6 +19,7 @@ app.use("/auth", require("./routes/auth"))
 app.use("/teacher", require("./routes/teacher"))
 app.use("/manager", require("./routes/manager"))
 app.use("/student", require("./routes/student"))
+app.use("/admin",require("./routes/admin"))
 
 mongoose.connection.once('open', () => {
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`))

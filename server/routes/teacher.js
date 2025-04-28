@@ -10,12 +10,13 @@ router.use(verifyJWT)
 
 router.post("/addTeacher", teacherController.addTeacher)
 router.get("/getAllTeachers", teacherController.getAllTeachers)
-router.delete("/deleteTeacher",teacherController.deleteTeacher )
+router.delete("/deleteTeacher/:idTeacher",teacherController.deleteTeacher )
 router.put("/updateTeacher", teacherController.updateTeacher)
 router.put("/addAvailableClasses", teacherController.addAvailableClasses)
 router.put("/settingTest", teacherController.settingTest)
 router.put("/addLessonToStudent", teacherController.addLessonToStudent)
-router.get("/getClasses", teacherController.getClasses)
+router.get("/getAllDatesWithClasses", teacherController.getAllDatesWithClasses)
+router.get("/getClassesByDate/:date", teacherController.getClassesByDate)
 router.put("/changePassword", teacherController.changePassword)
 
 

@@ -51,11 +51,9 @@ const MShowstudent = (props) => {
         try {
             const res = await axios({
                 method: 'DELETE',
-                url: `http://localhost:7000/student/deleteStudent`,
+                url: `http://localhost:7000/student/deleteStudent/${props.student._id}`,
                 headers: { Authorization: "Bearer " + accesstoken },
-                data: {
-                    studentID: props.student._id
-                }
+                data: {}
             });
 
             if (res.status === 200) {

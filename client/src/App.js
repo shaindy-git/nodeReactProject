@@ -44,17 +44,22 @@ function App() {
     if (accesstoken) {
       const decoded = jwtDecode(accesstoken);
       if (decoded.role === 'M') {
-        setRole("Manager")
+        setRole("director")
       } else if (decoded.role === 'T') {
-        setRole("Teacher")
+        setRole("teacher")
       } else if (decoded.role === 'S') {
-        setRole("Student"
+        setRole("student")
       }
-      setText(`${role} ${decoded.firstName} ${decoded.lastName}`);
+      else if (decoded.role === 'A') {
+        setRole("Admin")
+        setText(role)
+      }
+      if (decoded.role != 'A')
+        setText(`${role} ${decoded.firstName} ${decoded.lastName}`);
     } else {
       setText("user");
     }
-  }, [accesstoken]);
+  }, [accesstoken, decoded]);
 
   const items = [
     {

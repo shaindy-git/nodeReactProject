@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const teacherSceheme = new mongoose.Schema({
+const teacherScehema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true,
@@ -106,4 +106,4 @@ const teacherSceheme = new mongoose.Schema({
 }, {
     timestamps: true
 })
-module.exports = mongoose.model('Teacher', teacherSceheme)
+module.exports = mongoose.model('Teacher', teacherScehema)

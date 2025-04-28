@@ -1,6 +1,7 @@
 const Student = require("../models/Student")
 const Manager = require("../models/Manager")
 const Teacher = require("../models/Teacher")
+const Admin = require("../models/Admin")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -22,11 +23,12 @@ const addManager = async (req, res) => {
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+    const doubleUserNameA = await Admin.findOne({ userName: userName }).lean()
     const allManagers = await Manager.find().exec();
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS ||doubleUserNameA|| userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
     const doublarea = await Manager.findOne({ area: area }).lean()
@@ -65,11 +67,12 @@ const updateManager = async (req, res) => {
         _id: { $ne: _id }
     }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+    const doubleUserNameA = await Admin.findOne({ userName: userName }).lean()
     const allManagers = await Manager.find().exec();
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS ||doubleUserNameA|| userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
 

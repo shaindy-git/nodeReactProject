@@ -1,6 +1,7 @@
 const Student = require("../models/Student")
 const Manager = require("../models/Manager")
 const Teacher = require("../models/Teacher")
+const Admin = require("../models/Admin")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -15,9 +16,22 @@ const login = async (req, res) => {
     const foundM = await Manager.findOne({ userName }).lean()
     const foundT = await Teacher.findOne({ userName }).lean()
     const foundS = await Student.findOne({ userName }).lean()
-    if (!foundM && !foundT && !foundS) {
+    const foundA = await Admin.findOne({ userName }).lean()
+    if (!foundM && !foundT && !foundS && !foundA) {
 
         return res.status(401).json({ message: 'Unauthorized' })
+    }
+
+    else if (foundA) {
+        const match = await bcrypt.compare(password, foundA.password)
+        if (!match) return res.status(401).json({ message: 'Unauthorized' })
+        const AInfo = {
+            _id: foundA._id,
+            userName: foundA.userName,
+            role: "A"
+        }
+        const accessToken = jwt.sign(AInfo, process.env.ACCESS_TOKEN_SECRET)
+        return res.status(200).json({ accessToken: accessToken, role: AInfo.role })
     }
 
 
@@ -105,11 +119,13 @@ const registerS = async (req, res) => {
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+    const doubleUserNameA = await Admin.findOne({ userName: userName }).lean()
+
     const allManagers = await Manager.find().exec();
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
     if ((new Date() - new Date(dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 18 * 31536000000) {//מציג את 1/1000 השניה בשנה
@@ -151,11 +167,12 @@ const registerT = async (req, res) => {
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
+    const doubleUserNameA = await Admin.findOne({ userName: userName }).lean()
     const allManagers = await Manager.find().exec();
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
     if ((new Date() - new Date(dateOfBirth)) > 60 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 40 * 31536000000) {//מציג את 1/1000 השניה בשנה

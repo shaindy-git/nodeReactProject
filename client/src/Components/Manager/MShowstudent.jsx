@@ -11,6 +11,7 @@ import { setToken, logOut } from '../../redux/tokenSlice'
 
 const MShowstudent = (props) => {
     const idS = props.student ? props.student._id : null;
+    const myTeacher = props.student ? props.student.myTeacher : null;
     const accesstoken = useSelector((state) => state.token.token);
     const [teacher, setTeacher] = useState([]);
     const toast = useRef(null); 
@@ -20,7 +21,7 @@ const MShowstudent = (props) => {
         if (props.student) {
             Teacher();
         }
-    }, [idS]);
+    }, [idS,myTeacher]);
 
     const Teacher = async () => {
         try {

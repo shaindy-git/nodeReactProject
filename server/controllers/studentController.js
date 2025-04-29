@@ -161,21 +161,25 @@ const updateStudent = async (req, res) => {
 //     return res.status(200).json(student)
 
 // }
-//לא בדקנו
-// const getstudentById = async (req, res) => {
-//     const { _id } = req.user
-//     const { id } = req.params
-//     if (!id) {
-//         return res.status(400).json({ message: "files are required" })
-//     }
 
-//     const student = await Student.findById({id},{password:0}).lean()
-//     if(_id!=id && _id!=)
-//     if (!student) {
-//         return res.status(400).json({ message: 'No student found' })
-//     }
-//     res.json(student)
-// }
+
+//לא בדקנו
+const getstudentById = async (req, res) => {
+    // const { _id } = req.user
+    const { id } = req.params
+    if (!id) {
+        return res.status(400).json({ message: "files are required" })
+    }
+
+    const student = await Student.findById(id,{password:0}).lean()
+    // if(_id!=id && _id!=)
+    if (!student) {
+        return res.status(400).json({ message: 'No student found' })
+    }
+    return res.status(200).json(student)
+}
+
+
 
 const teacherSelection = async (req, res) => {
     const { _id } = req.user
@@ -252,14 +256,31 @@ const settingLesson = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
-    const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    // const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    // if (!searchD) {
+    //     return res.status(400).json({ message: 'No Date found' })
+    // }
+    // const oneOnDay = student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    // if (oneOnDay) {
+    //     return res.status(400).json({ message: 'You had alrady lesson in this day' })
+    // }
+
+
+    const searchD = teacher.dateforLessonsAndTests.find((e) => 
+        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+    );
     if (!searchD) {
-        return res.status(400).json({ message: 'No Date found' })
+        return res.status(400).json({ message: 'No Date found' });
     }
-    const oneOnDay = student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    
+    const oneOnDay = student.dateforLessonsAndTest.find((e) => 
+        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+    );
     if (oneOnDay) {
-        return res.status(400).json({ message: 'You had alrady lesson in this day' })
+        return res.status(400).json({ message: 'You already had a lesson on this day' });
     }
+
+
     const searchH = searchD.hours.find((e) => ((e.hour).toString()) === (hour))
     if (!searchH) {
         return res.status(400).json({ message: 'No Hour found in this Date' })
@@ -295,7 +316,11 @@ const cancellationLesson = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
-    const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    
+    // const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    const searchD = await teacher.dateforLessonsAndTests.find((e) => 
+        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+    );
     if (!searchD) {
         return res.status(400).json({ message: 'No Date found' })
     }
@@ -309,7 +334,11 @@ const cancellationLesson = async (req, res) => {
     searchH.full = false
     await teacher.save()
 
-    const searchD2 = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    // const searchD2 = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+
+    const searchD2 = student.dateforLessonsAndTest.find((e) => 
+        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+    );
     if (!searchD2) {
         return res.status(400).json({ message: 'No Date found2' })
     }
@@ -346,13 +375,27 @@ const testRequest = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
-    const finddate = teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    // const finddate = teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    // if (!finddate) {
+    //     return res.status(400).json({ message: 'No date found' })
+    // }
+    // const oneOnDay = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    // if (oneOnDay) {
+    //     return res.status(400).json({ message: 'You had alrady lesson in this day' })
+    // }
+
+    const finddate = teacher.dateforLessonsAndTests.find((e) => 
+        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+    );
     if (!finddate) {
-        return res.status(400).json({ message: 'No date found' })
+        return res.status(400).json({ message: 'No date found' });
     }
-    const oneOnDay = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    
+    const oneOnDay = student.dateforLessonsAndTest.find((e) => 
+        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+    );
     if (oneOnDay) {
-        return res.status(400).json({ message: 'You had alrady lesson in this day' })
+        return res.status(400).json({ message: 'You already had a lesson on this day' });
     }
     const newreq = { studentId: _id, date }
     teacher.listOfRequires = [...teacher.listOfRequires, newreq]
@@ -442,7 +485,7 @@ module.exports = {
     getAllStudents,
     updateStudent,
     // choosingArea,
-    //getstudentById,
+    getstudentById,
     teacherSelection,
     getmyteacher,
     addRecommendation,

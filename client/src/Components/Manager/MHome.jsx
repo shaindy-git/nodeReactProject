@@ -147,6 +147,7 @@ const MHome = () => {
                         setStudents={setStudents}
                         setTeachers={setTeachers}
                     />
+                    
                 </div>
 
                 <div className="flex-item" style={{ flex: 1, margin: '20px' }}>

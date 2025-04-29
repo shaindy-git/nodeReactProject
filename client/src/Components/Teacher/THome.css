@@ -1,0 +1,18 @@
+.custom-special-date {
+    background-color: #FFD700; /* Gold background */
+    color: blue; /* Black text color */
+    border-radius: 50%; /* Circular shape */
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Optional: Add hover effects for special dates */
+.custom-special-date:hover {
+    background-color: #FFA500; /* Orange background on hover */
+    color: white;
+    cursor: pointer;
+}

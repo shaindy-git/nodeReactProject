@@ -378,15 +378,15 @@ const getAllDatesWithClasses = async (req, res) => {
     }
 
 
-    const teacher = await Teacher.findById( _id, { dateforLessonsAndTests: 1 }).lean();
+    const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).lean();
     if (!teacher) {
         return res.status(404).json({ message: "Teacher not found" });
     }
 
     // שליפת כל התאריכים
     const selectedDates = teacher.dateforLessonsAndTests.map(e => e.date);
-    if(!selectedDates){
-        return res.status(400).json({message:"Not Lessons"})
+    if (!selectedDates) {
+        return res.status(400).json({ message: "Not Lessons" })
     }
 
     return res.status(200).json({ dates: selectedDates });
@@ -428,14 +428,18 @@ const getClassesByDate = async (req, res) => {
     }
 
     // חילוץ רשימת השעות מתוך השיעורים באותו יום
-    const hours = lessonsOnDate.map(e => e.hours.map(h => h.hour)).flat();
+    const hoursFull = lessonsOnDate
+        .flatMap(e => e.hours.filter(h => h.full === true).map(h => h.hour));
+    const hoursEmpty = lessonsOnDate
+        .flatMap(e => e.hours.filter(h => h.full === false).map(h => h.hour));
+    console.log(hoursFull, hoursEmpty);
 
     // החזרת השעות בלבד
-    if (!hours) {
+    if (!hoursFull||!hoursEmpty) {
         console.log("5");
         return res.status(404).json({ message: 'No lessons or tests found on this date' });
     }
-    return res.status(200).json({ hours: hours });
+    return res.status(200).json({ hoursFull: hoursFull, hoursEmpty:hoursEmpty });
 
 };
 
@@ -460,11 +464,25 @@ const settingTest = async (req, res) => {
     }
     const listreq = teacher.listOfRequires
     let req1
-    const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    // const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    // if (!searchD) {
+    //     return res.status(400).json({ message: 'No Date found' })
+    // }
+    // const oneOnDay = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+
+    const searchD = teacher.dateforLessonsAndTests.find((e) => 
+        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+    );
     if (!searchD) {
-        return res.status(400).json({ message: 'No Date found' })
+        return res.status(400).json({ message: 'No Date found' });
     }
-    const oneOnDay = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    
+    const oneOnDay = student.dateforLessonsAndTest.find((e) => 
+        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+    );
+    if (oneOnDay) {
+        return res.status(400).json({ message: 'You already had a lesson on this day' });
+    }
 
     if (oneOnDay) {
         listreq.forEach(r => {

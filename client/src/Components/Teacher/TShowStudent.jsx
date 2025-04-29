@@ -1,4 +1,4 @@
-// import React, { useState, useEffect, useRef } from "react";
+// import React, { useRef, useEffect } from "react";
 // import axios from "axios";
 // import { Dialog } from "primereact/dialog";
 // import { Button } from "primereact/button";
@@ -9,30 +9,65 @@
 //     const accesstoken = useSelector((state) => state.token.token);
 //     const toast = useRef(null);
 
+//     useEffect(() => {
+//         // כאשר הדיאלוג נפתח, וודא שהמידע של הסטודנט מסונכרן
+//         if (props.visibleS && props.student) {
+//             const fetchStudent = async () => {
+//                 try {
+//                     const res = await axios({
+//                         method: "get",
+//                         url: `http://localhost:7000/student/getStudentById/${props.student._id}`,
+//                         headers: { Authorization: "Bearer " + accesstoken },
+//                     });
+
+//                     if (res.status === 200) {
+//                         props.setRelevantstudent(res.data); // עדכון המידע של הסטודנט
+//                     }
+//                 } catch (e) {
+//                     console.error(e);
+//                 }
+//             };
+
+//             fetchStudent();
+//         }
+//     }, [props.visibleS, props.student, accesstoken]);
+
+
+
 //     const AddLesson = async () => {
+//         if (!props.student || !props.student._id) {
+//             toast.current.show({
+//                 severity: "error",
+//                 summary: "Error",
+//                 detail: "No student selected",
+//                 life: 2000,
+//             });
+//             return;
+//         }
+
 //         try {
 //             const res = await axios({
 //                 method: "put",
 //                 url: `http://localhost:7000/teacher/addLessonToStudent`,
 //                 headers: { Authorization: "Bearer " + accesstoken },
 //                 data: {
-//                     studentId: props.student._id,
+//                     studentId: props.student._id, // ודא שה-ID נשלח כראוי
 //                 },
 //             });
-    
+
 //             if (res.status === 200) {
 //                 toast.current.show({
 //                     severity: "success",
 //                     summary: "Success",
-//                     detail: "Lessons were successfully added to the student",
+//                     detail: "Lesson was successfully added to the student",
 //                     life: 2000,
 //                 });
-    
-//                 // Update the student and students list
-//                 props.setRelevantstudent(res.data.student); // עדכון התלמיד
-//                 props.setStudents(res.data.students);       // עדכון הרשימה
-    
-//                 // השהיה לפני סגירת הדיאלוג
+
+//                 // עדכון רשימת התלמידים והסטודנט הרלוונטי
+//                 props.setRelevantstudent(res.data.student);
+//                 props.setStudents(res.data.students);
+
+//                 // סגירת הדיאלוג
 //                 setTimeout(() => {
 //                     props.setVisibleS(false);
 //                 }, 2000);
@@ -42,8 +77,8 @@
 //             toast.current.show({
 //                 severity: "error",
 //                 summary: "Error",
-//                 detail: "Adding a lesson failed",
-//                 life: 1000,
+//                 detail: "Failed to add lesson",
+//                 life: 2000,
 //             });
 //         }
 //     };
@@ -52,11 +87,8 @@
 //         try {
 //             const res = await axios({
 //                 method: "DELETE",
-//                 url: `http://localhost:7000/student/deleteStudent`,
+//                 url: `http://localhost:7000/student/deleteStudent/${props.student._id}`,
 //                 headers: { Authorization: "Bearer " + accesstoken },
-//                 data: {
-//                     studentID: props.student._id,
-//                 },
 //             });
 
 //             if (res.status === 200) {
@@ -67,13 +99,11 @@
 //                     life: 1000,
 //                 });
 
-//                 // Remove the student from the list and update other students
 //                 props.removeStudent(props.student._id);
 //                 props.setStudents(res.data.studentByTeacher);
 
-//                 // Close the dialog after 2 seconds
 //                 setTimeout(() => {
-//                     props.setVisibleS(false);
+//                     props.setVisibleS(false); // סגירת הדיאלוג
 //                 }, 2000);
 //             }
 //         } catch (e) {
@@ -87,27 +117,6 @@
 //         }
 //     };
 
-//     // useEffect(() => {
-//     //     if (props.visibleS && props.student) {
-//     //         const fetchStudent = async () => {
-//     //             try {
-//     //                 const res = await axios({
-//     //                     method: "get",
-//     //                     url: `http://localhost:7000/student/${props.student._id}`,
-//     //                     headers: { Authorization: "Bearer " + accesstoken },
-//     //                 });
-
-//     //                 if (res.status === 200) {
-//     //                     props.setRelevantstudent(res.data);
-//     //                 }
-//     //             } catch (e) {
-//     //                 console.error(e);
-//     //             }
-//     //         };
-//     //         //fetchStudent();
-//     //     }
-//     // }, [props.visibleS, props.student]);
-
 //     return (
 //         <div className="card flex justify-content-center">
 //             <Toast ref={toast} />
@@ -117,12 +126,11 @@
 //                 style={{ width: "25vw", height: "25vw" }}
 //                 onHide={() => {
 //                     props.setVisibleS(false);
+//                     props.setRelevantstudent(null); // אתחול סטודנט לאחר סגירה
 //                 }}
 //                 dir="ltr"
 //                 footer={
 //                     <div className="dialog-footer" style={{ display: "flex", justifyContent: "flex-end" }}>
-
-
 //                         <Button
 //                             icon="pi pi-calendar-plus"
 //                             style={{
@@ -166,9 +174,7 @@
 //                     <div className="student-details">
 //                         <div className="student-info">
 //                             <span style={{ fontWeight: "bold" }}>Name: </span>
-//                             <span className="info-value">
-//                                 {props.student.firstName} {props.student.lastName}
-//                             </span>
+//                             <span className="info-value">{props.student.firstName} {props.student.lastName}</span>
 //                         </div>
 //                         <div className="student-info">
 //                             <span style={{ fontWeight: "bold" }}>Email: </span>
@@ -197,18 +203,29 @@
 
 // export default TShowStudent;
 
+
 import React, { useEffect, useRef } from "react";
-import axios from "axios";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const TShowStudent = (props) => {
     const accesstoken = useSelector((state) => state.token.token);
     const toast = useRef(null);
 
     const AddLesson = async () => {
+        if (!props.student || !props.student._id) {
+            toast.current.show({
+                severity: "error",
+                summary: "Error",
+                detail: "No student selected",
+                life: 2000,
+            });
+            return;
+        }
+
         try {
             const res = await axios({
                 method: "put",
@@ -218,20 +235,24 @@ const TShowStudent = (props) => {
                     studentId: props.student._id,
                 },
             });
-    
+
             if (res.status === 200) {
+                const updatedStudent = res.data.student; // התלמיד המעודכן מהשרת
+                const updatedStudentsList = res.data.students; // רשימת התלמידים המעודכנת
+
+                // עדכון התלמיד והרשימה
+                props.setRelevantstudent(updatedStudent);
+                props.setStudents(updatedStudentsList);
+                props.setChangeStudents(updatedStudentsList)
+                // הצגת הודעת הצלחה
                 toast.current.show({
                     severity: "success",
                     summary: "Success",
-                    detail: "Lessons were successfully added to the student",
+                    detail: "Lesson was successfully added to the student",
                     life: 2000,
                 });
-    
-                // Update the student and students list
-                props.setRelevantstudent(res.data.student); // עדכון התלמיד
-                props.setStudents(res.data.students);       // עדכון הרשימה
-    
-                // השהיה לפני סגירת הדיאלוג
+
+                // סגירת הדיאלוג
                 setTimeout(() => {
                     props.setVisibleS(false);
                 }, 2000);
@@ -241,19 +262,27 @@ const TShowStudent = (props) => {
             toast.current.show({
                 severity: "error",
                 summary: "Error",
-                detail: "Adding a lesson failed",
-                life: 1000,
+                detail: "Failed to add lesson",
+                life: 2000,
             });
         }
     };
-
     const deleteStudent = async () => {
+        if (!props.student || !props.student._id) {
+            toast.current.show({
+                severity: "error",
+                summary: "Error",
+                detail: "No student selected",
+                life: 2000,
+            });
+            return;
+        }
+
         try {
             const res = await axios({
-                method: 'DELETE',
+                method: "DELETE",
                 url: `http://localhost:7000/student/deleteStudent/${props.student._id}`,
                 headers: { Authorization: "Bearer " + accesstoken },
-                data: {}
             });
 
             if (res.status === 200) {
@@ -264,11 +293,9 @@ const TShowStudent = (props) => {
                     life: 1000,
                 });
 
-                // Remove the student from the list and update other students
                 props.removeStudent(props.student._id);
                 props.setStudents(res.data.studentByTeacher);
 
-                // Close the dialog after 2 seconds
                 setTimeout(() => {
                     props.setVisibleS(false);
                 }, 2000);
@@ -283,32 +310,9 @@ const TShowStudent = (props) => {
             });
         }
     };
-
     useEffect(() => {
-        if (props.visibleS && props.student) {
-            const fetchStudent = async () => {
-                try {
-                    const res = await axios({
-                        method: "get",
-                        url: `http://localhost:7000/student/${props.student._id}`,
-                        headers: { Authorization: "Bearer " + accesstoken },
-                    });
-
-                    if (res.status === 200) {
-                        props.setRelevantstudent(res.data); // עדכון המידע של הסטודנט
-                    }
-                } catch (e) {
-                    console.error(e);
-                }
-            };
-
-            fetchStudent();
-        } else {
-            // אם הדיאלוג נסגר, אתחל את המצב המקומי
-            props.setRelevantstudent(null);
-        }
-    }, [props.visibleS, props.student]);
-
+        console.log(props.student);
+    }, [])
     return (
         <div className="card flex justify-content-center">
             <Toast ref={toast} />
@@ -318,7 +322,7 @@ const TShowStudent = (props) => {
                 style={{ width: "25vw", height: "25vw" }}
                 onHide={() => {
                     props.setVisibleS(false);
-                    props.setRelevantstudent(null); // אתחול המידע של הסטודנט
+                    // props.setRelevantstudent(null);
                 }}
                 dir="ltr"
                 footer={
@@ -366,9 +370,7 @@ const TShowStudent = (props) => {
                     <div className="student-details">
                         <div className="student-info">
                             <span style={{ fontWeight: "bold" }}>Name: </span>
-                            <span className="info-value">
-                                {props.student.firstName} {props.student.lastName}
-                            </span>
+                            <span className="info-value">{props.student.firstName} {props.student.lastName}</span>
                         </div>
                         <div className="student-info">
                             <span style={{ fontWeight: "bold" }}>Email: </span>

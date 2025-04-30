@@ -1,6 +1,3 @@
-
-
-
 const TShowHourDetails =()=>{
     return(
         <div>

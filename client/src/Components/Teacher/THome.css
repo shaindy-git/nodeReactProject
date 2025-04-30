@@ -1,18 +1,19 @@
 .custom-special-date {
-    background-color: #FFD700; /* Gold background */
-    color: blue; /* Black text color */
+    background-color: white; /* White background for the circle */
+    color: #6366F1; /* Text color */
+    border: 2px solid #204392; /* Green border */
     border-radius: 50%; /* Circular shape */
-    display: inline-block;
+    display: flex; /* Use Flexbox for centering */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
     width: 2rem;
     height: 2rem;
-    line-height: 2rem;
-    text-align: center;
-    font-weight: bold;
+    font-weight: bold; /* Make text bold (optional) */
 }
 
 /* Optional: Add hover effects for special dates */
 .custom-special-date:hover {
-    background-color: #FFA500; /* Orange background on hover */
-    color: white;
+    background-color: #204392; /* Green background on hover */
+    color: white; /* White text color on hover */
     cursor: pointer;
 }

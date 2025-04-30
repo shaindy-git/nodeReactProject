@@ -370,29 +370,66 @@ const addAvailableClasses = async (req, res) => {
 };
 
 
+// const getAllDatesWithClasses = async (req, res) => {
+//     const { _id } = req.user;
+
+//     if (!_id) {
+//         return res.status(400).json({ message: "Teacher ID is required" });
+//     }
+
+
+//     const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).lean();
+//     if (!teacher) {
+//         return res.status(404).json({ message: "Teacher not found" });
+//     }
+
+//     // שליפת כל התאריכים
+//     const selectedDates = teacher.dateforLessonsAndTests.map(e => e.date);
+//     if (!selectedDates) {
+//         return res.status(400).json({ message: "Not Lessons" })
+//     }
+
+//     return res.status(200).json({ dates: selectedDates });
+
+
+
+// };
+
+
 const getAllDatesWithClasses = async (req, res) => {
     const { _id } = req.user;
 
+  
+
     if (!_id) {
+        console.log("1");
+        console.error("Missing Teacher ID");
         return res.status(400).json({ message: "Teacher ID is required" });
     }
 
-
     const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).lean();
     if (!teacher) {
+        console.log("2");
+        console.error("Teacher not found:", _id);
         return res.status(404).json({ message: "Teacher not found" });
     }
 
     // שליפת כל התאריכים
-    const selectedDates = teacher.dateforLessonsAndTests.map(e => e.date);
-    if (!selectedDates) {
-        return res.status(400).json({ message: "Not Lessons" })
+    if (!Array.isArray(teacher.dateforLessonsAndTests)) {
+        console.log("3");
+        console.error("dateforLessonsAndTests is not an array:", teacher.dateforLessonsAndTests);
+        return res.status(400).json({ message: "Not Lessons" });
     }
 
+    const selectedDates = teacher.dateforLessonsAndTests.map(e => e.date);
+    if (!selectedDates || selectedDates.length === 0) {
+        console.log("4");
+        console.error("No dates found in dateforLessonsAndTests");
+        return res.status(400).json({ message: "No Lessons or Tests Found" });
+    }
+
+    console.log("Selected dates:", selectedDates);
     return res.status(200).json({ dates: selectedDates });
-
-
-
 };
 
 

@@ -23,10 +23,13 @@ const THome = () => {
     const [date, setDate] = useState(null);
     const [visibleD, setVisibleD] = useState(false);
     const [fullHours, setFullHours] = useState([]);
+    const [specialDates, setspecialDates] = useState([]);
+    
     const toast = useRef(null);
 
 
-    const specialDates = ['2025-04-03', '2025-05-10', '2025-05-15'];
+    // const specialDates = ['2025-04-03', '2025-05-10', '2025-05-15'];
+
 
     
 
@@ -74,9 +77,85 @@ const THome = () => {
         };
 
 
+        
+        // const Date = async () => {
+        //     try {
+        //         const DatesRes = await axios({
+        //             method: 'get',
+        //             url: 'http://localhost:7000/teacher/getAllDatesWithClasses',
+        //             headers: { Authorization: "Bearer " + accesstoken },
+        //         });
+        
+        //         if (DatesRes.status === 200 && DatesRes.data.dates) {
+
+        //             console.log(DatesRes.data.dates);
+        //             // המרת התאריכים לפורמט YYYY-MM-DD
+        //             const formattedDates = DatesRes.data.dates.map(date => {
+        //                 const d = new Date(date);
+        //                 return d.toISOString().split('T')[0]; // פורמט YYYY-MM-DD
+        //             });
+                    
+        //             console.log("Special dates updated:", specialDates);
+        //             setspecialDates(formattedDates); // שמירת התאריכים במשתנה
+        //         }
+        //     } catch (e) {
+        //         if (e.response?.status === 400) {
+        //             setspecialDates([]); // אם אין תאריכים, שמור מערך ריק
+        //         } else {
+        //             console.error("Date / THome", e);
+        //         }
+        //     }
+        // };
+        const Date = async () => {
+            try {
+                const DatesRes = await axios({
+                    method: 'get',
+                    url: 'http://localhost:7000/teacher/getAllDatesWithClasses',
+                    headers: { Authorization: "Bearer " + accesstoken },
+                });
+        
+                if (DatesRes.status === 200 && DatesRes.data.dates) {
+                    console.log("Raw dates from server:", DatesRes.data.dates);
+        
+                    // בדיקה אם זה מערך
+                    if (!Array.isArray(DatesRes.data.dates)) {
+                        throw new Error("dates is not an array");
+                    }
+        
+                    // עיבוד התאריכים
+                    const formattedDates = DatesRes.data.dates.map(date => {
+                        const d = '2025-04-03'//new Date(date);
+                        if (isNaN(d)) {
+                            throw new Error(`Invalid date format: ${date}`);
+                        }
+                        const year = d.getUTCFullYear();
+                        const month = String(d.getUTCMonth() + 1).padStart(2, '0'); // חודשים מתחילים מ-0
+                        const day = String(d.getUTCDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`; // פורמט YYYY-MM-DD
+                    });
+        
+                    console.log("Formatted dates:", formattedDates);
+                    setspecialDates(formattedDates); // שמירת התאריכים במשתנה
+                } else {
+                    console.error("No dates found in response");
+                    setspecialDates([]);
+                }
+            } catch (e) {
+                if (e.response?.status === 400) {
+                    console.error("No dates found:", e.response.data);
+                    setspecialDates([]);
+                } else {
+                    console.error("Error in Date function:", e);
+                }
+            }
+        };
+
+
         // הפונקציות ירוצו רק אם יש טוקן תקף
 
         Student();
+        debugger
+        Date()
 
 
     }, [accesstoken,changeStudents]); // הוספת accesstoken לתלות

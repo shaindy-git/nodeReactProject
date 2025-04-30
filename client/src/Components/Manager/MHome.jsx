@@ -133,11 +133,14 @@ const MHome = () => {
                             setRelevantteacher(e.value ?? relevantteacher);
                             setVisibleT(true);
                         }}
-                        options={teachers.length > 0 ? teachers : [{ label: 'No Teachers Available', value: null }]}
-                        itemTemplate={teachers.length > 0 ? itemTemplateteacher : () => itemTemplateEmpty('No Teachers Available')}
+                        options={teachers .map(teacher => ({
+                            label: `${teacher.firstName} ${teacher.lastName}`, // יצירת תווית עם השם המלא
+                            value: teacher
+                        }))}
+                        itemTemplate={(teacher) => <div>{teacher.label}</div>} // תבנית להצגת השדה
                         className="w-full"
-                        listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '60vh' }}
-                        filterBy={["firstName", "lastName"]}
+                        listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '57vh' }}
+                        filterBy="label" // החיפוש יתבצע על השדה המחובר "label"
                     />
                     <MShowteacher
                         setVisibleT={setVisibleT}
@@ -147,7 +150,7 @@ const MHome = () => {
                         setStudents={setStudents}
                         setTeachers={setTeachers}
                     />
-                    
+
                 </div>
 
                 <div className="flex-item" style={{ flex: 1, margin: '20px' }}>
@@ -168,11 +171,14 @@ const MHome = () => {
                             setRelevantstudent(e.value ?? relevantstudent);
                             setVisibleS(true);
                         }}
-                        options={students.length > 0 ? students : [{ label: 'No Students Available', value: null }]}
-                        itemTemplate={students.length > 0 ? itemTemplatestudent : () => itemTemplateEmpty('No Students Available')}
+                        options={students.map(student => ({
+                            label: `${student.firstName} ${student.lastName}`, // יצירת תווית עם השם המלא
+                            value: student
+                        }))}
+                        itemTemplate={(student) => <div>{student.label}</div>} // תבנית להצגת השדה
                         className="w-full"
-                        listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '60vh' }}
-                        filterBy={["firstName", "lastName"]}
+                        listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '57vh' }}
+                        filterBy="label" // החיפוש יתבצע על השדה המחובר "label"
                     />
                     <MShowstudent
                         setVisibleS={setVisibleS}
@@ -202,11 +208,14 @@ const MHome = () => {
                             setRelevantreq(e.value ?? relevantreq);
                             setVisibleR(true);
                         }}
-                        options={req.length > 0 ? req : [{ label: 'No Requests Available', value: null }]}
-                        itemTemplate={req.length > 0 ? itemTemplatereq : () => itemTemplateEmpty('No Requests Available')}
+                        options={req .map(reqest => ({
+                            label: `${reqest.firstName} ${reqest.lastName}`, // יצירת תווית עם השם המלא
+                            value: reqest
+                        }))}
+                        itemTemplate={(reqest) => <div>{reqest.label}</div>} // תבנית להצגת השדה
                         className="w-full"
-                        listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '60vh' }}
-                        filterBy={["firstName", "lastName"]}
+                        listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '57vh' }}
+                        filterBy="label" // החיפוש יתבצע על השדה המחובר "label"
                     />
                     <MShowreq
                         setVisibleR={setVisibleR}

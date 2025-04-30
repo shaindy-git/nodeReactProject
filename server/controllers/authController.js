@@ -128,6 +128,9 @@ const registerS = async (req, res) => {
     if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
+    if ( (new Date() - new Date(dateOfBirth)) < 0) {
+        return res.status(400).json({ message: "Invalid date of birth" })
+    }
     if ((new Date() - new Date(dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 18 * 31536000000) {//מציג את 1/1000 השניה בשנה
         return res.status(400).json({ message: "The age is not appropriate" })
     }
@@ -174,6 +177,9 @@ const registerT = async (req, res) => {
     );
     if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
+    }
+    if ( (new Date() - new Date(dateOfBirth)) < 0) {
+        return res.status(400).json({ message: "Invalid date of birth" })
     }
     if ((new Date() - new Date(dateOfBirth)) > 60 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 40 * 31536000000) {//מציג את 1/1000 השניה בשנה
         return res.status(400).json({ message: "The age is not appropriate" })

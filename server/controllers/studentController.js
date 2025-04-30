@@ -256,6 +256,12 @@ const settingLesson = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
+    if ( (new Date(date) - new Date()) <   3 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות מ3 ימים
+        return res.status(400).json({ message: "too late" })
+    }
+    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+        return res.status(400).json({ message: "too late" })
+    }
     // const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
     // if (!searchD) {
     //     return res.status(400).json({ message: 'No Date found' })
@@ -316,6 +322,12 @@ const cancellationLesson = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
+    if ( (new Date(date) - new Date()) <   3 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות מ3 ימים
+        return res.status(400).json({ message: "too late" })
+    }
+    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+        return res.status(400).json({ message: "too late" })
+    }
     
     // const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
     const searchD = await teacher.dateforLessonsAndTests.find((e) => 
@@ -374,6 +386,12 @@ const testRequest = async (req, res) => {
     const teacher = await Teacher.findById({ _id: teacherId }, { password: 0 }).exec()
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
+    }
+    if ( (new Date(date) - new Date()) <   7 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות משבוע
+        return res.status(400).json({ message: "too late" })
+    }
+    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+        return res.status(400).json({ message: "too late" })
     }
     // const finddate = teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
     // if (!finddate) {

@@ -87,7 +87,7 @@ const Auth = () => {
                         <label className="w-6rem">Password</label>
                         <InputText id="password" type="password" className="w-12rem" onChange={(e) => { setPassword(e.target.value); }} />
                     </div>
-                    <Button label="Login" icon="pi pi-user" className="w-10rem mx-auto" onClick={login}></Button>
+                    <Button label="Login" icon="pi pi-user" className="w-10rem mx-auto" onClick={login} ></Button>
                 </div>
 
                 {/* Divider Section */}

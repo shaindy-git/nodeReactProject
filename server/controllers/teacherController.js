@@ -344,6 +344,13 @@ const addAvailableClasses = async (req, res) => {
         return res.status(404).json({ message: 'No teacher found' });
     }
 
+    if ( (new Date(date) - new Date()) <   7 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות משבוע
+        return res.status(400).json({ message: "too late" })
+    }
+    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+        return res.status(400).json({ message: "too late" })
+    }
+
     const validDate = new Date(date);
     if (isNaN(validDate)) {
         console.log("2");
@@ -498,6 +505,13 @@ const settingTest = async (req, res) => {
     }
     if (student.myTeacher != _id) {
         return res.status(400).json({ message: 'No Access' })
+    }
+
+    if ( (new Date(date) - new Date()) <   7 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות משבוע
+        return res.status(400).json({ message: "too late" })
+    }
+    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+        return res.status(400).json({ message: "too late" })
     }
     const listreq = teacher.listOfRequires
     let req1

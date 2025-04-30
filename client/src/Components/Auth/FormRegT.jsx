@@ -58,6 +58,10 @@ const FormRegT = (props) => {
 
     const onSubmit = async (data) => {
         debugger
+        if ( (new Date() - new Date(defaultValues.dateOfBirth)) < 0) {
+            alert("Invalid date of birth")
+            return 
+        }
         if ((new Date() - new Date(defaultValues.dateOfBirth)) > 60 * 31536000000 || (new Date() - new Date(defaultValues.dateOfBirth)) < 40 * 31536000000) {//מציג את 1/1000 השניה בשנה
             alert("The age is not appropriate, for a teacher the required age is between 40-60")
             return

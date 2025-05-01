@@ -18,6 +18,8 @@ router.put("/addLessonToStudent", teacherController.addLessonToStudent)
 router.get("/getAllDatesWithClasses", teacherController.getAllDatesWithClasses)
 router.get("/getClassesByDate/:date", teacherController.getClassesByDate)
 router.put("/changePassword", teacherController.changePassword)
+router.get("/getAllRecommendations", teacherController.getAllRecommendations)
+router.get("/getRequests", teacherController.getRequests)
 
 
 module.exports = router

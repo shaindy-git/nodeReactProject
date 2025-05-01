@@ -344,10 +344,10 @@ const addAvailableClasses = async (req, res) => {
         return res.status(404).json({ message: 'No teacher found' });
     }
 
-    if ( (new Date(date) - new Date()) <   7 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות משבוע
+    if ((new Date(date) - new Date()) < 7 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות משבוע
         return res.status(400).json({ message: "too late" })
     }
-    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+    if ((new Date(date) - new Date()) < 0) {//התאריך כבר עבר
         return res.status(400).json({ message: "too late" })
     }
 
@@ -406,7 +406,7 @@ const addAvailableClasses = async (req, res) => {
 const getAllDatesWithClasses = async (req, res) => {
     const { _id } = req.user;
 
-  
+
 
     if (!_id) {
         console.log("1");
@@ -479,116 +479,194 @@ const getClassesByDate = async (req, res) => {
     console.log(hoursFull, hoursEmpty);
 
     // החזרת השעות בלבד
-    if (!hoursFull||!hoursEmpty) {
+    if (!hoursFull || !hoursEmpty) {
         console.log("5");
         return res.status(404).json({ message: 'No lessons or tests found on this date' });
     }
-    return res.status(200).json({ hoursFull: hoursFull, hoursEmpty:hoursEmpty });
+    return res.status(200).json({ hoursFull: hoursFull, hoursEmpty: hoursEmpty });
 
 };
 
 
 
+// const settingTest = async (req, res) => {
+//     const { _id } = req.user
+//     const { studentId, date, hour } = req.body
+//     if (!studentId || !date || !hour) {
+//         return res.status(400).json({ message: "files are required" })
+//     }
+//     const student = await Student.findById({ _id: studentId }, { password: 0 }).exec()
+//     if (!student) {
+//         return res.status(400).json({ message: 'No student found' })
+//     }
+//     const teacher = await Teacher.findById({ _id }, { password: 0 }).exec()
+//     if (!teacher) {
+//         return res.status(400).json({ message: 'No teacher found' })
+//     }
+//     if (student.myTeacher != _id) {
+//         return res.status(400).json({ message: 'No Access' })
+//     }
+
+//     if ((new Date(date) - new Date()) < 7 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות משבוע
+//         return res.status(400).json({ message: "too late" })
+//     }
+//     if ((new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+//         return res.status(400).json({ message: "too late" })
+//     }
+//     const listreq = teacher.listOfRequires
+//     let req1
+//     // const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+//     // if (!searchD) {
+//     //     return res.status(400).json({ message: 'No Date found' })
+//     // }
+//     // const oneOnDay = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+
+//     const searchD = teacher.dateforLessonsAndTests.find((e) =>
+//         new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+//     );
+//     if (!searchD) {
+//         return res.status(400).json({ message: 'No Date found' });
+//     }
+
+//     const oneOnDay = student.dateforLessonsAndTest.find((e) =>
+//         new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+//     );
+//     if (oneOnDay) {
+//         return res.status(400).json({ message: 'You already had a lesson on this day' });
+//     }
+
+//     if (oneOnDay) {
+//         listreq.forEach(r => {
+//             if (r.studentId === studentId && r.date === date) {
+//                 req1 = r
+//                 return
+//             }
+//         });
+
+//         const tmp = teacher.listOfRequires.indexOf(req1)
+//         teacher.listOfRequires.splice(tmp, 1)
+//         await teacher.save()
+//         return res.status(400).json({ message: 'The student had alrady lesson in this day' })
+//     }
+//     const searchH = searchD.hours.find((e) => ((e.hour).toString()) === (hour))
+//     if (!searchH) {
+//         listreq.forEach(r => {
+//             if (r.studentId === studentId && r.date === date) {
+//                 req1 = r
+//                 return
+//             }
+//         });
+
+//         const tmp = teacher.listOfRequires.indexOf(req1)
+//         teacher.listOfRequires.splice(tmp, 1)
+//         await teacher.save()
+//         return res.status(400).json({ message: 'No Hour found in this Date' })
+//     }
+//     if (searchH.full === true) {
+//         return res.status(400).json({ message: 'The Hour is full' })
+//     }
+//     searchH.full = true
+//     searchH.typeOfHour = "Test"
+
+
+//     const newDateAndHour = { date: date, hour: hour, typeOfHour: "Test" }
+//     student.dateforLessonsAndTest = [...student.dateforLessonsAndTest, newDateAndHour]
+
+
+//     listreq.forEach(r => {
+//         if (r.studentId === studentId && r.date === date) {
+//             req1 = r
+//             return
+//         }
+//     });
+
+//     const tmp = teacher.listOfRequires.indexOf(req1)
+//     teacher.listOfRequires.splice(tmp, 1)
+//     await teacher.save()
+//     await student.save()
+
+
+//     res.status(200).json({ teacher, student })
+
+// }
+
 const settingTest = async (req, res) => {
-    const { _id } = req.user
-    const { studentId, date, hour } = req.body
+    const { _id } = req.user;
+    const { studentId, date, hour } = req.body;
+
     if (!studentId || !date || !hour) {
-        return res.status(400).json({ message: "files are required" })
+        return res.status(400).json({ message: "All fields are required" });
     }
-    const student = await Student.findById({ _id: studentId }, { password: 0 }).exec()
+
+    const student = await Student.findById({ _id: studentId }).exec();
     if (!student) {
-        return res.status(400).json({ message: 'No student found' })
+        return res.status(400).json({ message: 'No student found' });
     }
-    const teacher = await Teacher.findById({ _id }, { password: 0 }).exec()
+
+    const teacher = await Teacher.findById({ _id }).exec();
     if (!teacher) {
-        return res.status(400).json({ message: 'No teacher found' })
+        return res.status(400).json({ message: 'No teacher found' });
     }
+
     if (student.myTeacher != _id) {
-        return res.status(400).json({ message: 'No Access' })
+        return res.status(403).json({ message: 'No Access' });
     }
 
-    if ( (new Date(date) - new Date()) <   7 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות משבוע
-        return res.status(400).json({ message: "too late" })
-    }
-    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
-        return res.status(400).json({ message: "too late" })
-    }
-    const listreq = teacher.listOfRequires
-    let req1
-    // const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
-    // if (!searchD) {
-    //     return res.status(400).json({ message: 'No Date found' })
-    // }
-    // const oneOnDay = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
+    const currentDate = new Date();
+    const requestedDate = new Date(date);
 
-    const searchD = teacher.dateforLessonsAndTests.find((e) => 
-        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+    if ((requestedDate - currentDate) < 7 * 24 * 60 * 60 * 1000) {
+        return res.status(400).json({ message: "The date is too close" });
+    }
+
+    if (requestedDate < currentDate) {
+        return res.status(400).json({ message: "The date has already passed" });
+    }
+
+    const searchD = teacher.dateforLessonsAndTests.find((e) =>
+        new Date(e.date).toISOString().split('T')[0] === requestedDate.toISOString().split('T')[0]
     );
+
     if (!searchD) {
-        return res.status(400).json({ message: 'No Date found' });
+        return res.status(400).json({ message: 'No available date found for the teacher' });
     }
-    
-    const oneOnDay = student.dateforLessonsAndTest.find((e) => 
-        new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
+
+    const oneOnDay = student.dateforLessonsAndTest.find((e) =>
+        new Date(e.date).toISOString().split('T')[0] === requestedDate.toISOString().split('T')[0]
     );
-    if (oneOnDay) {
-        return res.status(400).json({ message: 'You already had a lesson on this day' });
-    }
 
     if (oneOnDay) {
-        listreq.forEach(r => {
-            if (r.studentId === studentId && r.date === date) {
-                req1 = r
-                return
-            }
-        });
-
-        const tmp = teacher.listOfRequires.indexOf(req1)
-        teacher.listOfRequires.splice(tmp, 1)
-        await teacher.save()
-        return res.status(400).json({ message: 'The student had alrady lesson in this day' })
+        return res.status(400).json({ message: 'The student already has a lesson on this day' });
     }
-    const searchH = searchD.hours.find((e) => ((e.hour).toString()) === (hour))
-    if (!searchH) {
-        listreq.forEach(r => {
-            if (r.studentId === studentId && r.date === date) {
-                req1 = r
-                return
-            }
-        });
 
-        const tmp = teacher.listOfRequires.indexOf(req1)
-        teacher.listOfRequires.splice(tmp, 1)
-        await teacher.save()
-        return res.status(400).json({ message: 'No Hour found in this Date' })
+    const searchH = searchD.hours.find((e) => e.hour === hour);
+    if (!searchH || searchH.full) {
+        return res.status(400).json({ message: 'The hour is unavailable' });
     }
-    if (searchH.full === true) {
-        return res.status(400).json({ message: 'The Hour is full' })
-    }
-    searchH.full = true
-    searchH.typeOfHour = "Test"
 
+    // Update hour
+    searchH.full = true;
+    searchH.typeOfHour = "Test";
 
-    const newDateAndHour = { date: date, hour: hour, typeOfHour: "Test" }
-    student.dateforLessonsAndTest = [...student.dateforLessonsAndTest, newDateAndHour]
-
-
-    listreq.forEach(r => {
-        if (r.studentId === studentId && r.date === date) {
-            req1 = r
-            return
-        }
+    // Add the lesson/test to the student's schedule
+    student.dateforLessonsAndTest.push({
+        date: requestedDate,
+        hour: hour,
+        typeOfHour: "Test",
     });
 
-    const tmp = teacher.listOfRequires.indexOf(req1)
-    teacher.listOfRequires.splice(tmp, 1)
-    await teacher.save()
-    await student.save()
+    // Remove the request from the teacher's list
+    teacher.listOfRequires = teacher.listOfRequires.filter(req =>
+        req.studentId.toString() !== studentId || new Date(req.date).toISOString() !== requestedDate.toISOString()
+    );
+
+    await teacher.save();
+    await student.save();
+
+    res.status(200).json({ teacher, student });
+};
 
 
-    res.status(200).json({ teacher, student })
-
-}
 const addLessonToStudent = async (req, res) => {
     const { _id } = req.user
     const { studentId } = req.body
@@ -614,16 +692,51 @@ const addLessonToStudent = async (req, res) => {
 const changePassword = async (req, res) => {
     const { _id } = req.user
     const { oldPassword, newPassword } = req.body
-    const student = await Teacher.findById(_id).exec();
-    if (!student) {
+    const teacher = await Teacher.findById(_id).exec();
+    if (!teacher) {
         return res.status(400).json({ message: 'teacher not found' });
     }
-    const match = await bcrypt.compare(oldPassword, student.password)
+    const match = await bcrypt.compare(oldPassword, teacher.password)
     if (!match) return res.status(401).json({ message: 'Incorrect password' })
-    student.password = await bcrypt.hash(newPassword, 10)
-    await student.save()
+    teacher.password = await bcrypt.hash(newPassword, 10)
+    await teacher.save()
     return res.status(200).json({ message: 'Password changed successfully.' })
 }
+
+const getAllRecommendations = async (req, res) => {
+
+    const { _id } = req.user
+    const teacher = await Teacher.findById(_id).lean();
+    if (!teacher) {
+        return res.status(400).json({ message: 'teacher not found' });
+    }
+    if (!teacher.recommendations) {
+        return res.status(400).json({ message: 'no recommndations' });
+    }
+    return res.status(200).json({recommendations:teacher.recommendations})
+}
+
+const getRequests = async (req, res) => {
+    const { _id } = req.user;
+
+    const teacher = await Teacher.findById(_id)
+        .populate({
+            path: 'listOfRequires.studentId',
+            select: 'firstName lastName'
+        })
+        .lean();
+
+    if (!teacher) {
+        return res.status(400).json({ message: 'teacher not found' });
+    }
+
+    if (!teacher.listOfRequires) {
+        return res.status(400).json({ message: 'no requests' });
+    }
+
+    return res.status(200).json({ listOfRequires: teacher.listOfRequires });
+};
+
 
 module.exports = {
     addTeacher,
@@ -636,7 +749,9 @@ module.exports = {
     addLessonToStudent,
     getAllDatesWithClasses,
     getClassesByDate,
-    changePassword
+    changePassword,
+    getAllRecommendations,
+    getRequests
 
 
 

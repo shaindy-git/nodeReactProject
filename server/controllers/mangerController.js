@@ -28,7 +28,7 @@ const addManager = async (req, res) => {
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS ||doubleUserNameA|| userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
     const doublarea = await Manager.findOne({ area: area }).lean()
@@ -72,7 +72,7 @@ const updateManager = async (req, res) => {
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS ||doubleUserNameA|| userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
 
@@ -90,21 +90,21 @@ const updateManager = async (req, res) => {
     // const managers = await Manager.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
     // return res.status(200).json({ managers, role: 'Manager' })
 
-     const MInfo = {
-                _id: manager._id,
-                firstName: manager.firstName,
-                lastName: manager.lastName,
-                userName: manager.userName,
-                numberID: manager.numberID,
-                dateOfBirth: manager.dateOfBirth,
-                phone: manager.phone,
-                email: manager.email,
-                area: manager.area,
-                RequestList: manager.RequestList,
-                role: "M"
-            }
-            const accessToken = jwt.sign(MInfo, process.env.ACCESS_TOKEN_SECRET)
-            return res.status(200).json({ accessToken: accessToken, role: MInfo.role })
+    const MInfo = {
+        _id: manager._id,
+        firstName: manager.firstName,
+        lastName: manager.lastName,
+        userName: manager.userName,
+        numberID: manager.numberID,
+        dateOfBirth: manager.dateOfBirth,
+        phone: manager.phone,
+        email: manager.email,
+        area: manager.area,
+        RequestList: manager.RequestList,
+        role: "M"
+    }
+    const accessToken = jwt.sign(MInfo, process.env.ACCESS_TOKEN_SECRET)
+    return res.status(200).json({ accessToken: accessToken, role: MInfo.role })
 
 }
 
@@ -185,16 +185,16 @@ const removeReqest = async (req, res) => {
 
 const changePassword = async (req, res) => {
     const { _id } = req.user
-    const { oldPassword , newPassword} = req.body
-    const student = await Manager.findById(_id).exec();
-    if(!student){
+    const { oldPassword, newPassword } = req.body
+    const manager = await Manager.findById(_id).exec();
+    if (!manager) {
         return res.status(400).json({ message: 'manager not found' });
     }
-    const match = await bcrypt.compare(oldPassword, student.password)
+    const match = await bcrypt.compare(oldPassword, manager.password)
     if (!match) return res.status(401).json({ message: 'Incorrect password' })
-    student.password=await bcrypt.hash(newPassword, 10)
-await student.save()
-return res.status(200).json({ message: 'Password changed successfully.' })
+    manager.password = await bcrypt.hash(newPassword, 10)
+    await manager.save()
+    return res.status(200).json({ message: 'Password changed successfully.' })
 }
 
 

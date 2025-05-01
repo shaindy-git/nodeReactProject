@@ -75,6 +75,7 @@ const login = async (req, res) => {
             email: foundT.email,
             area: foundT.area,
             gender: foundT.gender,
+            recommendations:foundT.recommendations,
             role: "T"
         }
         const accessToken = jwt.sign(TInfo, process.env.ACCESS_TOKEN_SECRET)

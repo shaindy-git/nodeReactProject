@@ -241,7 +241,7 @@ const TShowStudent = (props) => {
                 const updatedStudentsList = res.data.students; // רשימת התלמידים המעודכנת
 
                 // עדכון התלמיד והרשימה
-                props.setRelevantstudent(updatedStudent);
+                props.setRelevantStudent(updatedStudent);
                 props.setStudents(updatedStudentsList);
                 props.setChangeStudents(updatedStudentsList)
                 // הצגת הודעת הצלחה

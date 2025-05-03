@@ -4,14 +4,59 @@ import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
+import { OverlayPanel } from 'primereact/overlaypanel';
 
 const TShowHours = (props) => {
     const accesstoken = useSelector((state) => state.token.token);
     const decoded = accesstoken ? jwtDecode(accesstoken) : null;
-    const toast = useRef(null);
 
-    // נוודא שה-state מאותחל
-    const [selectedHoursByDate, setSelectedHoursByDate] = useState({});
+    const toast = useRef(null);
+    const overlayPanel = useRef(null);
+
+    const [selectedHourDetails, setSelectedHourDetails] = useState(null);
+    const [selectedHoursByDate, setSelectedHoursByDate] = useState([]);
+    const [alllessonsAndTest, setAlllessonsAndTest] = useState([]);
+
+    const showDetails = (event, hour) => {
+        overlayPanel.current.toggle(event);
+
+        console.log(alllessonsAndTest);
+        
+        // מציאת הפרטים של השעה הספציפית
+        const spesipicHour = alllessonsAndTest.find(h => h.hour === hours.hour);
+console.log(spesipicHour);
+
+        if (!spesipicHour) {
+            console.error("Hour details not found");
+            return;
+        }
+
+        // מציאת הסטודנט לפי ID
+
+       console.log(props.students);
+        
+        const student = props.students.find(student => student._id === spesipicHour.hours.studentId);
+
+        if (!student) {
+            console.error("Student not found");
+            return;
+        }
+
+        console.log(spesipicHour.hour,
+            spesipicHour.type,
+            student.firstName,
+            student.lastName,);
+
+
+        // עדכון הנתונים של השעה הנבחרת
+        setSelectedHourDetails({
+            hour: spesipicHour.hour,
+            type: spesipicHour.type,
+            studentFirstName: student.firstName,
+            studentLastName: student.lastName,
+        });
+    };
+
 
     const hours = [
         "01:00", "02:00", "03:00", "04:00", "05:00",
@@ -21,13 +66,9 @@ const TShowHours = (props) => {
         "21:00", "22:00", "23:00", "24:00"
     ];
 
-    // הפיכת ה-date לאובייקט Date אם הוא לא כבר כזה
     const currentDate = props.date instanceof Date ? props.date : new Date(props.date);
-
-    // בדיקה אם התאריך תקין
     const isValidDate = currentDate && !isNaN(currentDate);
 
-    // שליפת שעות עבור תאריך נוכחי או ברירת מחדל
     const selectedHoursForCurrentDate =
         isValidDate
             ? selectedHoursByDate[currentDate.toLocaleDateString()] || { hoursFull: [], hoursEmpty: [] }
@@ -38,9 +79,7 @@ const TShowHours = (props) => {
 
         const fetchSelectedHours = async () => {
             try {
-                // יצירת פורמט תאריך מתאים לשרת
                 const formattedDate = currentDate.toISOString().split('T')[0];
-                console.log("Fetching hours for date:", formattedDate);
 
                 const HourRes = await axios({
                     method: 'get',
@@ -57,14 +96,11 @@ const TShowHours = (props) => {
                 }
             } catch (e) {
                 if (e.response?.status === 404) {
-                    // אם אין נתונים עבור התאריך, מאותחל עם מערכים ריקים
-                    console.warn(`No data found for date: ${currentDate}`);
                     setSelectedHoursByDate((prev) => ({
                         ...prev,
                         [currentDate.toLocaleDateString()]: { hoursFull: [], hoursEmpty: [] },
                     }));
                 } else {
-                    console.error("Error fetching hours:", e);
                     toast.current?.show({
                         severity: 'error',
                         summary: 'Error',
@@ -74,19 +110,50 @@ const TShowHours = (props) => {
             }
         };
 
+
+        const getDateforLessonsAndTests = async () => {
+            try {
+                const formattedDate = currentDate.toISOString().split('T')[0];
+                
+
+                const HourRes = await axios({
+                    method: 'get',
+                    url: `http://localhost:7000/teacher/getDateforLessonsAndTests/${formattedDate}`,
+                    headers: { Authorization: "Bearer " + accesstoken },
+                });
+                
+
+                if (HourRes.status === 200) {
+                    setAlllessonsAndTest(HourRes.data.relevantDateforLessonsAndTests);
+                }
+            } catch (e) {
+                if (e.response?.status === 404) {
+                    setAlllessonsAndTest([]);
+                    ;
+                } else {
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to fetch hours',
+                    });
+                }
+            }
+        };
+
+
         fetchSelectedHours();
+        getDateforLessonsAndTests()
     }, [accesstoken, props.date, isValidDate]);
 
     const handleHourClick = async (hour) => {
         if (!isValidDate) {
             return;
         }
-    
-        const now = new Date(); // הזמן הנוכחי
-        const oneWeekInMillis = 7 * 24 * 60 * 60 * 1000; // שבוע במילישניות
+
+        const now = new Date();
+        const oneWeekInMillis = 7 * 24 * 60 * 60 * 1000;
         const selectedDate = currentDate;
-    
-        // בדיקה אם התאריך כבר עבר
+
         if (selectedDate < now) {
             toast.current.show({
                 severity: 'error',
@@ -95,8 +162,7 @@ const TShowHours = (props) => {
             });
             return;
         }
-    
-        // בדיקה אם התאריך הוא פחות משבוע קדימה
+
         if (selectedDate - now < oneWeekInMillis) {
             toast.current.show({
                 severity: 'error',
@@ -105,14 +171,13 @@ const TShowHours = (props) => {
             });
             return;
         }
-    
-        // בדיקות נוספות (כמו האם השעה כבר קיימת וכו')
+
         const currentSelection = selectedHoursForCurrentDate || { hoursFull: [], hoursEmpty: [] };
-    
+
         if (currentSelection.hoursFull.includes(hour) || currentSelection.hoursEmpty.includes(hour)) {
-            return; // אם השעה כבר נבחרה, אל תעשה כלום
+            return;
         }
-    
+
         try {
             const HourRes = await axios({
                 method: 'put',
@@ -123,7 +188,7 @@ const TShowHours = (props) => {
                     hour: hour,
                 },
             });
-    
+
             if (HourRes.status === 200) {
                 toast.current.show({
                     severity: 'success',
@@ -133,22 +198,13 @@ const TShowHours = (props) => {
                 props.setChangeDate(Date.now());
             }
         } catch (e) {
-            if (e.response?.status === 400) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Bad request',
-                });
-            } else {
-                console.error("Error in TShowHours");
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'An error occurred',
-                });
-            }
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'An error occurred',
+            });
         }
-    
+
         setSelectedHoursByDate((prev) => ({
             ...prev,
             [currentDate.toLocaleDateString()]: {
@@ -173,18 +229,14 @@ const TShowHours = (props) => {
             >
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', padding: '10px' }}>
                     {hours.map((hour) => {
-                        let color = 'black'; // ברירת מחדל
-                        if (selectedHoursForCurrentDate.hoursFull.includes(hour)) {
-                            color = 'red'; // שעות מלאות
-                        } else if (selectedHoursForCurrentDate.hoursEmpty.includes(hour)) {
-                            color = 'blue'; // שעות ריקות
-                        }
+                        const isFull = selectedHoursForCurrentDate.hoursFull.includes(hour);
+                        const isEmpty = selectedHoursForCurrentDate.hoursEmpty.includes(hour);
 
                         return (
                             <div
                                 key={hour}
                                 style={{
-                                    color: color,
+                                    color: isFull ? 'red' : isEmpty ? 'blue' : 'black',
                                     cursor: 'pointer',
                                     fontSize: '16px',
                                     textAlign: 'center',
@@ -192,9 +244,25 @@ const TShowHours = (props) => {
                                     border: '1px solid #ddd',
                                     borderRadius: '5px',
                                 }}
-                                onClick={() => handleHourClick(hour)}
+                                onClick={(e) => {
+                                    if (isFull) {
+                                        showDetails(e, { hour });
+                                    } else {
+                                        handleHourClick(hour);
+                                    }
+                                }}
                             >
                                 {hour}
+                                {isFull && (
+                                    <OverlayPanel ref={overlayPanel} style={{ width: '300px', padding: '1rem', textAlign: 'left' }}>
+                                        <div>
+                                            <h4>Lesson Details</h4>
+                                            <p><strong>Hour:</strong> {selectedHourDetails?.hour}</p>
+                                            <p><strong>Type:</strong> {selectedHourDetails?.type}</p>
+                                            <p><strong>Student:</strong> {selectedHourDetails?.studentFirstNAme}   {selectedHourDetails?.student.lastName}</p>
+                                        </div>
+                                    </OverlayPanel>
+                                )}
                             </div>
                         );
                     })}

@@ -647,6 +647,7 @@ const settingTest = async (req, res) => {
     // Update hour
     searchH.full = true;
     searchH.typeOfHour = "Test";
+    searchH.studentId=studentId;
 
     // Add the lesson/test to the student's schedule
     student.dateforLessonsAndTest.push({
@@ -737,6 +738,36 @@ const getRequests = async (req, res) => {
     return res.status(200).json({ listOfRequires: teacher.listOfRequires });
 };
 
+const getDateforLessonsAndTests = async (req, res) => {
+    const { _id } = req.user;
+    const { date } = req.params;
+
+    const teacher = await Teacher.findById(_id).lean();
+
+    if (!teacher) {
+        return res.status(400).json({ message: 'teacher not found' });
+    }
+
+    if (!teacher.dateforLessonsAndTests) {
+        return res.status(400).json({ message: 'no dateforLessonsAndTests' });
+    }
+
+    // המרת התאריך שהתקבל ל-Date
+    const requestedDate = new Date(date);
+
+    // בדיקת התאמה לתאריך הספציפי
+    const relevantDateforLessonsAndTests = teacher.dateforLessonsAndTests
+        .filter(r => new Date(r.date).toISOString().split('T')[0] === requestedDate.toISOString().split('T')[0]) // סינון לפי תאריך
+        .map(r => ({
+            date: r.date,
+            hours: r.hours.filter(hour => hour.full === true) // סינון שעות שבהן full === true
+        }))
+        .filter(d => d.hours.length > 0); // שמירת תאריכים עם שעות מתאימות בלבד
+        console.log("aaaaa",relevantDateforLessonsAndTests);
+        
+
+    return res.status(200).json({ relevantDateforLessonsAndTests:relevantDateforLessonsAndTests });
+};
 
 module.exports = {
     addTeacher,
@@ -751,7 +782,8 @@ module.exports = {
     getClassesByDate,
     changePassword,
     getAllRecommendations,
-    getRequests
+    getDateforLessonsAndTests,
+    getRequests,//לא ממשנו
 
 
 

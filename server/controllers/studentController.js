@@ -296,6 +296,7 @@ const settingLesson = async (req, res) => {
     }
     searchH.full = true
     searchH.typeOfHour = "Lesson"
+    searchH.studentId=_id
     await teacher.save()
 
     const newDateAndHour = { date: date, hour: hour, typeOfHour: "Lesson" }
@@ -344,6 +345,7 @@ const cancellationLesson = async (req, res) => {
         return res.status(400).json({ message: 'This lesson already false' })
     }
     searchH.full = false
+    searchH.studentId=null
     await teacher.save()
 
     // const searchD2 = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))

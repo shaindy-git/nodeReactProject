@@ -33,17 +33,17 @@ const teacherScehema = new mongoose.Schema({
         type: String,
         required: true,
     },
-   
+
     area: {
         type: String,
-        enum:["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
-            "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov", 
-            "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center", 
-            "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar", 
+        enum: ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
+            "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
+            "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
+            "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
             "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"],
         required: true,
     },
-     //-------------------------------------
+    //-------------------------------------
     gender: {
         type: String,
         enum: ['male', 'female'],
@@ -71,8 +71,8 @@ const teacherScehema = new mongoose.Schema({
             hours: [{
                 hour: {
                     type: String,
-                    enum:["01:00","02:00","03:00","04:00","05:00","06:00","07:00","08:00","09:00","10:00","11:00","12:00",
-                        "13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00","24:00"],
+                    enum: ["01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00",
+                        "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "24:00"],
                     required: true,
                 },
                 typeOfHour: {
@@ -82,12 +82,17 @@ const teacherScehema = new mongoose.Schema({
                 full: {
                     type: Boolean,
                     default: false
+                },
+                studentId: {
+                    type: mongoose.Schema.ObjectId,
+                    ref: "Student",
+                    required: true,
                 }
             }]
 
         }]
     },
-    listOfRequires:{
+    listOfRequires: {
         type: [{
             studentId:
             {

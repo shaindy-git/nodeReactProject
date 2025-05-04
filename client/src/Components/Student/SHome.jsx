@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import { Button } from 'primereact/button';
+import './SHome.css';
+const SHome = () => {
 
-const SHome=()=>{
-
-    return(
-        <div>
-            
-            <h1>האתר בשיפוצים...</h1>  
+    return (
         
-        </div>
+        <div className="card flex justify-content-start">
+        <Button 
+            label="Tetcher Selction" 
+            link 
+            className="no-underline p-button-left"
+            onClick={() => window.open("./SSelectionTeatcher", "_blank")} 
+            aria-label="Open Auth Terms"
+        />
+    </div>
+
+
+
+        
     )
-    
+
 }
 export default SHome

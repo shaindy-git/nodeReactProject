@@ -1,0 +1,8 @@
+.custom-align {
+    display: flex;
+    justify-content: flex-start; /* יישור לשמאל */
+}
+
+.custom-button {
+    text-decoration: none; /* ביטול קו תחתון */
+}

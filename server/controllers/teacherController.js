@@ -96,45 +96,116 @@ const addTeacher = async (req, res) => {
 
 
 
+// const getAllTeachers = async (req, res) => {
+
+//     const { _id } = req.user
+//     const { gender, area } = req.body
+//     const foundM = await Manager.findOne({ _id }).lean()
+//     const foundT = await Teacher.findOne({ _id }).lean()
+//     const foundS = await Student.findOne({ _id }).lean()
+
+//     if (foundS) {
+//         if (gender&&area) {
+//             const teachers = await Teacher.find({ area: area, gender: gender }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+//             if (!teachers?.length) {
+//                 return res.status(400).json({ message: 'No teachers found' })
+//             }
+//             res.status(200).json(teachers)
+//         }
+//         const teachers = await Teacher.find({ area: area }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+//         if (!teachers?.length) {
+//             return res.status(400).json({ message: 'No teachers found' })
+//         }
+//         res.status(200).json(teachers)
+//     }
+//     if (foundT) {
+
+//         return res.status(400).json({ message: 'No Access for Teachers' })
+//     }
+//     if (!foundM) {
+//         return res.status(400).json({ message: "No Access" })
+//     }
+//     // if (!area) {
+//     //     return res.status(400).json({ message: "files are required" })
+//     // }
+//     const teachers = await Teacher.find({ area: foundM.area }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+//     if (!teachers?.length) {
+//         return res.status(400).json({ message: 'No teachers found' })
+//     }
+//     res.status(200).json(teachers)
+// }
+
 const getAllTeachers = async (req, res) => {
+    const { _id } = req.user;
+    const { gender, area } = req.body;
+    const foundM = await Manager.findOne({ _id }).lean();
+    const foundT = await Teacher.findOne({ _id }).lean();
+    const foundS = await Student.findOne({ _id }).lean();
 
-    const { _id, area } = req.user
-    const { gender } = req.query
-    const foundM = await Manager.findOne({ _id }).lean()
-    const foundT = await Teacher.findOne({ _id }).lean()
-    const foundS = await Student.findOne({ _id }).lean()
-
+    // אם המשתמש הוא תלמיד
     if (foundS) {
-        if (gender) {
-            const teachers = await Teacher.find({ area: area, gender: gender }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+        // אם יש גם מין וגם אזור
+        if (gender && area) {
+            const teachers = await Teacher.find({ area, gender }, { password: 0 })
+                .sort({ firstName: 1, lastName: 1 })
+                .lean();
             if (!teachers?.length) {
-                return res.status(400).json({ message: 'No teachers found' })
+                return res.status(400).json({ message: 'No teachers found' });
             }
-            res.status(200).json(teachers)
+            return res.status(200).json(teachers);
         }
-        const teachers = await Teacher.find({ area: area }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+
+        // אם יש רק אזור
+        if (area) {
+            const teachers = await Teacher.find({ area }, { password: 0 })
+                .sort({ firstName: 1, lastName: 1 })
+                .lean();
+            if (!teachers?.length) {
+                return res.status(400).json({ message: 'No teachers found' });
+            }
+            return res.status(200).json(teachers);
+        }
+
+        // אם יש רק מין
+        if (gender) {
+            const teachers = await Teacher.find({ gender }, { password: 0 })
+                .sort({ firstName: 1, lastName: 1 })
+                .lean();
+            if (!teachers?.length) {
+                return res.status(400).json({ message: 'No teachers found' });
+            }
+            return res.status(200).json(teachers);
+        }
+
+        // אם אין לא מין ולא אזור - מחזירים את כל המורים
+        const teachers = await Teacher.find({}, { password: 0 })
+            .sort({ firstName: 1, lastName: 1 })
+            .lean();
         if (!teachers?.length) {
-            return res.status(400).json({ message: 'No teachers found' })
+            return res.status(400).json({ message: 'No teachers found' });
         }
-        res.status(200).json(teachers)
+        return res.status(200).json(teachers);
     }
+
+    // אם המשתמש הוא מורה
     if (foundT) {
-
-        return res.status(400).json({ message: 'No Access for Teachers' })
+        return res.status(400).json({ message: 'No Access for Teachers' });
     }
+
+    // אם המשתמש אינו מנהל
     if (!foundM) {
-        return res.status(400).json({ message: "No Access" })
+        return res.status(400).json({ message: "No Access" });
     }
-    if (!area) {
-        return res.status(400).json({ message: "files are required" })
-    }
-    const teachers = await Teacher.find({ area: area }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
-    if (!teachers?.length) {
-        return res.status(400).json({ message: 'No teachers found' })
-    }
-    res.status(200).json(teachers)
-}
 
+    // אם המשתמש הוא מנהל
+    const teachers = await Teacher.find({ area: foundM.area }, { password: 0 })
+        .sort({ firstName: 1, lastName: 1 })
+        .lean();
+    if (!teachers?.length) {
+        return res.status(400).json({ message: 'No teachers found' });
+    }
+    return res.status(200).json(teachers);
+};
 
 
 // const deleteTeacher = async (req, res) => {

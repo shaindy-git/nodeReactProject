@@ -15,6 +15,7 @@ import './flags.css';
 import MHome from './Components/Manager/MHome';
 import THome from './Components/Teacher/THome';
 import SHome from './Components/Student/SHome';
+import SSelectionTeatcher from './Components/Student/SSelectionTeatcher'
 import { Menubar } from 'primereact/menubar';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -107,6 +108,7 @@ function App() {
         <Route path="/Teacher/THome" element={<THome />} />
         <Route path="/Student/SHome" element={<SHome />} />
         <Route path="/Auth/terms" element={<TermsPage />} />
+        <Route path="/Student/SSelectionTeatcher" element={<SSelectionTeatcher />} />
       </Routes>
 
 

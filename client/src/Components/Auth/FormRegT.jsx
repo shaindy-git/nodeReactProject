@@ -26,12 +26,7 @@ const FormRegT = (props) => {
 
     const [selectedCity, setSelectedCity] = useState(null);
 
-    const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
-        "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
-        "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
-        "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
-        "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
-
+    const [cities ,setcCities]=useState(null)
     const [selectedGender, setSelectedGender] = useState(null);
     
     const genders = ['male', 'female']
@@ -136,6 +131,22 @@ const FormRegT = (props) => {
             </ul>
         </React.Fragment>
     );
+
+    useEffect(() => {
+        const fetchAreas = async () => {
+            try {
+                const res = await axios.get('http://localhost:7000/admin/getAllAreas');
+                if (res.status === 200) {
+                    setcCities(res.data.areas);
+                }
+            } catch (e) {
+                console.error("Failed to fetch areas", e);
+                setcCities([]);
+            }
+        };
+
+        fetchAreas();
+    }, []);
 
 
 

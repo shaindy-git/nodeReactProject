@@ -251,6 +251,9 @@ const settingLesson = async (req, res) => {
     if (!student) {
         return res.status(400).json({ message: 'No student found' })
     }
+    if(student.lessonsRemaining<=0){
+        return res.status(400).json({ message: 'You dont need any more lessons.' })
+    }
     const teacherId = student.myTeacher
     const teacher = await Teacher.findById({ _id: teacherId }, { password: 0 }).exec()
     if (!teacher) {
@@ -297,6 +300,7 @@ const settingLesson = async (req, res) => {
     searchH.full = true
     searchH.typeOfHour = "Lesson"
     searchH.studentId=_id
+    console.log("Id",searchH.studentId);
     await teacher.save()
 
     const newDateAndHour = { date: date, hour: hour, typeOfHour: "Lesson" }
@@ -380,12 +384,23 @@ const testRequest = async (req, res) => {
     if (!_id || !date) {
         return res.status(400).json({ message: "files are required" })
     }
-    const student = await Student.findById({ _id }, { password: 0 }).lean()
+    const student = await Student.findById({ _id }, { password: 0 }).exec()
     if (!student) {
         return res.status(400).json({ message: 'No student found' })
     }
+    if(student.lessonsRemaining>0){
+        return res.status(400).json({ message: 'You havent yet determined all the lessons you need to learn' })
+    }
+    if(student.test!=='false'){
+        console.log(student.test);
+
+        if(student.test==='test') 
+            return res.status(400).json({ message: 'You have already been scheduled for a test' })
+        else
+        return res.status(400).json({ message: 'You already requested a test' })
+    }
     const teacherId = student.myTeacher
-    const teacher = await Teacher.findById({ _id: teacherId }, { password: 0 }).exec()
+    const teacher = await Teacher.findById(teacherId, { password: 0 }).exec()
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
@@ -395,14 +410,6 @@ const testRequest = async (req, res) => {
     if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
         return res.status(400).json({ message: "too late" })
     }
-    // const finddate = teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
-    // if (!finddate) {
-    //     return res.status(400).json({ message: 'No date found' })
-    // }
-    // const oneOnDay = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
-    // if (oneOnDay) {
-    //     return res.status(400).json({ message: 'You had alrady lesson in this day' })
-    // }
 
     const finddate = teacher.dateforLessonsAndTests.find((e) => 
         new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
@@ -420,69 +427,154 @@ const testRequest = async (req, res) => {
     const newreq = { studentId: _id, date }
     teacher.listOfRequires = [...teacher.listOfRequires, newreq]
     await teacher.save()
+    student.test='request'
+    await student.save()
     return res.status(200).json(teacher)
 
 }
 
-
 //לבדוק את מחיקת השעות מהמורה!!!!
+// const deleteStudent = async (req, res) => {
+//     const { _id } = req.user;
+//     const { studentID } = req.params;
+
+//     const student = await Student.findById(studentID, { password: 0 }).exec();
+//     if (!student) {
+//         return res.status(400).json({ message: 'student not found' });
+//     }
+
+//     const manager = await Manager.findById(_id, { password: 0 }).exec();
+//     const teacher = await Teacher.findById(_id, { password: 0 }).exec();
+
+//     if (teacher && student.myTeacher.toString() !== _id.toString()) {
+//         return res.status(400).json({ message: 'teacher not access' });
+//     }
+//     if (manager && student.area !== manager.area) {
+//         return res.status(400).json({ message: 'manager not access' });
+//     }
+
+//     if (student.myTeacher != null) {
+//         const teacherID = student.myTeacher;
+//         const teacher1 = await Teacher.findById(teacherID, { password: 0 }).exec();
+
+//         if (teacher1) {
+//             const currentDate = new Date();
+//             for (const d of student.dateforLessonsAndTest) {
+//                 for (const l of teacher1.dateforLessonsAndTests) {
+//                     if (l.date > currentDate && d.date === l.date) {
+//                         for (const h of l.hours) {
+//                             if (h === d.hour) {
+//                                 l.full = false;
+//                                 await teacher1.save();
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+
+//             teacher1.listOfStudent = teacher1.listOfStudent.filter(item => item.toString() !== student._id.toString());
+//             await teacher1.save();
+//         } else {
+//             return res.status(400).json({ message: 'Teacher not found' });
+//         }
+//     }
+//     const thisMyTeacher = student.myTeacher.toString()
+//     const teachersInArea = await Teacher.find({ area: student.area }, { password: 0 }).lean();
+//     await student.deleteOne();
+
+//     const studentInArea = await Student.find({ area: student.area }, { password: 0 }).lean();
+//     const studentByTeacher = await Student.find({ myTeacher: thisMyTeacher }, { password: 0 }).lean();
+
+//     return res.status(200).json({
+//         message: 'Student deleted successfully',
+//         teachersInArea: teachersInArea,
+//         studentInArea: studentInArea,
+//         studentByTeacher: studentByTeacher
+//     });
+// };
+
 const deleteStudent = async (req, res) => {
-    const { _id } = req.user;
-    const { studentID } = req.params;
+    try {
+        const { _id } = req.user; // מזהה המשתמש
+        const { studentID } = req.params; // מזהה התלמיד
 
-    const student = await Student.findById(studentID, { password: 0 }).exec();
-    if (!student) {
-        return res.status(400).json({ message: 'student not found' });
-    }
+        // מציאת התלמיד
+        const student = await Student.findById(studentID, { password: 0 }).exec();
+        if (!student) {
+            return res.status(400).json({ message: 'Student not found.' });
+        }
 
-    const manager = await Manager.findById(_id, { password: 0 }).exec();
-    const teacher = await Teacher.findById(_id, { password: 0 }).exec();
+        // בדיקת הרשאות המשתמש
+        const manager = await Manager.findById(_id, { password: 0 }).exec();
+        const teacher = await Teacher.findById(_id, { password: 0 }).exec();
 
-    if (teacher && student.myTeacher.toString() !== _id.toString()) {
-        return res.status(400).json({ message: 'teacher not access' });
-    }
-    if (manager && student.area !== manager.area) {
-        return res.status(400).json({ message: 'manager not access' });
-    }
+        if (teacher && student.myTeacher?.toString() !== _id.toString()) {
+            return res.status(400).json({ message: 'Teacher does not have access to this student.' });
+        }
+        if (manager && student.area !== manager.area) {
+            return res.status(400).json({ message: 'Manager does not have access to this student.' });
+        }
 
-    if (student.myTeacher != null) {
-        const teacherID = student.myTeacher;
-        const teacher1 = await Teacher.findById(teacherID, { password: 0 }).exec();
+        // אם התלמיד משויך למורה
+        if (student.myTeacher != null) {
+            const teacherID = student.myTeacher;
 
-        if (teacher1) {
-            const currentDate = new Date();
-            for (const d of student.dateforLessonsAndTest) {
-                for (const l of teacher1.dateforLessonsAndTests) {
-                    if (l.date > currentDate && d.date === l.date) {
-                        for (const h of l.hours) {
-                            if (h === d.hour) {
-                                l.full = false;
-                                await teacher1.save();
-                            }
-                        }
-                    }
-                }
+            // מציאת המורה
+            const teacher1 = await Teacher.findById(teacherID, { password: 0 }).exec();
+            if (!teacher1) {
+                return res.status(400).json({ message: 'Teacher not found.' });
             }
 
-            teacher1.listOfStudent = teacher1.listOfStudent.filter(item => item.toString() !== student._id.toString());
+            const currentDate = new Date();
+
+            // עדכון השיעורים של המורה
+            teacher1.dateforLessonsAndTests.forEach((lesson) => {
+                // בדיקת תאריך
+                if (new Date(lesson.date) > currentDate) {
+                    lesson.hours.forEach((hour) => {
+                        // בדיקת חפיפה לפי שעה ותאריך
+                        student.dateforLessonsAndTest.forEach((studentLesson) => {
+                            if (
+                                studentLesson.date.toISOString() === lesson.date.toISOString() &&
+                                studentLesson.hour === hour.hour
+                            ) {
+                                hour.full = false; // סימון השעה כלא מלאה
+                            }
+                        });
+                    });
+                }
+            });
+
+            // עדכון רשימת הסטודנטים של המורה
+            teacher1.listOfStudent = teacher1.listOfStudent.filter(
+                (item) => item.toString() !== student._id.toString()
+            );
+
+            // שמירת המורה
             await teacher1.save();
-        } else {
-            return res.status(400).json({ message: 'Teacher not found' });
         }
+
+        // מחיקת התלמיד
+        const thisMyTeacher = student.myTeacher?.toString();
+        await student.deleteOne();
+
+        // החזרת מידע נוסף
+        const teachersInArea = await Teacher.find({ area: student.area }, { password: 0 }).lean();
+        const studentInArea = await Student.find({ area: student.area }, { password: 0 }).lean();
+        const studentByTeacher = thisMyTeacher
+            ? await Student.find({ myTeacher: thisMyTeacher }, { password: 0 }).lean()
+            : [];
+
+        return res.status(200).json({
+            message: 'Student deleted successfully.',
+            teachersInArea,
+            studentInArea,
+            studentByTeacher,
+        });
+    } catch (error) {
+        console.error('Error in deleteStudent:', error);
+        return res.status(500).json({ message: 'Internal server error.' });
     }
-    const thisMyTeacher = student.myTeacher.toString()
-    const teachersInArea = await Teacher.find({ area: student.area }, { password: 0 }).lean();
-    await student.deleteOne();
-
-    const studentInArea = await Student.find({ area: student.area }, { password: 0 }).lean();
-    const studentByTeacher = await Student.find({ myTeacher: thisMyTeacher }, { password: 0 }).lean();
-
-    return res.status(200).json({
-        message: 'Student deleted successfully',
-        teachersInArea: teachersInArea,
-        studentInArea: studentInArea,
-        studentByTeacher: studentByTeacher
-    });
 };
 
 const changePassword = async (req, res) => {
@@ -504,7 +596,7 @@ module.exports = {
     addStudent,
     getAllStudents,
     updateStudent,
-    // choosingArea,
+    //choosingArea,
     getstudentById,
     teacherSelection,
     getmyteacher,

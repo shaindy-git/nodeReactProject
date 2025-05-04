@@ -10,8 +10,9 @@ import { Calendar } from 'primereact/calendar';
 import TShowHours from './TShowHours';
 import { Card } from 'primereact/card';
 import { Paginator } from 'primereact/paginator';
+import { Button } from "primereact/button";
 
-import './THome.css'; // Ensure this points to the correct path of your CSS file
+import './THome.css';
 
 const THome = () => {
     const accesstoken = useSelector((state) => state.token.token);
@@ -142,6 +143,98 @@ const THome = () => {
         }
     }, [selectedRequest]);
 
+    const AddTest = async () => {
+        if (!selectedRequest || !selectedRequest.studentId || !selectedRequest.date) {
+            toast.current.show({
+                severity: "error",
+                summary: "Error",
+                detail: "Please select a valid request before proceeding.",
+                life: 2000,
+            });
+            return;
+        }
+
+        console.log("Processing AddTest for:", selectedRequest);
+
+        try {
+            const res = await axios({
+                method: "PUT",
+                url: "http://localhost:7000/teacher/settingTest",
+                headers: { Authorization: "Bearer " + accesstoken },
+                data: {
+                    "studentId": selectedRequest.studentId._id,
+                    "date": selectedRequest.date,
+                },
+            });
+
+            if (res.status === 200) {
+                setChangeRequests((prev) => [...prev, res.data]);
+                setRequests(res.data.listOfRequires);
+
+                toast.current.show({
+                    severity: "success",
+                    summary: "Success",
+                    detail: "Test was successfully added to the request!",
+                    life: 2000,
+                });
+            }
+        } catch (e) {
+            console.error("Error in AddTest:", e);
+            toast.current.show({
+                severity: "error",
+                summary: "Error",
+                detail: e.response?.data?.message || "Failed to add test.",
+                life: 2000,
+            });
+        }
+    };
+
+    const cancelTestRequest = async () => {
+        if (!selectedRequest || !selectedRequest.studentId || !selectedRequest.date) {
+            toast.current.show({
+                severity: "error",
+                summary: "Error",
+                detail: "Please select a valid request before proceeding.",
+                life: 2000,
+            });
+            return;
+        }
+
+        console.log("Processing AddTest for:", selectedRequest);
+
+        try {
+            const res = await axios({
+                method: "PUT",
+                url: "http://localhost:7000/teacher/cancelTestRequest",
+                headers: { Authorization: "Bearer " + accesstoken },
+                data: {
+                    "studentId": selectedRequest.studentId._id,
+                    "date": selectedRequest.date,
+                },
+            });
+
+            if (res.status === 200) {
+                setChangeRequests((prev) => [...prev, res.data]);
+                setRequests(res.data.listOfRequires);
+
+                toast.current.show({
+                    severity: "success",
+                    summary: "Success",
+                    detail: "Test was successfully remove to the request!",
+                    life: 2000,
+                });
+            }
+        } catch (e) {
+            console.error("Error in cancelTestRequest:", e);
+            toast.current.show({
+                severity: "error",
+                summary: "Error",
+                detail: e.response?.data?.message || "Failed to remove test.",
+                life: 2000,
+            });
+        }
+    };
+
     return (
         <>
             <Toast ref={toast} />
@@ -220,21 +313,71 @@ const THome = () => {
                                 }))
                                 : [{ label: "No available options", value: null }]
                         }
-                        itemTemplate={(request) => <div>{request.label}</div>}
+                        itemTemplate={(request) => (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 15px', borderBottom: '1px solid #ddd' }}>
+                                <div style={{ flex: 1, wordBreak: 'break-word', marginRight: '10px' }}>{request.label}</div>
+                                <div className="dialog-footer" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                    {selectedRequest && (
+                                        <Button
+                                            icon="pi pi-calendar-plus"
+                                            style={{
+                                                width: "2.8rem",
+                                                height: "2.8rem",
+                                                borderRadius: "50%",
+                                                backgroundColor: "#204392",
+                                                border: "none",
+                                                color: "white",
+                                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                transition: "all 0.3s ease",
+                                            }}
+                                            aria-label="AddTest"
+                                            onClick={AddTest}// Call AddTest function
+                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#163366"}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#204392"}
+                                        />
+
+
+
+                                    )}
+
+                                    {selectedRequest && (
+                                        <Button
+                                            icon="pi pi-trash"
+                                            style={{
+                                                width: "2.8rem",
+                                                height: "2.8rem",
+                                                borderRadius: "50%",
+                                                backgroundColor: "#204392",
+                                                border: "none",
+                                                color: "white",
+                                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                transition: "all 0.3s ease",
+                                                marginLeft:'0.8rem'
+                                            }}
+                                            aria-label="AddTest"
+                                            onClick={cancelTestRequest}// Call AddTest function
+                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#163366"}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#204392"}
+                                        />
+
+
+
+                                    )}
+                                </div>
+                            </div>
+
+
+                        )}
                         className="w-full"
                         listStyle={{ maxHeight: '100vh', overflowY: 'auto', height: '39vh' }}
                         filterBy="label"
                     />
-                    {visibleR && (
-                        <TShowRequest
-                            setVisibleR={setVisibleR}
-                            visibleR={visibleR}
-                            request={selectedRequest} // Pass the selected request
-                            setRequests={setRequests}
-                            studentId={selectedRequest?.studentId}
-                            date={selectedRequest?.date}
-                        />
-                    )}
                 </div>
             </div>
 
@@ -265,4 +408,3 @@ const THome = () => {
 };
 
 export default THome;
-

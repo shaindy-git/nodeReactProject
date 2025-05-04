@@ -18,7 +18,6 @@ const MShowteacher = (props) => {
         if (props.teacher) {
             Studentlist(); // קריאה לפונקציה כדי להביא תלמידים
             
-            
         }
     }, [props.teacher]); // ההשפעה תקרה כאשר המורה משתנה
 
@@ -65,7 +64,7 @@ const MShowteacher = (props) => {
                 debugger
                 console.log(res.data.teachersInArea,res.data.studentInArea);
                 props.setTeachers(res.data.teachersInArea)
-                props.setStudents(res.data.studentInArea)
+                props.setStudents(res.data.studentsInArea)
                 
                 
     

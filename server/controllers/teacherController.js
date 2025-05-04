@@ -191,71 +191,150 @@ const getAllTeachers = async (req, res) => {
 // }
 
 
+// const deleteTeacher = async (req, res) => {
+//     try {
+//         const { _id } = req.user;
+//         const { idTeacher } = req.params;
+
+//         const manneger = await Manager.findById(_id, { password: 0 }).exec();
+//         if (!manneger) {
+//             return res.status(400).json({ message: 'Manager not found' });
+//         }
+
+//         const teacher = await Teacher.findById(idTeacher, { password: 0 }).exec();
+//         if (!teacher) {
+//             return res.status(400).json({ message: 'Teacher not found' });
+//         }
+
+//         if (teacher.area !== manneger.area) {
+//             return res.status(403).json({ message: 'No access to this teacher' });
+//         }
+
+//         // אם יש לתלמיד תלמידים, חובה לבדוק האם יש מורה חילופי
+//         if (teacher.listOfStudent?.length) {
+//             const newteacher = await Teacher.findOne({
+//                 area: teacher.area,
+//                 _id: { $ne: teacher._id },
+//             }, { _id: 1, listOfStudent: 1 }).exec();
+
+//             if (!newteacher) {
+//                 return res.status(400).json({ message: 'Cannot delete teacher: No alternative teacher available for student transfer.' });
+//             }
+
+//             const students = await Student.find({ myTeacher: idTeacher }).sort({ firstName: 1, lastName: 1 }).exec();
+
+//             for (const s of students) {
+//                 newteacher.listOfStudent.push(s._id);
+//                 s.myTeacher = newteacher._id;
+
+
+//                 if (Array.isArray(s.dateforLessonsAndTest)) {
+//                     s.dateforLessonsAndTest = s.dateforLessonsAndTest.filter(l => {
+//                         const isFuture = new Date(l.date) > new Date();
+//                         if (isFuture) {
+//                             s.lessonsLearned -= 1;
+//                             s.lessonsRemaining += 1;
+//                         }
+//                         return false;
+//                     });
+//                 }
+
+//                 await s.save();
+//             }
+
+//             await newteacher.save();
+//         }
+
+//         await teacher.deleteOne();
+
+//         const teachersInArea = await Teacher.find({ area: manneger.area }, { password: 0 }).lean();
+//         const studentInArea = await Student.find({ area: manneger.area }, { password: 0 }).lean();
+//         return res.status(200).json({ teachersInArea: teachersInArea, studentInArea: studentInArea });
+
+//     } catch (err) {
+//         console.error('Unexpected error:', err);
+//         return res.status(500).json({ message: 'Unexpected server error' });
+//     }
+// };
+
+
 const deleteTeacher = async (req, res) => {
     try {
-        const { _id } = req.user;
-        const { idTeacher } = req.params;
+        const { _id } = req.user; // מזהה המנהל
+        const { idTeacher } = req.params; // מזהה המורה למחיקה
 
-        const manneger = await Manager.findById(_id, { password: 0 }).exec();
-        if (!manneger) {
+        // בדיקת קיום מנהל
+        const manager = await Manager.findById(_id, { password: 0 }).exec();
+        if (!manager) {
             return res.status(400).json({ message: 'Manager not found' });
         }
 
+        // בדיקת קיום המורה
         const teacher = await Teacher.findById(idTeacher, { password: 0 }).exec();
         if (!teacher) {
             return res.status(400).json({ message: 'Teacher not found' });
         }
 
-        if (teacher.area !== manneger.area) {
+        // בדיקת הרשאות: האם המורה באותו אזור של המנהל
+        if (teacher.area !== manager.area) {
             return res.status(403).json({ message: 'No access to this teacher' });
         }
 
-        // אם יש לתלמיד תלמידים, חובה לבדוק האם יש מורה חילופי
+        // טיפול במקרה של מורה עם תלמידים
         if (teacher.listOfStudent?.length) {
-            const newteacher = await Teacher.findOne({
+            const alternativeTeacher = await Teacher.findOne({
                 area: teacher.area,
                 _id: { $ne: teacher._id },
-            }, { _id: 1, listOfStudent: 1 }).exec();
+            })
+                .sort({ listOfStudent: 1 }) // למצוא את המורה עם הכי מעט תלמידים
+                .exec();
 
-            if (!newteacher) {
+            if (!alternativeTeacher) {
                 return res.status(400).json({ message: 'Cannot delete teacher: No alternative teacher available for student transfer.' });
             }
 
-            const students = await Student.find({ myTeacher: idTeacher }).sort({ firstName: 1, lastName: 1 }).exec();
+            const students = await Student.find({ myTeacher: idTeacher }).exec();
 
-            for (const s of students) {
-                newteacher.listOfStudent.push(s._id);
-                s.myTeacher = newteacher._id;
+            for (const student of students) {
+                alternativeTeacher.listOfStudent.push(student._id);
+                student.myTeacher = alternativeTeacher._id;
 
-
-                if (Array.isArray(s.dateforLessonsAndTest)) {
-                    s.dateforLessonsAndTest = s.dateforLessonsAndTest.filter(l => {
-                        const isFuture = new Date(l.date) > new Date();
-                        if (isFuture) {
-                            s.lessonsLearned -= 1;
-                            s.lessonsRemaining += 1;
+                if (Array.isArray(student.dateforLessonsAndTest)) {
+                    const futureLessons = student.dateforLessonsAndTest.filter((lesson) => {
+                        const isFuture = new Date(lesson.date) > new Date();
+                        if (isFuture && lesson.typeOfHour === 'Lesson') {
+                            student.lessonsRemaining += 1;
+                            student.lessonsLearned-=1;
                         }
                         return false;
                     });
+
+                    student.dateforLessonsAndTest = [];
                 }
 
-                await s.save();
+                student.test = 'false';
+                await student.save();
             }
 
-            await newteacher.save();
+            await alternativeTeacher.save();
         }
 
         await teacher.deleteOne();
 
-        const teachersInArea = await Teacher.find({ area: manneger.area }, { password: 0 }).lean();
-        const studentInArea = await Student.find({ area: manneger.area }, { password: 0 }).lean();
-        return res.status(200).json({ teachersInArea: teachersInArea, studentInArea: studentInArea });
+        const teachersInArea = await Teacher.find({ area: manager.area }, { password: 0 }).lean();
+        const studentsInArea = await Student.find({ area: manager.area }, { password: 0 }).lean();
 
+        return res.status(200).json({ 
+            message: 'Teacher successfully deleted',
+            teachersInArea: teachersInArea, 
+            studentsInArea: studentsInArea 
+        });
     } catch (err) {
         console.error('Unexpected error:', err);
         return res.status(500).json({ message: 'Unexpected server error' });
     }
 };
+
 
 
 const updateTeacher = async (req, res) => {
@@ -299,7 +378,7 @@ const updateTeacher = async (req, res) => {
     // console.log({ teachers, role: 'Teacher' })
     // return res.status(200).json(teacher)
     const TInfo = {
-        _id: foundT._id,
+        _id: teacher._id,
         firstName: teacher.firstName,
         lastName: teacher.lastName,
         userName: teacher.userName,
@@ -590,82 +669,229 @@ const getClassesByDate = async (req, res) => {
 
 // }
 
-const settingTest = async (req, res) => {
-    const { _id } = req.user;
-    const { studentId, date, hour } = req.body;
+// const settingTest = async (req, res) => {
+//     const { _id } = req.user;
+//     const { studentId, date } = req.body;
 
-    if (!studentId || !date || !hour) {
+//     if (!studentId || !date) {
+//         return res.status(400).json({ message: "All fields are required" });
+//     }
+
+//     const student = await Student.findById({ _id: studentId }).exec();
+//     if (!student) {
+//         return res.status(400).json({ message: 'No student found' });
+//     }
+
+//     const teacher = await Teacher.findById({ _id }).exec();
+//     if (!teacher) {
+//         return res.status(400).json({ message: 'No teacher found' });
+//     }
+
+//     if (student.myTeacher != _id) {
+//         return res.status(403).json({ message: 'No Access' });
+//     }
+
+//     const currentDate = new Date();
+//     const requestedDate = new Date(date);
+
+//     if ((requestedDate - currentDate) < 7 * 24 * 60 * 60 * 1000) {
+//         return res.status(400).json({ message: "The date is too close" });
+//     }
+
+//     if (requestedDate < currentDate) {
+//         return res.status(400).json({ message: "The date has already passed" });
+//     }
+
+//     const searchD = teacher.dateforLessonsAndTests.find((e) =>
+//         new Date(e.date).toISOString().split('T')[0] === requestedDate.toISOString().split('T')[0]
+//     );
+
+//     if (!searchD) {
+//         return res.status(400).json({ message: 'No available date found for the teacher' });
+//     }
+
+//     const oneOnDay = student.dateforLessonsAndTest.find((e) =>
+//         new Date(e.date).toISOString().split('T')[0] === requestedDate.toISOString().split('T')[0]
+//     );
+
+//     if (oneOnDay) {
+//         return res.status(400).json({ message: 'The student already has a lesson on this day' });
+//     }
+
+//     const searchH = searchD.hours.find((e) => e.hour === hour);
+//     if (!searchH || searchH.full) {
+//         return res.status(400).json({ message: 'The hour is unavailable' });
+//     }
+
+//     // Update hour
+//     searchH.full = true;
+//     searchH.typeOfHour = "Test";
+//     searchH.studentId=studentId;
+
+//     // Add the lesson/test to the student's schedule
+//     student.dateforLessonsAndTest.push({
+//         date: requestedDate,
+//         hour: hour,
+//         typeOfHour: "Test",
+//     });
+
+//     student.test="test"
+
+//     // Remove the request from the teacher's list
+//     teacher.listOfRequires = teacher.listOfRequires.filter(req =>
+//         req.studentId.toString() !== studentId || new Date(req.date).toISOString() !== requestedDate.toISOString()
+//     );
+
+//     await teacher.save();
+//     await student.save();
+
+//     res.status(200).json({listOfRequires:teacher.listOfRequires});
+// };
+
+const settingTest = async (req, res) => {
+    try {
+        const { _id } = req.user; // מזהה המורה
+        const { studentId, date } = req.body; // מזהה התלמיד והתאריך המבוקש
+
+        if (!studentId || !date) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        // מציאת התלמיד
+        const student = await Student.findById(studentId).exec();
+        if (!student) {
+            return res.status(400).json({ message: 'No student found' });
+        }
+
+        // מציאת המורה
+        const teacher = await Teacher.findById(_id).exec();
+        if (!teacher) {
+            return res.status(400).json({ message: 'No teacher found' });
+        }
+
+        // בדיקת הרשאות: האם התלמיד שייך למורה
+        if (student.myTeacher.toString() !== _id.toString()) {
+            return res.status(403).json({ message: 'No Access' });
+        }
+
+        const currentDate = new Date();
+        const requestedDate = new Date(date);
+
+        // בדיקה: האם התאריך קרוב מדי (פחות משבוע)
+        if ((requestedDate - currentDate) < 7 * 24 * 60 * 60 * 1000) {
+            return res.status(400).json({ message: "The date is too close" });
+        }
+
+        // בדיקה: האם התאריך כבר עבר
+        if (requestedDate < currentDate) {
+            return res.status(400).json({ message: "The date has already passed" });
+        }
+
+        // חיפוש יום פנוי בלוח הזמנים של המורה
+        const searchD = teacher.dateforLessonsAndTests.find((e) =>
+            new Date(e.date).toISOString().split('T')[0] === requestedDate.toISOString().split('T')[0]
+        );
+
+        if (!searchD) {
+            return res.status(400).json({ message: 'No available date found for the teacher' });
+        }
+
+        // בדיקה: האם התלמיד כבר קבע שיעור באותו היום
+        const oneOnDay = student.dateforLessonsAndTest.find((e) =>
+            new Date(e.date).toISOString().split('T')[0] === requestedDate.toISOString().split('T')[0]
+        );
+
+        if (oneOnDay) {
+            return res.status(400).json({ message: 'The student already has a lesson on this day' });
+        }
+
+        // מציאת שעה פנויה באותו היום
+        const availableHour = searchD.hours.find((hour) => !hour.full);
+        if (!availableHour) {
+            return res.status(400).json({ message: 'No available hours on this date' });
+        }
+
+        // עדכון השעה כמלאה
+        availableHour.full = true;
+        availableHour.typeOfHour = "Test";
+        availableHour.studentId = studentId;
+
+        // הוספת טסט ללוח הזמנים של התלמיד
+        student.dateforLessonsAndTest.push({
+            date: requestedDate,
+            hour: availableHour.hour,
+            typeOfHour: "Test",
+        });
+
+        student.test = "test"; // עדכון מצב הטסט לתלמיד
+
+        // הסרת הבקשה מרשימת הבקשות של המורה
+        teacher.listOfRequires = teacher.listOfRequires.filter(req =>
+            req.studentId.toString() !== studentId || new Date(req.date).toISOString() !== requestedDate.toISOString()
+        );
+
+        // שמירת המורה והתלמיד
+        await teacher.save();
+        await student.save();
+
+        res.status(200).json({
+            message: "Test scheduled successfully",
+            hour: availableHour.hour,
+            date: requestedDate.toISOString(),
+            listOfRequires: teacher.listOfRequires
+        });
+    } catch (error) {
+        console.error("Error in settingTest:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+
+
+const cancelTestRequest = async (req, res) => {
+    const { _id } = req.user;
+    const { studentId, date } = req.body;
+
+    if (!studentId || !date) {
         return res.status(400).json({ message: "All fields are required" });
     }
 
-    const student = await Student.findById({ _id: studentId }).exec();
+    // Find the student
+    const student = await Student.findById(studentId).exec();
     if (!student) {
         return res.status(400).json({ message: 'No student found' });
     }
 
-    const teacher = await Teacher.findById({ _id }).exec();
+    // Find the teacher
+    const teacher = await Teacher.findById(_id).exec();
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' });
     }
 
-    if (student.myTeacher != _id) {
+    // Check teacher authorization
+    if (student.myTeacher.toString() !== _id) {
         return res.status(403).json({ message: 'No Access' });
     }
 
-    const currentDate = new Date();
-    const requestedDate = new Date(date);
-
-    if ((requestedDate - currentDate) < 7 * 24 * 60 * 60 * 1000) {
-        return res.status(400).json({ message: "The date is too close" });
-    }
-
-    if (requestedDate < currentDate) {
-        return res.status(400).json({ message: "The date has already passed" });
-    }
-
-    const searchD = teacher.dateforLessonsAndTests.find((e) =>
-        new Date(e.date).toISOString().split('T')[0] === requestedDate.toISOString().split('T')[0]
-    );
-
-    if (!searchD) {
-        return res.status(400).json({ message: 'No available date found for the teacher' });
-    }
-
-    const oneOnDay = student.dateforLessonsAndTest.find((e) =>
-        new Date(e.date).toISOString().split('T')[0] === requestedDate.toISOString().split('T')[0]
-    );
-
-    if (oneOnDay) {
-        return res.status(400).json({ message: 'The student already has a lesson on this day' });
-    }
-
-    const searchH = searchD.hours.find((e) => e.hour === hour);
-    if (!searchH || searchH.full) {
-        return res.status(400).json({ message: 'The hour is unavailable' });
-    }
-
-    // Update hour
-    searchH.full = true;
-    searchH.typeOfHour = "Test";
-    searchH.studentId=studentId;
-
-    // Add the lesson/test to the student's schedule
-    student.dateforLessonsAndTest.push({
-        date: requestedDate,
-        hour: hour,
-        typeOfHour: "Test",
-    });
+    // Ensure the date is properly parsed
+    const requestDate = new Date(date);
 
     // Remove the request from the teacher's list
     teacher.listOfRequires = teacher.listOfRequires.filter(req =>
-        req.studentId.toString() !== studentId || new Date(req.date).toISOString() !== requestedDate.toISOString()
+        req.studentId.toString() !== studentId || new Date(req.date).toISOString() !== requestDate.toISOString()
     );
 
+    // Save the changes in the teacher
     await teacher.save();
-    await student.save();
 
-    res.status(200).json({ teacher, student });
+    student.test = "false"
+    await student.save()
+
+    // Respond with success
+    res.status(200).json({ listOfRequires: teacher.listOfRequires });
 };
+
 
 
 const addLessonToStudent = async (req, res) => {
@@ -714,7 +940,7 @@ const getAllRecommendations = async (req, res) => {
     if (!teacher.recommendations) {
         return res.status(400).json({ message: 'no recommndations' });
     }
-    return res.status(200).json({recommendations:teacher.recommendations})
+    return res.status(200).json({ recommendations: teacher.recommendations })
 }
 
 const getRequests = async (req, res) => {
@@ -735,7 +961,7 @@ const getRequests = async (req, res) => {
         return res.status(400).json({ message: 'no requests' });
     }
 
-    return res.status(200).json({ listOfRequires: teacher.listOfRequires });
+    return res.status(200).json({ listOfRequires: teacher.listOfRequires, });
 };
 
 const getDateforLessonsAndTests = async (req, res) => {
@@ -763,10 +989,9 @@ const getDateforLessonsAndTests = async (req, res) => {
             hours: r.hours.filter(hour => hour.full === true) // סינון שעות שבהן full === true
         }))
         .filter(d => d.hours.length > 0); // שמירת תאריכים עם שעות מתאימות בלבד
-        console.log("aaaaa",relevantDateforLessonsAndTests);
-        
+    console.log("aaaaa", relevantDateforLessonsAndTests);
 
-    return res.status(200).json({ relevantDateforLessonsAndTests:relevantDateforLessonsAndTests });
+    return res.status(200).json({ relevantDateforLessonsAndTests: relevantDateforLessonsAndTests });
 };
 
 module.exports = {
@@ -776,7 +1001,8 @@ module.exports = {
     updateTeacher,
     getTeacherById,
     addAvailableClasses, // לא מימשנו
-    settingTest, //לא מימשנו
+    settingTest,
+    cancelTestRequest,
     addLessonToStudent,
     getAllDatesWithClasses,
     getClassesByDate,

@@ -19,44 +19,54 @@ const TShowHours = (props) => {
 
     const showDetails = (event, hour) => {
         overlayPanel.current.toggle(event);
-
+    
+        console.log("Original Hour Object:", hour);
+        hour = typeof hour === "object" && hour.hour ? hour.hour : hour; // חילוץ השעה אם היא אובייקט
+        console.log("Converted Hour:", hour);
+    
         console.log(alllessonsAndTest);
-        
-        // מציאת הפרטים של השעה הספציפית
-        const spesipicHour = alllessonsAndTest.find(h => h.hour === hours.hour);
-console.log(spesipicHour);
-
+    
+        let spesipicHour = null;
+        let student = null;
+    
+        // לולאה אחת שמדפיסה, מחפשת את השעה הספציפית ומוצאת את התלמיד
+        alllessonsAndTest.forEach(item => {
+            item.hours.forEach(element => {
+                console.log("Comparing:", element.hour, "with:", hour);
+    
+                // חיפוש השעה הספציפית
+                if (element.hour === hour) {
+                    spesipicHour = { ...element, date: item.date }; // שומר את השעה שנמצאה
+    
+                    // חיפוש התלמיד לפי studentId
+                    student = props.students.find(student => student._id === element.studentId);
+                }
+            });
+        });
+    
         if (!spesipicHour) {
             console.error("Hour details not found");
             return;
         }
-
-        // מציאת הסטודנט לפי ID
-
-       console.log(props.students);
-        
-        const student = props.students.find(student => student._id === spesipicHour.hours.studentId);
-
+    
         if (!student) {
             console.error("Student not found");
             return;
         }
-
+    
         console.log(spesipicHour.hour,
-            spesipicHour.type,
+            spesipicHour.typeOfHour,
             student.firstName,
-            student.lastName,);
-
-
+            student.lastName);
+    
         // עדכון הנתונים של השעה הנבחרת
         setSelectedHourDetails({
             hour: spesipicHour.hour,
-            type: spesipicHour.type,
+            type: spesipicHour.typeOfHour,
             studentFirstName: student.firstName,
             studentLastName: student.lastName,
         });
     };
-
 
     const hours = [
         "01:00", "02:00", "03:00", "04:00", "05:00",
@@ -114,14 +124,14 @@ console.log(spesipicHour);
         const getDateforLessonsAndTests = async () => {
             try {
                 const formattedDate = currentDate.toISOString().split('T')[0];
-                
+
 
                 const HourRes = await axios({
                     method: 'get',
                     url: `http://localhost:7000/teacher/getDateforLessonsAndTests/${formattedDate}`,
                     headers: { Authorization: "Bearer " + accesstoken },
                 });
-                
+
 
                 if (HourRes.status === 200) {
                     setAlllessonsAndTest(HourRes.data.relevantDateforLessonsAndTests);
@@ -259,7 +269,7 @@ console.log(spesipicHour);
                                             <h4>Lesson Details</h4>
                                             <p><strong>Hour:</strong> {selectedHourDetails?.hour}</p>
                                             <p><strong>Type:</strong> {selectedHourDetails?.type}</p>
-                                            <p><strong>Student:</strong> {selectedHourDetails?.studentFirstNAme}   {selectedHourDetails?.student.lastName}</p>
+                                            <p><strong>Student:</strong> {selectedHourDetails?.studentFirstName} {selectedHourDetails?.studentLastName}</p>
                                         </div>
                                     </OverlayPanel>
                                 )}

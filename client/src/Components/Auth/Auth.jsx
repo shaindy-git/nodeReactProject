@@ -10,6 +10,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setToken, logOut } from '../../redux/tokenSlice'
 import { useNavigate } from 'react-router-dom';
 import { Link, Route, Routes } from 'react-router-dom'
+
+import { jwtDecode } from 'jwt-decode';
 import FormRegT from "./FormRegT";
 import FormRegS from "./FormRegS";
 
@@ -26,46 +28,47 @@ const Auth = () => {
     const accesstoken = useSelector((state) => state.token.token)
 
 
-
     const login = async () => {
-
         try {
-
             const res = await axios({
                 method: 'post',
                 url: 'http://localhost:7000/auth/login',
                 headers: {},
                 data: {
                     userName: userName,
-                    password: password// This is the body part
+                    password: password // שליחת שם משתמש וסיסמה
                 }
             });
-
+    
             if (res.status === 200) {
-                dispatch(setToken(res.data.accessToken))
-                const userRole = (res.data.role); // Extract the role from the decoded token
-                
-                // Navigate based on user role
-                if (userRole === 'M') {
-                    navigate('/Manager/MHome');
-                } else if (userRole === 'T') {
-                    navigate('/Teacher/THome');
-                } else if (userRole === 'S') {
-                    navigate('/Student/SHome');
-                }
-                else if (userRole === 'A') {
+                const token = res.data.accessToken; 
+                dispatch(setToken(token)); 
+                const decoded = jwtDecode(token); 
+                const userRole = decoded.role; 
+    
+                // ניווט לפי התפקיד
+                switch (userRole) {
+                    case 'M':
+                        navigate('/Manager/MHome');
+                        break;
+                    case 'T':
+                        navigate('/Teacher/THome');
+                        break;
+                    case 'S':
+                        navigate('/Student/SHome');
+                        break;
+                    case 'A':
                         navigate('/Admin/ADHome');
-                    }
-                
-                
-      
+                        break;
+                    default:
+                        alert("Unauthorized user role");
+                }
             }
         } catch (e) {
             console.error(e);
-            alert("Unauthorized user")
-
+            alert("Unauthorized user"); // הודעה על כשלון
         }
-    }
+    };
 
     const [visibleS, setVisibleS] = useState(false);
     const [visibleT, setVisibleT] = useState(false);

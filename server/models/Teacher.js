@@ -85,8 +85,7 @@ const teacherScehema = new mongoose.Schema({
                 },
                 studentId: {
                     type: mongoose.Schema.ObjectId,
-                    ref: "Student",
-                    required: true,
+                    ref: "Student"
                 }
             }]
 

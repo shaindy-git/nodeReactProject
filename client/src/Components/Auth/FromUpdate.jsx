@@ -62,6 +62,7 @@ const FormUpdate = (props) => {
                 if (res.status === 200) {
                     setFormData(data);
                     setShowMessage(true);
+                    dispatch(setToken(res.data.accessToken))
 
                     reset();
 
@@ -107,6 +108,7 @@ const FormUpdate = (props) => {
                 if (res.status === 200) {
                     setFormData(data);
                     setShowMessage(true);
+                    dispatch(setToken(res.data.accessToken))
 
                     reset();
 
@@ -158,6 +160,7 @@ const FormUpdate = (props) => {
                 if (res.status === 200) {
                     setFormData(data);
                     setShowMessage(true);
+                    dispatch(setToken(res.data.accessToken))
 
                     reset();
 

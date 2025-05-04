@@ -31,7 +31,7 @@ const login = async (req, res) => {
             role: "A"
         }
         const accessToken = jwt.sign(AInfo, process.env.ACCESS_TOKEN_SECRET)
-        return res.status(200).json({ accessToken: accessToken, role: AInfo.role })
+        return res.status(200).json({ accessToken: accessToken })
     }
 
 
@@ -54,7 +54,7 @@ const login = async (req, res) => {
             role: "M"
         }
         const accessToken = jwt.sign(MInfo, process.env.ACCESS_TOKEN_SECRET)
-        return res.status(200).json({ accessToken: accessToken, role: MInfo.role })
+        return res.status(200).json({ accessToken: accessToken })
 
     }
 
@@ -79,7 +79,7 @@ const login = async (req, res) => {
             role: "T"
         }
         const accessToken = jwt.sign(TInfo, process.env.ACCESS_TOKEN_SECRET)
-        return res.status(200).json({ accessToken: accessToken, role: TInfo.role })
+        return res.status(200).json({ accessToken: accessToken })
 
     }
 
@@ -105,7 +105,7 @@ const login = async (req, res) => {
             role: "S"
         }
         const accessToken = jwt.sign(SInfo, process.env.ACCESS_TOKEN_SECRET)
-        return res.status(200).json({ accessToken: accessToken, role: SInfo.role })
+        return res.status(200).json({ accessToken: accessToken })
     }
 
 

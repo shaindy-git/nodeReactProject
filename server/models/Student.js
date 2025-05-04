@@ -72,6 +72,12 @@ const studentScehema = new mongoose.Schema({
             required :true,
 
         }}]
+    },
+    test:{
+        type: String,
+            enum: ['request', 'test','false'],
+            default:'false'
+
     }
     
 },{

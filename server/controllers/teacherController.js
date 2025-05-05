@@ -143,7 +143,7 @@ const addTeacher = async (req, res) => {
 
 const getAllTeachers = async (req, res) => {
     const { _id, role } = req.user;
-    const { gender, area } = req.body; // area כאן לא נדרש למנהל
+    const { gender, area } = req.query; // area כאן לא נדרש למנהל
 
     if (!_id || !role) {
         return res.status(400).json({ message: "files are required" });

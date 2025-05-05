@@ -1,0 +1,28 @@
+.ad-home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.custom-button {
+    background-color: #204392 !important; /* צבע הרקע */
+    color: #ffffff !important; /* צבע הטקסט */
+    border: none !important; /* ללא מסגרת */
+    border-radius: 8px !important; /* פינות מעוגלות */
+    padding: 10px 20px !important; /* ריווח פנימי */
+    font-size: 1.1rem !important; /* גודל טקסט */
+    cursor: pointer !important; /* שינוי סמן העכבר */
+    transition: all 0.3s ease-in-out !important; /* אנימציה */
+}
+
+.custom-button:hover {
+    background-color: #163066 !important; /* צבע רקע בעת ריחוף */
+    transform: scale(1.05) !important; /* הגדלת הכפתור בעת ריחוף */
+}
+
+.custom-button:active {
+    background-color: #12254d !important; /* צבע רקע בעת לחיצה */
+    transform: scale(0.95) !important; /* הקטנת הכפתור בעת לחיצה */
+}

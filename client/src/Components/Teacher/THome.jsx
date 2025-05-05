@@ -396,7 +396,8 @@ const THome = () => {
                             subTitle="Recommendation"
                             className="shadow-2 border-round max-w-full"
                         >
-                            <p>{recommendations[first].rec}</p>
+                            {/* הצגת ההמלצה המעוצבת */}
+                            <div dangerouslySetInnerHTML={{ __html: recommendations[first].rec }} />
                         </Card>
                     ) : (
                         <p>No recommendation available.</p>

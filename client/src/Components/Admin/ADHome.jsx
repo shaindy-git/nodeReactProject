@@ -1,21 +1,49 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import { ListBox } from 'primereact/listbox';
-import { useDispatch, useSelector } from 'react-redux';
-import { jwtDecode } from 'jwt-decode';
-import { Toast } from 'primereact/toast';
-// import MShowteacher from './MShowteacher';
-// import MShowstudent from './MShowstudent';
-// import MShowreq from './MShowreq';
+import React, { useState } from 'react';
+import { Button } from 'primereact/button';
+import ADFormgAdd from "./ADFormgAdd";
+import ADFormgChange from "./ADFormgChange";
+import './ADHome.css'
 
 const ADHome = () => {
-   
+    const [visibleAdd, setVisibleAdd] = useState(false); // סטייט לניהול חלון הוספת מנהל
+    const [visibleChange, setVisibleChange] = useState(false); // סטייט לניהול חלון שינוי פרטים
 
-    return(
+    return (
         <>
-        <div>admin</div>
+            <Button 
+                label="Manager Register" 
+                icon="pi pi-user-plus" 
+                severity="success" 
+                className="w-10rem" 
+                onClick={() => {
+                    console.log("Opening Add Manager Dialog");
+                    setVisibleAdd(true);
+                }} 
+            />
+
+            <Button 
+                label="Manager Update" 
+                icon="pi pi-user-plus" 
+                severity="success" 
+                className="w-10rem" 
+                onClick={() => setVisibleChange(true)} 
+            />
+
+            {visibleAdd && (
+                <ADFormgAdd 
+                    setVisibleAdd={setVisibleAdd} 
+                    visibleAdd={visibleAdd} 
+                />
+            )}
+
+            {visibleChange && (
+                <ADFormgChange 
+                    setVisibleChange={setVisibleChange} 
+                    visibleChange={visibleChange} 
+                />
+            )}
         </>
-    )
+    );
 };
 
 export default ADHome;

@@ -4,6 +4,7 @@ const Teacher = require("../models/Teacher")
 const Admin = require("../models/Admin")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const generatePassword = require('generate-password');
 
 const login = async (req, res) => {
     const { userName, password } = req.body
@@ -150,10 +151,10 @@ const registerS = async (req, res) => {
 }
 
 const registerT = async (req, res) => {
-    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area, gender } = req.body
+    const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, area, gender } = req.body
 
 
-    if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
+    if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !area || !gender) {
         return res.status(400).json({ message: "files are required" })
     }
 
@@ -185,6 +186,14 @@ const registerT = async (req, res) => {
     if ((new Date() - new Date(dateOfBirth)) > 60 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 40 * 31536000000) {//מציג את 1/1000 השניה בשנה
         return res.status(400).json({ message: "The age is not appropriate" })
     }
+    // יצירת סיסמה אקראית
+    const password = "RandomPassword"+ generatePassword.generate({
+        length: 12,
+        numbers: true,
+        symbols: true,
+        uppercase: true,
+        lowercase: true,
+    });
     const hashedPwd = await bcrypt.hash(password, 10)
     const teacher = ({
         firstName, lastName, userName, numberID, dateOfBirth, phone, email, password: hashedPwd, area, gender
@@ -194,6 +203,7 @@ const registerT = async (req, res) => {
     meneger.RequestList = [...meneger.RequestList, teacher]
     // meneger.RequestList.push(teacher)
     await meneger.save()
+    console.log('Generated Password:', password); // הדפסת הסיסמה לקונסולה
     console.log(meneger.RequestList)
     return res.status(200).json(meneger)
 

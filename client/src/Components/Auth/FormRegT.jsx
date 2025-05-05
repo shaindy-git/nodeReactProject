@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import './FromReg.css';
 
 
-import './FromReg.css';
+// import './FromReg.css';
 
 
 
@@ -42,7 +42,6 @@ const FormRegT = (props) => {
         email: '',
         area: '',
         gender: '',
-        password: '',
         dateOfBirth: null,
         accept: false
     })
@@ -159,7 +158,7 @@ const FormRegT = (props) => {
                     <i className="pi pi-check-circle" style={{ fontSize: '5rem', color: 'var(--green-500)' }}></i>
                     <h5>Registration Successful!</h5>
                     <p style={{ lineHeight: 1.5, textIndent: '1rem' }}>
-                        The details have been saved in the system. You will receive a response to your phone  call  <b>{formData.phone}</b> within ten business days.
+                    The details have been saved in the system. You will receive a response to your call <b>{formData.phone}</b> within ten business days. A password has been sent to <b>{formData.email}</b>, which you will use if your request is approved.
                     </p>
                 </div>
             </Dialog>
@@ -172,6 +171,7 @@ const FormRegT = (props) => {
                         <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
 
 
+                            
                             <div className="field">
                                 <span className="p-float-label" >
                                     <Controller name="firstname" control={control} rules={{ required: 'firstname is required.' }} render={({ field, fieldState }) => (
@@ -278,20 +278,6 @@ const FormRegT = (props) => {
                                 {getFormErrorMessage('email')}
                             </div>
 
-                            <div className="field">
-                                <span className="p-float-label"  >
-                                    <Controller name="password" control={control} rules={{ required: 'Password is required.' }} render={({ field, fieldState }) => (
-                                        <Password id={field.name} {...field} toggleMask className={classNames({ 'p-invalid': fieldState.invalid })}
-                                            onChange={(e) => (field.onChange(e.target.value), setDefaultValues(prevValues => ({ ...prevValues, password: e.target.value })))}
-                                            header={passwordHeader}
-                                            footer={passwordFooter}
-                                        />
-                                    )} />
-                                    <label htmlFor="password" className={classNames({ 'p-error': errors.password })}>Password*</label>
-                                </span>
-                                {getFormErrorMessage('password')}
-                            </div>
-
 
                             <div className="field">
                                 <span className="p-float-label" dir='ltr'>
@@ -353,3 +339,7 @@ const FormRegT = (props) => {
 }
 
 export default FormRegT
+
+
+//בסמינר
+//מורה 90-RandomPassword3=o,HzDCn<FI

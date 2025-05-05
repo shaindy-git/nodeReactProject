@@ -218,7 +218,7 @@ const teacherSelection = async (req, res) => {
 
 const getmyteacher = async (req, res) => {
     const { _id, role } = req.user
-    if (!_id, role) {
+    if (!_id|| !role) {
         return res.status(400).json({ message: "files are required" })
     }
      if (role != 'S') {
@@ -233,6 +233,8 @@ const getmyteacher = async (req, res) => {
     return res.status(200).json(teacher)
 
 }
+
+
 
 const addRecommendation = async (req, res) => {
     const { _id , role} = req.user
@@ -623,6 +625,83 @@ const changePassword = async (req, res) => {
     return res.status(200).json({ message: 'Password changed successfully.' })
 }
 
+const getLessonsRemaining = async (req, res)=>{
+
+    const { _id, role } = req.user
+    if (!_id|| !role) {
+        return res.status(400).json({ message: "files are required" })
+    }
+     if (role != 'S') {
+        return res.status(400).json({ message: 'only for students' })
+    }
+    const student = await Student.findById({ _id }, { password: 0 }).lean()
+    lessonsRemaining = student.lessonsRemaining
+    return res.status(200).json({lessonsRemaining:lessonsRemaining})
+
+}
+
+const getLessonsLearned = async (req, res)=>{
+
+    const { _id, role } = req.user
+    if (!_id|| !role) {
+        return res.status(400).json({ message: "files are required" })
+    }
+     if (role != 'S') {
+        return res.status(400).json({ message: 'only for students' })
+    }
+    const student = await Student.findById({ _id }, { password: 0 }).lean()
+    lessonsLearned = student.lessonsLearned
+    return res.status(200).json({lessonsLearned:lessonsLearned})
+
+}
+
+const getTestDetails = async (req, res) => {
+    const { _id, role } = req.user;
+
+    // בדיקה אם הפרטים הבסיסיים קיימים
+    if (!_id || !role) {
+        return res.status(400).json({ message: "files are required" });
+    }
+
+    // בדיקה אם התפקיד הוא של תלמיד
+    if (role !== 'S') {
+        return res.status(400).json({ message: 'only for students' });
+    }
+
+    try {
+        // שאילתת סטודנט לפי ID
+        const student = await Student.findById({ _id }, { password: 0 }).lean();
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        const status = student.test;
+
+        // אם הסטטוס הוא 'false' או 'request'
+        if (status === 'false' || status === 'request') {
+            return res.status(200).json({ status });
+        }
+
+        // אם הסטטוס הוא 'test', חפש את תאריך ושעת הטסט
+        if (status === 'test') {
+            const testDetails = student.dateforLessonsAndTest.find(entry => entry.typeOfHour === 'Test');
+            
+            if (testDetails) {
+                return res.status(200).json({
+                    status,
+                    testDate: testDetails.date,
+                    testHour: testDetails.hour
+                });
+            } else {
+                return res.status(404).json({ message: "Test details not found" });
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 
 module.exports = {
     addStudent,
@@ -637,6 +716,9 @@ module.exports = {
     cancellationLesson,
     testRequest,
     deleteStudent,
-    changePassword
+    changePassword,
+    getLessonsRemaining,
+    getLessonsLearned,
+    getTestDetails
 
 }

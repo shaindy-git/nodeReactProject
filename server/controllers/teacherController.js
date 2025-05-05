@@ -91,7 +91,7 @@ const addTeacher = async (req, res) => {
 
         maneger.RequestList = maneger.RequestList.filter(item => item !== foundItem);
         await maneger.save();
-        const teachers = await Teacher.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+        const teachers = await Teacher.find({area:maneger.area}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
         // console.log({ maneger, teachers })
         return res.status(200).json({ teacher: teacher, teachers: teachers })
     } else {
@@ -143,51 +143,24 @@ const addTeacher = async (req, res) => {
 
 const getAllTeachers = async (req, res) => {
     const { _id, role } = req.user;
-    const { gender, area } = req.body;
+    const { gender, area } = req.body; // area כאן לא נדרש למנהל
 
     if (!_id || !role) {
-        return res.status(400).json({ message: "files are required" })
+        return res.status(400).json({ message: "files are required" });
     }
+
+    // אם המשתמש הוא תלמיד
     if (role === 'S') {
         const foundS = await Student.findOne({ _id }).lean();
         if (foundS) {
-            // אם יש גם מין וגם אזור
-            if (gender && area) {
-                const teachers = await Teacher.find({ area, gender }, { password: 0 })
-                    .sort({ firstName: 1, lastName: 1 })
-                    .lean();
-                if (!teachers?.length) {
-                    return res.status(400).json({ message: 'No teachers found' });
-                }
-                return res.status(200).json(teachers);
-            }
+            let query = {};
+            if (gender) query.gender = gender;
+            if (area) query.area = area;
 
-            // אם יש רק אזור
-            if (area) {
-                const teachers = await Teacher.find({ area }, { password: 0 })
-                    .sort({ firstName: 1, lastName: 1 })
-                    .lean();
-                if (!teachers?.length) {
-                    return res.status(400).json({ message: 'No teachers found' });
-                }
-                return res.status(200).json(teachers);
-            }
-
-            // אם יש רק מין
-            if (gender) {
-                const teachers = await Teacher.find({ gender }, { password: 0 })
-                    .sort({ firstName: 1, lastName: 1 })
-                    .lean();
-                if (!teachers?.length) {
-                    return res.status(400).json({ message: 'No teachers found' });
-                }
-                return res.status(200).json(teachers);
-            }
-
-            // אם אין לא מין ולא אזור - מחזירים את כל המורים
-            const teachers = await Teacher.find({}, { password: 0 })
+            const teachers = await Teacher.find(query, { password: 0 })
                 .sort({ firstName: 1, lastName: 1 })
                 .lean();
+
             if (!teachers?.length) {
                 return res.status(400).json({ message: 'No teachers found' });
             }
@@ -195,40 +168,33 @@ const getAllTeachers = async (req, res) => {
         }
     }
 
-
-    // const foundT = await Teacher.findOne({ _id }).lean();
-
-
+    // אם המשתמש הוא מורה
     if (role === 'T') {
         return res.status(400).json({ message: 'No Access for Teachers' });
     }
 
-
-    // אם המשתמש הוא מורה
-    // if (foundT) {
-    //     return res.status(400).json({ message: 'No Access for Teachers' });
-    // }
-
+    // אם המשתמש הוא מנהל
     if (role === 'M') {
         const foundM = await Manager.findOne({ _id }).lean();
         if (!foundM) {
             return res.status(400).json({ message: "No Access" });
         }
 
-        // אם המשתמש הוא מנהל
+        // שליפת מורים רק מהאזור של המנהל המחובר
         const teachers = await Teacher.find({ area: foundM.area }, { password: 0 })
             .sort({ firstName: 1, lastName: 1 })
             .lean();
+
         if (!teachers?.length) {
-            return res.status(400).json({ message: 'No teachers found' });
+            return res.status(400).json({ message: 'No teachers found for your area' });
         }
+
         return res.status(200).json(teachers);
     }
 
+    // אם התפקיד אינו מוכר
     return res.status(400).json({ message: "No Access" });
-
 };
-
 
 // const deleteTeacher = async (req, res) => {
 //     const { _id } = req.user

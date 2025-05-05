@@ -18,5 +18,10 @@ router.put("/cancellationLesson", studentController.cancellationLesson)
 router.put("/testRequest", studentController.testRequest)
 router.delete("/deleteStudent/:studentID", studentController.deleteStudent)
 router.put("/changePassword", studentController.changePassword)
+router.get("/getLessonsRemaining", studentController.getLessonsRemaining)
+router.get("/getLessonsLearned", studentController.getLessonsLearned)
+router.get("/getTestDetails", studentController.getTestDetails)
+
+
 
 module.exports = router

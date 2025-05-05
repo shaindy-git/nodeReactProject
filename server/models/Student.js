@@ -35,11 +35,6 @@ const studentScehema = new mongoose.Schema({
     },
     area: {
         type: String,
-        enum:["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
-            "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov", 
-            "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center", 
-            "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar", 
-            "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"],
         
     },
     //--------------------------------------------------------------
@@ -75,7 +70,7 @@ const studentScehema = new mongoose.Schema({
     },
     test:{
         type: String,
-            enum: ['request', 'test','false'],
+            enum: ['request','test','false'],
             default:'false'
 
     }

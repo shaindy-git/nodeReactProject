@@ -10,7 +10,13 @@ const jwt = require('jsonwebtoken')
 
 const addTeacher = async (req, res) => {
     //הפונקציה הזו רושמת את המורה עם הסיסמא המוצפנת שלו , כשהו הגיש את בקשת הרשמות קודדה הסיסמא לכן כעת לא
-    const { _id } = req.user
+    const { _id, role } = req.user
+    if (!_id || !role) {
+        return res.status(400).json({ message: "files are required" })
+    }
+    if (role != 'M') {
+        return res.status(400).json({ message: 'no accsess' })
+    }
     const maneger = await Manager.findOne({ _id: _id }).exec()
     if (!maneger) {
         return res.status(400).json({ message: "maneger not found" })
@@ -136,17 +142,50 @@ const addTeacher = async (req, res) => {
 // }
 
 const getAllTeachers = async (req, res) => {
-    const { _id } = req.user;
+    const { _id, role } = req.user;
     const { gender, area } = req.body;
-    const foundM = await Manager.findOne({ _id }).lean();
-    const foundT = await Teacher.findOne({ _id }).lean();
-    const foundS = await Student.findOne({ _id }).lean();
 
-    // אם המשתמש הוא תלמיד
-    if (foundS) {
-        // אם יש גם מין וגם אזור
-        if (gender && area) {
-            const teachers = await Teacher.find({ area, gender }, { password: 0 })
+    if (!_id || !role) {
+        return res.status(400).json({ message: "files are required" })
+    }
+    if (role === 'S') {
+        const foundS = await Student.findOne({ _id }).lean();
+        if (foundS) {
+            // אם יש גם מין וגם אזור
+            if (gender && area) {
+                const teachers = await Teacher.find({ area, gender }, { password: 0 })
+                    .sort({ firstName: 1, lastName: 1 })
+                    .lean();
+                if (!teachers?.length) {
+                    return res.status(400).json({ message: 'No teachers found' });
+                }
+                return res.status(200).json(teachers);
+            }
+
+            // אם יש רק אזור
+            if (area) {
+                const teachers = await Teacher.find({ area }, { password: 0 })
+                    .sort({ firstName: 1, lastName: 1 })
+                    .lean();
+                if (!teachers?.length) {
+                    return res.status(400).json({ message: 'No teachers found' });
+                }
+                return res.status(200).json(teachers);
+            }
+
+            // אם יש רק מין
+            if (gender) {
+                const teachers = await Teacher.find({ gender }, { password: 0 })
+                    .sort({ firstName: 1, lastName: 1 })
+                    .lean();
+                if (!teachers?.length) {
+                    return res.status(400).json({ message: 'No teachers found' });
+                }
+                return res.status(200).json(teachers);
+            }
+
+            // אם אין לא מין ולא אזור - מחזירים את כל המורים
+            const teachers = await Teacher.find({}, { password: 0 })
                 .sort({ firstName: 1, lastName: 1 })
                 .lean();
             if (!teachers?.length) {
@@ -154,31 +193,30 @@ const getAllTeachers = async (req, res) => {
             }
             return res.status(200).json(teachers);
         }
+    }
 
-        // אם יש רק אזור
-        if (area) {
-            const teachers = await Teacher.find({ area }, { password: 0 })
-                .sort({ firstName: 1, lastName: 1 })
-                .lean();
-            if (!teachers?.length) {
-                return res.status(400).json({ message: 'No teachers found' });
-            }
-            return res.status(200).json(teachers);
+
+    // const foundT = await Teacher.findOne({ _id }).lean();
+
+
+    if (role === 'T') {
+        return res.status(400).json({ message: 'No Access for Teachers' });
+    }
+
+
+    // אם המשתמש הוא מורה
+    // if (foundT) {
+    //     return res.status(400).json({ message: 'No Access for Teachers' });
+    // }
+
+    if (role === 'M') {
+        const foundM = await Manager.findOne({ _id }).lean();
+        if (!foundM) {
+            return res.status(400).json({ message: "No Access" });
         }
 
-        // אם יש רק מין
-        if (gender) {
-            const teachers = await Teacher.find({ gender }, { password: 0 })
-                .sort({ firstName: 1, lastName: 1 })
-                .lean();
-            if (!teachers?.length) {
-                return res.status(400).json({ message: 'No teachers found' });
-            }
-            return res.status(200).json(teachers);
-        }
-
-        // אם אין לא מין ולא אזור - מחזירים את כל המורים
-        const teachers = await Teacher.find({}, { password: 0 })
+        // אם המשתמש הוא מנהל
+        const teachers = await Teacher.find({ area: foundM.area }, { password: 0 })
             .sort({ firstName: 1, lastName: 1 })
             .lean();
         if (!teachers?.length) {
@@ -187,24 +225,8 @@ const getAllTeachers = async (req, res) => {
         return res.status(200).json(teachers);
     }
 
-    // אם המשתמש הוא מורה
-    if (foundT) {
-        return res.status(400).json({ message: 'No Access for Teachers' });
-    }
+    return res.status(400).json({ message: "No Access" });
 
-    // אם המשתמש אינו מנהל
-    if (!foundM) {
-        return res.status(400).json({ message: "No Access" });
-    }
-
-    // אם המשתמש הוא מנהל
-    const teachers = await Teacher.find({ area: foundM.area }, { password: 0 })
-        .sort({ firstName: 1, lastName: 1 })
-        .lean();
-    if (!teachers?.length) {
-        return res.status(400).json({ message: 'No teachers found' });
-    }
-    return res.status(200).json(teachers);
 };
 
 
@@ -331,9 +353,14 @@ const getAllTeachers = async (req, res) => {
 
 const deleteTeacher = async (req, res) => {
     try {
-        const { _id } = req.user; // מזהה המנהל
+        const { _id, role } = req.user; // מזהה המנהל
         const { idTeacher } = req.params; // מזהה המורה למחיקה
-
+        if (!_id || !role || !idTeacher) {
+            return res.status(400).json({ message: "files are required" })
+        }
+        if (role != 'M') {
+            return res.status(400).json({ message: 'no accsess' })
+        }
         // בדיקת קיום מנהל
         const manager = await Manager.findById(_id, { password: 0 }).exec();
         if (!manager) {
@@ -375,7 +402,7 @@ const deleteTeacher = async (req, res) => {
                         const isFuture = new Date(lesson.date) > new Date();
                         if (isFuture && lesson.typeOfHour === 'Lesson') {
                             student.lessonsRemaining += 1;
-                            student.lessonsLearned-=1;
+                            student.lessonsLearned -= 1;
                         }
                         return false;
                     });
@@ -395,10 +422,10 @@ const deleteTeacher = async (req, res) => {
         const teachersInArea = await Teacher.find({ area: manager.area }, { password: 0 }).lean();
         const studentsInArea = await Student.find({ area: manager.area }, { password: 0 }).lean();
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             message: 'Teacher successfully deleted',
-            teachersInArea: teachersInArea, 
-            studentsInArea: studentsInArea 
+            teachersInArea: teachersInArea,
+            studentsInArea: studentsInArea
         });
     } catch (err) {
         console.error('Unexpected error:', err);
@@ -467,11 +494,29 @@ const updateTeacher = async (req, res) => {
 }
 
 const getTeacherById = async (req, res) => {
+    const { _id, role } = req.user
     const { id } = req.params
+    if (!_id || !role || !id) {
+        return res.status(400).json({ message: "files are required" })
+    }
+    if (role === 'S') {
+        const student = await Student.findOne({ _id: _id, myTeacher: id }).lean()
+        if (!student) {
+            return res.status(400).json({ message: "no accsess" })
+        }
+    }
     const teacher = await Teacher.findById(id, { password: 0 }).lean()
-
     if (!teacher) {
         return res.status(400).json({ message: 'teacher not found' })
+    }
+    if (role === 'M') {
+        const manager = await Manager.findOne({ _id: _id, area: teacher.area }).lean()
+        if (!manager) {
+            return res.status(400).json({ message: "no accsess" })
+        }
+    }
+    if (role === 'T' && teacher._id != id) {
+        return res.status(400).json({ message: "no accsess" })
     }
     console.log(teacher.firstName);
 
@@ -480,11 +525,14 @@ const getTeacherById = async (req, res) => {
 
 
 const addAvailableClasses = async (req, res) => {
-    const { _id } = req.user;
+    const { _id, role } = req.user;
     const { date, hour } = req.body;
 
-    if (!_id || !date || !hour) {
+    if (!_id || !date || !hour || !role) {
         return res.status(400).json({ message: "files are required" });
+    }
+    if (role != 'T') {
+        return res.status(400).json({ message: "no accsess" })
     }
 
     const teacher = await Teacher.findById(_id, { password: 0 }).exec();
@@ -554,14 +602,17 @@ const addAvailableClasses = async (req, res) => {
 
 
 const getAllDatesWithClasses = async (req, res) => {
-    const { _id } = req.user;
+    const { _id, role } = req.user;
 
 
 
-    if (!_id) {
+    if (!_id || !role) {
         console.log("1");
-        console.error("Missing Teacher ID");
-        return res.status(400).json({ message: "Teacher ID is required" });
+        console.error("files are is required");
+        return res.status(400).json({ message: "files are is required" });
+    }
+    if (role != 'T') {
+        return res.status(400).json({ message: "no accsess" })
     }
 
     const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).lean();
@@ -591,14 +642,17 @@ const getAllDatesWithClasses = async (req, res) => {
 
 
 const getClassesByDate = async (req, res) => {
-    const { _id } = req.user; // מזהה המורה מהמשתמש המחובר
+    const { _id ,role} = req.user; // מזהה המורה מהמשתמש המחובר
     const { date } = req.params; // תאריך שנשלח בבקשה
 
     // בדיקת תקינות הפרמטרים
-    if (!_id || !date) {
+    if (!_id || !date||!role) {
         console.log("1");
 
         return res.status(400).json({ message: "files are required" });
+    }
+    if (role != 'T') {
+        return res.status(400).json({ message: "no accsess" })
     }
 
     // שליפת המורה עם שדה dateforLessonsAndTests בלבד
@@ -821,13 +875,15 @@ const getClassesByDate = async (req, res) => {
 
 const settingTest = async (req, res) => {
     try {
-        const { _id } = req.user; // מזהה המורה
+        const { _id ,role} = req.user; // מזהה המורה
         const { studentId, date } = req.body; // מזהה התלמיד והתאריך המבוקש
 
-        if (!studentId || !date) {
+        if (!studentId || !date||!_id||!role) {
             return res.status(400).json({ message: "All fields are required" });
         }
-
+        if (role != 'T') {
+            return res.status(400).json({ message: "no accsess" })
+        }
         // מציאת התלמיד
         const student = await Student.findById(studentId).exec();
         if (!student) {
@@ -921,11 +977,14 @@ const settingTest = async (req, res) => {
 
 
 const cancelTestRequest = async (req, res) => {
-    const { _id } = req.user;
+    const { _id, role } = req.user;
     const { studentId, date } = req.body;
 
-    if (!studentId || !date) {
+    if (!studentId || !date||!role) {
         return res.status(400).json({ message: "All fields are required" });
+    }
+    if (role != 'T') {
+        return res.status(400).json({ message: "no accsess" })
     }
 
     // Find the student
@@ -966,10 +1025,13 @@ const cancelTestRequest = async (req, res) => {
 
 
 const addLessonToStudent = async (req, res) => {
-    const { _id } = req.user
+    const { _id ,role} = req.user
     const { studentId } = req.body
-    if (!_id || !studentId) {
+    if (!_id || !studentId||!role) {
         return res.status(400).json({ message: "files are required" })
+    }
+    if (role != 'T') {
+        return res.status(400).json({ message: "no accsess" })
     }
     const student = await Student.findById(studentId).exec()
     if (!student) {
@@ -1015,8 +1077,10 @@ const getAllRecommendations = async (req, res) => {
 }
 
 const getRequests = async (req, res) => {
-    const { _id } = req.user;
-
+    const { _id , role} = req.user;
+    if (role != 'T') {
+        return res.status(400).json({ message: "no accsess" })
+    }
     const teacher = await Teacher.findById(_id)
         .populate({
             path: 'listOfRequires.studentId',
@@ -1036,9 +1100,11 @@ const getRequests = async (req, res) => {
 };
 
 const getDateforLessonsAndTests = async (req, res) => {
-    const { _id } = req.user;
+    const { _id, role } = req.user;
     const { date } = req.params;
-
+    if (role != 'T') {
+        return res.status(400).json({ message: "no accsess" })
+    }
     const teacher = await Teacher.findById(_id).lean();
 
     if (!teacher) {

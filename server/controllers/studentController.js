@@ -42,31 +42,39 @@ const addStudent = async (req, res) => {
 }
 
 const getAllStudents = async (req, res) => {
-    const { _id } = req.user
-    const foundM = await Manager.findOne({ _id }).lean()
-    const foundT = await Teacher.findOne({ _id }).lean()
-    const foundS = await Student.findOne({ _id }).lean()
+    const { _id, role } = req.user;
 
-    if (foundS) {
-        return res.status(400).json({ message: 'No Access for Students' })
+    if (!_id || !role) {
+        return res.status(400).json({ message: "files are required" });
     }
-    if (foundT) {
-        console.log(_id);
-        const studentsT = await Student.find({ myTeacher: _id }).sort({ firstNane: 1, lastName: 1 }).lean()
-        if (!studentsT?.length) {
-            return res.status(400).json({ message: 'No students found' })
 
+    if (role === 'T') {
+        const foundT = await Teacher.findOne({ _id }).lean();
+        if (foundT) {
+            console.log(_id);
+            const studentsT = await Student.find({ myTeacher: _id }).sort({ firstName: 1, lastName: 1 }).lean();
+            if (!studentsT?.length) {
+                return res.status(400).json({ message: 'No students found' });
+            }
+            return res.json(studentsT); // הוסף return כאן
         }
-        return res.json(studentsT)
     }
-    console.log(foundM.area);
-    const allStudents = await Student.find({ area: foundM.area }, { password: 0 }).sort({ firstName: 1, lastName: 1 }).lean()
-    if (!allStudents?.length) {
-        return res.status(400).json({ message: 'No students found' })
 
+    if (role === 'M') {
+        const foundM = await Manager.findOne({ _id }).lean();
+        if (foundM) {
+            console.log(foundM.area);
+            const allStudents = await Student.find({ area: foundM.area }, { password: 0 }).sort({ firstName: 1, lastName: 1 }).lean();
+            if (!allStudents?.length) {
+                return res.status(400).json({ message: 'No students found' });
+            }
+            return res.status(200).json(allStudents); // הוסף return כאן
+        }
     }
-    res.status(200).json(allStudents)
-}
+
+    // אם אף תנאי לא מתקיים
+    return res.status(400).json({ message: 'No Access' });
+};
 
 
 
@@ -182,10 +190,14 @@ const getstudentById = async (req, res) => {
 
 
 const teacherSelection = async (req, res) => {
-    const { _id } = req.user
+    const { _id, role } = req.user
+    
     const { teacherId } = req.body
-    if (!teacherId || !_id) {
+    if (!teacherId || !_id||!role) {
         return res.status(400).json({ message: "files are required" })
+    }
+    if (role != 'S') {
+        return res.status(400).json({ message: 'only for students' })
     }
     const teacher = await Teacher.findById({ _id: teacherId }, { password: 0 }).exec()
     const student = await Student.findById({ _id }, { password: 0 }).exec()
@@ -205,9 +217,12 @@ const teacherSelection = async (req, res) => {
 }
 
 const getmyteacher = async (req, res) => {
-    const { _id } = req.user
-    if (!_id) {
+    const { _id, role } = req.user
+    if (!_id, role) {
         return res.status(400).json({ message: "files are required" })
+    }
+     if (role != 'S') {
+        return res.status(400).json({ message: 'only for students' })
     }
     const student = await Student.findById({ _id }, { password: 0 }).lean()
     teacherId = student.myTeacher
@@ -220,10 +235,13 @@ const getmyteacher = async (req, res) => {
 }
 
 const addRecommendation = async (req, res) => {
-    const { _id } = req.user
+    const { _id , role} = req.user
     const { rec } = req.body
-    if (!rec || !_id) {
+    if (!rec || !_id||!role) {
         return res.status(400).json({ message: "files are required" })
+    }
+    if (role != 'S') {
+        return res.status(400).json({ message: 'only for students' })
     }
     const student = await Student.findById({ _id }, { password: 0 }).lean()
     if (!student) {
@@ -242,10 +260,13 @@ const addRecommendation = async (req, res) => {
 }
 
 const settingLesson = async (req, res) => {
-    const { _id } = req.user
+    const { _id , role} = req.user
     const { date, hour } = req.body
-    if (!_id || !date || !hour) {
+    if (!_id || !date || !hour||!role) {
         return res.status(400).json({ message: "files are required" })
+    }
+    if (role != 'S') {
+        return res.status(400).json({ message: 'only for students' })
     }
     const student = await Student.findById({ _id }, { password: 0 }).exec()
     if (!student) {
@@ -313,10 +334,13 @@ const settingLesson = async (req, res) => {
 }
 
 const cancellationLesson = async (req, res) => {
-    const { _id } = req.user
+    const { _id , role} = req.user
     const { date, hour } = req.body
-    if (!_id || !date || !hour) {
+    if (!_id || !date || !hour||!role) {
         return res.status(400).json({ message: "files are required" })
+    }
+    if (role != 'S') {
+        return res.status(400).json({ message: 'only for students' })
     }
     const student = await Student.findById({ _id }, { password: 0 }).exec()
     if (!student) {
@@ -379,10 +403,13 @@ const cancellationLesson = async (req, res) => {
 }
 
 const testRequest = async (req, res) => {
-    const { _id } = req.user
+    const { _id, role } = req.user
     const { date } = req.body
-    if (!_id || !date) {
+    if (!_id || !date||!role) {
         return res.status(400).json({ message: "files are required" })
+    }
+    if (role != 'S') {
+        return res.status(400).json({ message: 'only for students' })
     }
     const student = await Student.findById({ _id }, { password: 0 }).exec()
     if (!student) {
@@ -495,9 +522,14 @@ const testRequest = async (req, res) => {
 
 const deleteStudent = async (req, res) => {
     try {
-        const { _id } = req.user; // מזהה המשתמש
+        const { _id , role} = req.user; // מזהה המשתמש
         const { studentID } = req.params; // מזהה התלמיד
-
+        if ( !_id||!role||!studentID) {
+            return res.status(400).json({ message: "files are required" })
+        }
+        if (role != 'T'&&role!='M') {
+            return res.status(400).json({ message: 'no accsess' })
+        }
         // מציאת התלמיד
         const student = await Student.findById(studentID, { password: 0 }).exec();
         if (!student) {

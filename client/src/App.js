@@ -12,6 +12,7 @@ import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import { Link, Route, Routes } from 'react-router-dom';
 import './index.css';
 import './flags.css';
+import ADHome from './Components/Admin/ADHome';
 import MHome from './Components/Manager/MHome';
 import THome from './Components/Teacher/THome';
 import SHome from './Components/Student/SHome';
@@ -104,6 +105,7 @@ function App() {
       <Routes>
         <Route path="/Auth/Logout" element={<Logout />} />
         <Route path="/Auth/Auth" element={<Auth />} />
+        <Route path="/Admin/ADHome" element={<ADHome />} />
         <Route path="/Manager/MHome" element={<MHome />} />
         <Route path="/Teacher/THome" element={<THome />} />
         <Route path="/Student/SHome" element={<SHome />} />

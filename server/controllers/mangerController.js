@@ -7,19 +7,15 @@ const jwt = require('jsonwebtoken')
 
 
 const addManager = async (req, res) => {
+    const {role}=req.user
+    if(role!='A'){
+        return res.status(400).json({ message: "No accsess" })
+    }
     const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password, area } = req.body
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area) {
         return res.status(400).json({ message: "files are required" })
     }
-    // const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
-    //     "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
-    //     "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
-    //     "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
-    //     "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
-
-    // if (!cities.includes(area)) {
-    //     return res.status(400).json({ message: 'This area is not validate' })
-    // }
+  
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
@@ -111,7 +107,10 @@ const updateManager = async (req, res) => {
 
 const getRequestsByManagerId = async (req, res) => {
 
-    const { _id } = req.user
+    const { _id, role } = req.user
+    if(role!='M'){
+        return res.status(400).json({ message: "No accsess" })
+    }
     const manager = await Manager.findById(_id, { password: 0 });
 
     if (!manager) {
@@ -126,7 +125,10 @@ const getRequestsByManagerId = async (req, res) => {
 
 const removeReqest = async (req, res) => {
     //איתור הבקשה
-    const { _id } = req.user
+    const { _id, role } = req.user
+    if(role!='M'){
+        return res.status(400).json({ message: "No accsess" })
+    }
     const maneger = await Manager.findOne({ _id: _id }).exec()
     if (!maneger) {
         return res.status(400).json({ message: "maneger not found" })
@@ -137,17 +139,8 @@ const removeReqest = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
         return res.status(400).json({ message: "files are required" })
     }
-    // const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
-    //     "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
-    //     "Tel Aviv - Dizengoff", "Tel Aviv - Balfour", "Petah Tikva - Center",
-    //     "Herzliya - Pituach", "Netivot", "Haifa - Bat Galim", "Haifa - Kiryot", "Safed - David Elazar",
-    //     "Tel Aviv - Kikar Hamedina", "Holon", "Beer Sheva", "Beit Shemesh - Ha'ir", "Bat Yam - Allenby", "Ramat Gan - Begin"]
-
     const genders = ["male", "female"]
 
-    // if (!cities.includes(area)) {
-    //     return res.status(400).json({ message: 'This area is not validate' })
-    // }
     if (!genders.includes(gender)) {
         return res.status(400).json({ message: 'This gender is not validate' })
     }
@@ -184,7 +177,10 @@ const removeReqest = async (req, res) => {
 }
 
 const changePassword = async (req, res) => {
-    const { _id } = req.user
+    const { _id , role} = req.user
+    if(role!='M'){
+        return res.status(400).json({ message: "No accsess" })
+    }
     const { oldPassword, newPassword } = req.body
     const manager = await Manager.findById(_id).exec();
     if (!manager) {
@@ -197,6 +193,14 @@ const changePassword = async (req, res) => {
     return res.status(200).json({ message: 'Password changed successfully.' })
 }
 
+
+const deleteManager=async()=>{
+    const { _id , role} = req.user
+    if(role!='A'){
+        return res.status(400).json({ message: "No accsess" })
+    }
+    
+}
 
 
 

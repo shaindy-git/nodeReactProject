@@ -4,7 +4,7 @@ const verifyJWT = require("../middleware/verifyJWT")
 
 const teacherController = require("../controllers/teacherController")
 
-router.get("/getTeacherById/:id", teacherController.getTeacherById)
+
 
 router.use(verifyJWT)
 
@@ -22,6 +22,7 @@ router.put("/changePassword", teacherController.changePassword)
 router.get("/getAllRecommendations", teacherController.getAllRecommendations)
 router.get("/getRequests", teacherController.getRequests)
 router.get("/getDateforLessonsAndTests/:date", teacherController.getDateforLessonsAndTests);
+router.get("/getTeacherById/:id", teacherController.getTeacherById)
 
 
 module.exports = router

@@ -29,7 +29,7 @@ const MShowstudent = (props) => {
             const res = await axios({
                 method: 'get',
                 url: `http://localhost:7000/teacher/getTeacherById/${props.student.myTeacher}`,
-                headers: {},
+                headers: { Authorization: "Bearer " + accesstoken},
             });
             if (res.status === 200) {
 

@@ -191,20 +191,26 @@ const getstudentById = async (req, res) => {
 
 const teacherSelection = async (req, res) => {
     const { _id, role } = req.user
+    console.log("1");
+    
     
     const { teacherId } = req.body
     if (!teacherId || !_id||!role) {
+        console.log("2");
         return res.status(400).json({ message: "files are required" })
     }
     if (role != 'S') {
+        console.log("3");
         return res.status(400).json({ message: 'only for students' })
     }
     const teacher = await Teacher.findById({ _id: teacherId }, { password: 0 }).exec()
     const student = await Student.findById({ _id }, { password: 0 }).exec()
     if (!teacher || !student) {
+        console.log("4");
         return res.status(400).json({ message: 'No teacher found' })
     }
     if (teacher.listOfStudent.length > 3) {
+        console.log("5");
         return res.status(400).json({ message: 'The teacher is not available to accept new students' })
     }
     teacher.listOfStudent = [...teacher.listOfStudent, _id]
@@ -230,6 +236,8 @@ const getmyteacher = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
+    console.log(teacher.firstName);
+    
     return res.status(200).json(teacher)
 
 }

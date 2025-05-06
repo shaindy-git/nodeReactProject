@@ -1,276 +1,191 @@
-// // import React, { useState, useEffect } from 'react';
-// // import { Galleria } from 'primereact/galleria';
-// // import { Dropdown } from 'primereact/dropdown';
-// // import axios from 'axios';
-// // import { useSelector } from 'react-redux';
-// // import { jwtDecode } from 'jwt-decode';
-
-// // const SSelectionTeatcher = () => {
-// //     const accesstoken = useSelector((state) => state.token.token);
-// //     const decoded = accesstoken ? jwtDecode(accesstoken) : null;
-
-// //     const [teachers, setTeachers] = useState([]);
-// //     const [Areas, setAreas] = useState([]);
-// //     const [selectedArea, setSelectedArea] = useState(null);
-// //     const [selectedGender, setSelectedGender] = useState(null);
-// //     const [loading, setLoading] = useState(false);
-
-// //     const genders = [
-// //         { label: 'Male', value: 'male' },
-// //         { label: 'Female', value: 'female' }
-// //     ];
-
-// //     const responsiveOptions = [
-// //         { breakpoint: '991px', numVisible: 4 },
-// //         { breakpoint: '767px', numVisible: 3 },
-// //         { breakpoint: '575px', numVisible: 1 }
-// //     ];
-
-// //     // שמירת כל האזורים
-// //     useEffect(() => {
-// //         const fetchAreas = async () => {
-// //             try {
-// //                 const res = await axios.get('http://localhost:7000/admin/getAllAreas');
-// //                 console.log(res.data.areas); // Debugging line
-// //                 if (res.status === 200) {
-// //                     setAreas(res.data.areas.map(area => ({ label: area.name, value: area.id })));
-// //                 }
-
-// //             } catch (e) {
-// //                 console.error("Failed to fetch areas", e);
-// //                 setAreas([]);
-// //             }
-// //         };
-
-// //         fetchAreas();
-// //     }, []);
-
-// //     // שמירת כל המורים
-// //     useEffect(() => {
-// //         const fetchTeachers = async () => {
-// //             if (!accesstoken) return;
-
-// //             setLoading(true);
-// //             try {
-// //                 const res = await axios.post('http://localhost:7000/teacher/getAllTeachers',
-// //                     {
-// //                         area: selectedArea,
-// //                         gender: selectedGender
-// //                     },
-// //                     {
-// //                         headers: { Authorization: `Bearer ${accesstoken}` }
-// //                     }
-// //                 );
-// //                 console.log(res.data); // Debugging line
-// //                 if (res.status === 200) {
-// //                     setTeachers(res.data.map(teacher => ({
-// //                         itemImageSrc: teacher.imageUrl,
-// //                         alt: teacher.name,
-// //                         description: teacher.description
-// //                     })));
-// //                 } else {
-// //                     setTeachers([]);
-// //                 }
-// //             } catch (e) {
-// //                 console.error("Failed to fetch teachers", e);
-// //                 setTeachers([]);
-// //             } finally {
-// //                 setLoading(false);
-// //             }
-// //         };
-
-// //         fetchTeachers();
-// //     }, [selectedArea, selectedGender, accesstoken]);
-
-// //     const itemTemplate = (item) => {
-// //         return (
-// //             <div style={{ position: 'relative', textAlign: 'center' }}>
-// //                 <img src={item.itemImageSrc} alt={item.alt} style={{ width: '100%', display: 'block', borderRadius: '8px' }} />
-// //                 <div style={{
-// //                     position: 'absolute',
-// //                     bottom: '10px',
-// //                     left: '50%',
-// //                     transform: 'translateX(-50%)',
-// //                     color: '#fff',
-// //                     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-// //                     padding: '5px 10px',
-// //                     borderRadius: '5px'
-// //                 }}>
-// //                     {item.alt}
-// //                 </div>
-// //             </div>
-// //         );
-// //     };
-
-// //     const thumbnailTemplate = (item) => {
-// //         return <img src={item.itemImageSrc} alt={item.alt} style={{ width: '100%', display: 'block', borderRadius: '8px' }} />;
-// //     };
-
-// //     return (
-// //         <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', minHeight: '100vh' }}>
-// //             <div style={{
-// //                 display: 'flex',
-// //                 flexDirection: 'row',
-// //                 gap: '1rem',
-// //                 alignItems: 'center',
-// //                 justifyContent: 'flex-start',
-// //                 padding: '1rem',
-// //                 backgroundColor: '#ffffff',
-// //                 borderRadius: '12px',
-// //                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-// //                 width: '100%',
-// //                 marginBottom: '1.5rem'
-// //             }}>
-// //                 <Dropdown
-// //                     value={selectedGender}
-// //                     onChange={(e) => setSelectedGender(e.value)}
-// //                     options={genders}
-// //                     placeholder="Select Gender"
-// //                     style={{
-// //                         flex: 'none',
-// //                         width: '220px',
-// //                         padding: '0.5rem',
-// //                         borderRadius: '8px',
-// //                         border: '1px solid #ddd',
-// //                         fontSize: '1rem',
-// //                         height: '3.5rem',
-// //                         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-// //                         backgroundColor: '#f9f9f9',
-// //                         color: '#333',
-// //                         fontWeight: 'bold',
-// //                         textAlign: 'center'
-// //                     }}
-// //                 />
-// //                 <Dropdown
-// //                     value={selectedArea}
-// //                     onChange={(e) => setSelectedArea(e.value)}
-// //                     options={Areas}
-// //                     placeholder={Areas.length > 0 ? "Select Area" : "No Areas Available"}
-// //                     style={{
-// //                         flex: 'none',
-// //                         width: '220px',
-// //                         padding: '0.5rem',
-// //                         borderRadius: '8px',
-// //                         border: '1px solid #ddd',
-// //                         fontSize: '1rem',
-// //                         height: '3.5rem',
-// //                         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-// //                         backgroundColor: '#f9f9f9',
-// //                         color: '#333',
-// //                         fontWeight: 'bold',
-// //                         textAlign: 'center'
-// //                     }}
-// //                 />
-// //             </div>
-
-// //             <div className="card" style={{
-// //                 backgroundColor: '#ffffff',
-// //                 borderRadius: '12px',
-// //                 padding: '1rem',
-// //                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-// //                 textAlign: 'center'
-// //             }}>
-// //                 {loading ? (
-// //                     <p style={{ color: '#666', fontSize: '1.2rem' }}>טוען נתונים...</p>
-// //                 ) : teachers.length > 0 ? (
-// //                     <Galleria
-// //                         style={{ maxWidth: '640px', margin: '0 auto' }}
-// //                         value={teachers}
-// //                         responsiveOptions={responsiveOptions}
-// //                         numVisible={5}
-// //                         item={itemTemplate}
-// //                         thumbnail={thumbnailTemplate}
-// //                     />
-// //                 ) : (
-// //                     <p style={{ marginTop: '1rem', color: '#666', fontSize: '1rem' }}>No suitable teachers were found</p>
-// //                 )}
-// //             </div>
-// //         </div>
-// //     );
-// // };
-
-// // export default SSelectionTeatcher;
-
-
-// import React, { useState, useEffect } from "react";
+// import React, { useState, useEffect, useRef } from "react";
 // import axios from "axios";
-// import "./SSelectionTeatcher.css";
-// import { useSelector } from 'react-redux';
-// import { jwtDecode } from 'jwt-decode';
+// import { useSelector } from "react-redux";
+// import { jwtDecode } from "jwt-decode";
+// import { Toast } from "primereact/toast";
+// import { useNavigate } from "react-router-dom";
 
-// const SSelectionTeatcher = () => {
+
+
+// const SSelectionTeatcher = (props) => {
+//   const styles = {
+//     teacherSelection: {
+//       fontFamily: "Arial, sans-serif",
+//       padding: "20px",
+//       maxWidth: "1200px",
+//       margin: "0 auto",
+//     },
+//     title: {
+//       textAlign: "center",
+//       color: "#333",
+//     },
+//     filters: {
+//       display: "flex",
+//       justifyContent: "center",
+//       gap: "20px",
+//       marginBottom: "20px",
+//     },
+//     select: {
+//       padding: "10px",
+//       borderRadius: "5px",
+//       border: "1px solid #ccc",
+//       backgroundColor: "#007bff",
+//       color: "white",
+//       fontWeight: "bold",
+//       cursor: "pointer",
+//       transition: "background-color 0.3s",
+//     },
+//     teacherList: {
+//       display: "grid",
+//       gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+//       gap: "20px",
+//     },
+//     teacherCard: {
+//       padding: "20px",
+//       border: "1px solid #ccc",
+//       borderRadius: "10px",
+//       textAlign: "center",
+//       transition: "transform 0.3s, box-shadow 0.3s",
+//       cursor: "pointer",
+//     },
+//     teacherPreview: {
+//       marginTop: "20px",
+//       padding: "20px",
+//       border: "1px solid #007bff",
+//       borderRadius: "10px",
+//       backgroundColor: "#f0f8ff",
+//     },
+//     button: {
+//       marginTop: "20px",
+//       padding: "10px 20px",
+//       backgroundColor: "#007bff",
+//       color: "white",
+//       border: "none",
+//       borderRadius: "5px",
+//       cursor: "pointer",
+//       fontWeight: "bold",
+//       transition: "background-color 0.3s",
+//     },
+//   };
+
 //   const [teachers, setTeachers] = useState([]);
-//   const [areas, setAreas] = useState([]); // Initial value is an empty array
+//   const [areas, setAreas] = useState([]);
 //   const [selectedArea, setSelectedArea] = useState("");
 //   const [selectedGender, setSelectedGender] = useState("");
 //   const [selectedTeacher, setSelectedTeacher] = useState(null);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
 //   const accesstoken = useSelector((state) => state.token.token);
-//   const decoded = accesstoken ? jwtDecode(accesstoken) : null;
+//  const toast = useRef(null); // הגדרת ה-ref
+//   const navigate = useNavigate(); // שימוש ב-Hook לניווט
+
+//   const teacherSelection = async () => {
+
+//     debugger
+//     if (!selectedTeacher) {
+//       toast.current?.show({
+//         severity: "warn",
+//         summary: "Warning",
+//         detail: "Please select a teacher before proceeding.",
+//         life: 3000,
+//       });
+//       return;
+//     }
+
+//     try {
+//       const res = await axios.put(
+//         "http://localhost:7000/student/teacherSelection",
+//         { teacherId: selectedTeacher._id },
+//         { headers: { Authorization: "Bearer " + accesstoken } }
+//       );
+
+//       if (res.status === 200) {
+
+//         toast.current.show({ severity: 'success', summary: 'Success', detail: `You have successfully registered with teacher ${selectedTeacher.firstName} ${selectedTeacher.lastName}!`, life: 3000 });
+//         props.setMyTeacher(selectedTeacher);
+//         navigate('/Student/SHome'); // ניווט
+//       } else {
+//         throw new Error("Unexpected response status: " + res.status); // טיפול בשגיאה
+//       }
+//     } catch (e) {
+//       console.error("Error:", e.response?.status || "Unknown error");
+//       toast.current?.show({
+//         severity: "error",
+//         summary: "Error",
+//         detail: "Failed to register with the teacher. Please try again.",
+//         life: 3000,
+//       });
+//     }
+//   };
 
 //   useEffect(() => {
 //     const fetchAreas = async () => {
-
-//         console.log(decoded.firstName);
 //       try {
-//         const res = await axios.get("http://localhost:7000/admin/getAllAreas");
-//         if (res.data?.areas && Array.isArray(res.data.areas)) {
-//           setAreas(res.data.areas); // Update areas if valid
-//         } else {
-//           console.error("Unexpected response format:", res.data);
-//           setAreas([]); // Default value if response is invalid
-//         }
+//         const res = await axios.get("http://localhost:7000/admin/getAllAreas", {
+//           headers: { Authorization: "Bearer " + accesstoken },
+//         });
+//         setAreas(res.data?.areas || []);
 //       } catch (err) {
 //         console.error("Error fetching areas:", err);
-//         setAreas([]); // Default value on error
+//         setAreas([]);
 //       }
 //     };
 
-//     const fetchTeachers = async () => {
-//         console.log(   "area" ,selectedArea ,
-//             "gender" ,selectedGender );
-
-//             const params = {
-//                 area: selectedArea || undefined,
-//                 gender: selectedGender || undefined,
-//             };
-//         try {
-//           const res = await axios({
-//             method: 'get',
-//             url: `http://localhost:7000/teacher/getAllTeachers`,
-//             headers: { Authorization: "Bearer " + accesstoken },
-//             params: params,
-//         });
-//           if (Array.isArray(res.data)) {
-//             console.log("111111", res.data);
-//             setTeachers(res.data); // Update teachers list
-//           } else {
-//             console.error("Unexpected teacher response format:", res.data);
-//             setTeachers([]);
-//           }
-//         } catch (err) {
-//           console.error("Error fetching teachers:", err);
-//           setTeachers([]);
-//         }
-//       };
-
-//     // 
 //     fetchAreas();
+//   }, [accesstoken]);
+
+//   useEffect(() => {
+//     const fetchTeachers = async () => {
+//       setLoading(true);
+//       setError(null);
+//       try {
+//         const params = {
+//           area: selectedArea || undefined,
+//           gender: selectedGender || undefined,
+//         };
+
+//         const res = await axios.get("http://localhost:7000/teacher/getAllTeachers", {
+//           headers: { Authorization: "Bearer " + accesstoken },
+//           params,
+//         });
+
+//         setTeachers(res.data || []);
+//         if (
+//           selectedTeacher &&
+//           !res.data.some((teacher) => teacher._id === selectedTeacher._id)
+//         ) {
+//           setSelectedTeacher(null);
+//         }
+//       } catch (err) {
+//         console.error("Error fetching teachers:", err);
+//         setError("Failed to fetch teachers. Please try again later.");
+//         setTeachers([]);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
 //     fetchTeachers();
-//   }, [selectedArea, selectedGender]);
+//   }, [selectedArea, selectedGender, accesstoken]);
+
+//   const handleSelectTeacher = (teacher) => {
+//     setSelectedTeacher(teacher);
+//   };
 
 //   return (
-//     <div className="teacher-selection">
-//       <h1>Select a Teacher</h1>
-//       <div className="filters">
-//         {/* Area Selection */}
+//     <div style={styles.teacherSelection}>
+//       <Toast ref={toast} />
+//       <h1 style={styles.title}>Select a Teacher</h1>
+
+//       {/* Filters */}
+//       <div style={styles.filters}>
 //         <select
 //           id="area-select"
 //           onChange={(e) => setSelectedArea(e.target.value)}
 //           value={selectedArea}
+//           style={styles.select}
 //         >
-//           <option value="" disabled hidden>
-//             Select Area
-//           </option>
+//           <option value="">Select Area</option>
 //           {areas.map((area, index) => (
 //             <option key={index} value={area}>
 //               {area}
@@ -278,59 +193,52 @@
 //           ))}
 //         </select>
 
-//         {/* Gender Selection */}
 //         <select
 //           id="gender-select"
 //           onChange={(e) => setSelectedGender(e.target.value)}
 //           value={selectedGender}
+//           style={styles.select}
 //         >
-//           <option value="" disabled hidden>
-//             Select Gender
-//           </option>
-//           <option value="male">male</option>
-//           <option value="female">female</option>
+//           <option value="">Select Gender</option>
+//           <option value="male">Male</option>
+//           <option value="female">Female</option>
 //         </select>
 //       </div>
 
-//       {/* Teacher List */}
-//       {teachers.length > 0 ? (
-//         <div className="teacher-list">
+//       {/* Teachers List */}
+//       {loading ? (
+//         <p>Loading teachers...</p>
+//       ) : error ? (
+//         <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+//       ) : teachers.length > 0 ? (
+//         <div style={styles.teacherList}>
 //           {teachers.map((teacher) => (
 //             <div
-//               key={teacher.id}
-//               className={`teacher-card ${selectedTeacher === teacher ? "selected" : ""}`}
-//               onMouseEnter={() => setSelectedTeacher(teacher)}
+//               key={teacher._id}
+//               style={styles.teacherCard}
+//               onClick={() => handleSelectTeacher(teacher)}
 //             >
-//               <h2>{teacher.firstName} {teacher.lastName}</h2>
-//               <p>{teacher.email}</p>
+//               <h2>
+//                 {teacher.firstName} {teacher.lastName}
+//               </h2>
 //             </div>
 //           ))}
 //         </div>
 //       ) : (
-//         <p className="no-teachers">No teachers to display.</p>
+//         <p>No teachers found for the selected filters.</p>
 //       )}
 
-//       {/* Selected Teacher Details */}
+//       {/* Teacher Preview */}
 //       {selectedTeacher && (
-//         <div className="teacher-preview">
-//           <h2>{selectedTeacher.firstName} {selectedTeacher.lastName}</h2>
+//         <div style={styles.teacherPreview}>
+//           <h2>
+//             {selectedTeacher.firstName} {selectedTeacher.lastName}
+//           </h2>
 //           <p>Area: {selectedTeacher.area}</p>
 //           <p>Gender: {selectedTeacher.gender}</p>
 //           <p>Email: {selectedTeacher.email}</p>
 //           <p>Phone: {selectedTeacher.phone}</p>
-//           <div className="recommendations">
-//             <h3>Recommendations</h3>
-//             <ul>
-//               {selectedTeacher.recommendations?.length > 0 ? (
-//                 selectedTeacher.recommendations.map((rec, index) => (
-//                   <li key={index}>{rec.rec}</li>
-//                 ))
-//               ) : (
-//                 <p>No recommendations available.</p>
-//               )}
-//             </ul>
-//           </div>
-//           <button onClick={() => alert(`You selected ${selectedTeacher.name}`)}>
+//           <button style={styles.button} onClick={teacherSelection}>
 //             Select this Teacher
 //           </button>
 //         </div>
@@ -342,20 +250,394 @@
 // export default SSelectionTeatcher;
 
 
-import React, { useState, useEffect } from "react";
+//---------------------------------------------------------------------------
+
+// import React, { useState, useEffect, useRef } from "react";
+// import axios from "axios";
+// import { useSelector } from "react-redux";
+// import { Toast } from "primereact/toast";
+// import { useNavigate } from "react-router-dom";
+
+// const SSelectionTeatcher = (props) => {
+//   const styles = {
+//     teacherSelection: {
+//       fontFamily: "Arial, sans-serif",
+//       padding: "20px",
+//       maxWidth: "1200px",
+//       margin: "0 auto",
+//     },
+//     title: {
+//       textAlign: "center",
+//       color: "#333",
+//     },
+//     filters: {
+//       display: "flex",
+//       justifyContent: "center",
+//       gap: "20px",
+//       marginBottom: "20px",
+//     },
+//     select: {
+//       padding: "10px",
+//       borderRadius: "5px",
+//       border: "1px solid #ccc",
+//       backgroundColor: "#007bff",
+//       color: "white",
+//       fontWeight: "bold",
+//       cursor: "pointer",
+//       transition: "background-color 0.3s",
+//     },
+//     teacherList: {
+//       display: "grid",
+//       gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+//       gap: "20px",
+//     },
+//     teacherCard: {
+//       padding: "20px",
+//       border: "1px solid #ccc",
+//       borderRadius: "10px",
+//       textAlign: "center",
+//       transition: "transform 0.3s, box-shadow 0.3s",
+//       cursor: "pointer",
+//     },
+//     teacherPreview: {
+//       marginTop: "20px",
+//       padding: "20px",
+//       border: "1px solid #007bff",
+//       borderRadius: "10px",
+//       backgroundColor: "#f0f8ff",
+//     },
+//     button: {
+//       marginTop: "20px",
+//       padding: "10px 20px",
+//       backgroundColor: "#007bff",
+//       color: "white",
+//       border: "none",
+//       borderRadius: "5px",
+//       cursor: "pointer",
+//       fontWeight: "bold",
+//       transition: "background-color 0.3s",
+//     },
+//   };
+
+//   const [teachers, setTeachers] = useState([]);
+//   const [areas, setAreas] = useState([]);
+//   const [selectedArea, setSelectedArea] = useState("");
+//   const [selectedGender, setSelectedGender] = useState("");
+//   const [selectedTeacher, setSelectedTeacher] = useState(null);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+//   const accesstoken = useSelector((state) => state.token.token);
+//   const toast = useRef(null); // הגדרת ה-ref
+//   const navigate = useNavigate(); // שימוש ב-Hook לניווט
+
+//   const teacherSelection = async () => {
+//     if (!selectedTeacher) {
+//       toast.current.show({ // קריאה ל-toast
+//         severity: "warn",
+//         summary: "Warning",
+//         detail: "Please select a teacher before proceeding.",
+//         life: 3000,
+//       });
+//       return;
+//     }
+//     debugger
+//     console.log(selectedTeacher._id,accesstoken,props.setMyTeacher);
+    
+
+//     try {
+//       const res = await axios.put(
+//                 "http://localhost:7000/student/teacherSelection",
+//                 { "teacherId": selectedTeacher._id },
+//                 { headers: { Authorization: "Bearer " + accesstoken } }
+//               );
+
+//       if (res.status === 200) {
+//         toast.current.show({ // קריאה ל-toast
+//           severity: "success",
+//           summary: "Success",
+//           detail: `You have successfully registered with teacher ${selectedTeacher.firstName} ${selectedTeacher.lastName}!`,
+//           life: 3000,
+//         });
+//         props.setMyTeacher(selectedTeacher); // שינוי בוצע כאן
+//         navigate('/Student/SHome'); // ניווט
+//       } else {
+//         throw new Error("Unexpected response status: " + res.status); // טיפול בשגיאה
+//       }
+//     } catch (e) {
+//       console.error("Error:", e.response?.status || "Unknown error");
+//       toast.current.show({ // קריאה ל-toast
+//         severity: "error",
+//         summary: "Error",
+//         detail: "Failed to register with the teacher. Please try again.",
+//         life: 3000,
+//       });
+//     }
+//   };
+
+//   useEffect(() => {
+//     const fetchAreas = async () => {
+//       try {
+//         const res = await axios.get("http://localhost:7000/admin/getAllAreas", {
+//           headers: { Authorization: "Bearer " + accesstoken },
+//         });
+//         setAreas(res.data?.areas || []);
+//       } catch (err) {
+//         console.error("Error fetching areas:", err);
+//         setAreas([]);
+//       }
+//     };
+
+//     fetchAreas();
+//   }, [accesstoken]);
+
+//   useEffect(() => {
+//     const fetchTeachers = async () => {
+//       setLoading(true);
+//       setError(null);
+//       try {
+//         const params = {
+//           area: selectedArea || undefined,
+//           gender: selectedGender || undefined,
+//         };
+
+//         const res = await axios.get("http://localhost:7000/teacher/getAllTeachers", {
+//           headers: { Authorization: "Bearer " + accesstoken },
+//           params,
+//         });
+
+//         setTeachers(res.data || []);
+//         if (
+//           selectedTeacher &&
+//           !res.data.some((teacher) => teacher._id === selectedTeacher._id)
+//         ) {
+//           setSelectedTeacher(null);
+//         }
+//       } catch (err) {
+//         console.error("Error fetching teachers:", err);
+//         setError("Failed to fetch teachers. Please try again later.");
+//         setTeachers([]);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchTeachers();
+//   }, [selectedArea, selectedGender, accesstoken]);
+
+//   const handleSelectTeacher = (teacher) => {
+//     setSelectedTeacher(teacher);
+//   };
+
+//   return (
+//     <div style={styles.teacherSelection}>
+//       <Toast ref={toast} /> {/* מיקום נכון של ה-Toast */}
+//       <h1 style={styles.title}>Select a Teacher</h1>
+
+//       {/* Filters */}
+//       <div style={styles.filters}>
+//         <select
+//           id="area-select"
+//           onChange={(e) => setSelectedArea(e.target.value)}
+//           value={selectedArea}
+//           style={styles.select}
+//         >
+//           <option value="">Select Area</option>
+//           {areas.map((area, index) => (
+//             <option key={index} value={area}>
+//               {area}
+//             </option>
+//           ))}
+//         </select>
+
+//         <select
+//           id="gender-select"
+//           onChange={(e) => setSelectedGender(e.target.value)}
+//           value={selectedGender}
+//           style={styles.select}
+//         >
+//           <option value="">Select Gender</option>
+//           <option value="male">Male</option>
+//           <option value="female">Female</option>
+//         </select>
+//       </div>
+
+//       {/* Teachers List */}
+//       {loading ? (
+//         <p>Loading teachers...</p>
+//       ) : error ? (
+//         <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+//       ) : teachers.length > 0 ? (
+//         <div style={styles.teacherList}>
+//           {teachers.map((teacher) => (
+//             <div
+//               key={teacher._id}
+//               style={styles.teacherCard}
+//               onClick={() => handleSelectTeacher(teacher)}
+//             >
+//               <h2>
+//                 {teacher.firstName} {teacher.lastName}
+//               </h2>
+//             </div>
+//           ))}
+//         </div>
+//       ) : (
+//         <p>No teachers found for the selected filters.</p>
+//       )}
+
+//       {/* Teacher Preview */}
+//       {selectedTeacher && (
+//         <div style={styles.teacherPreview}>
+//           <h2>
+//             {selectedTeacher.firstName} {selectedTeacher.lastName}
+//           </h2>
+//           <p>Area: {selectedTeacher.area}</p>
+//           <p>Gender: {selectedTeacher.gender}</p>
+//           <p>Email: {selectedTeacher.email}</p>
+//           <p>Phone: {selectedTeacher.phone}</p>
+//           <button style={styles.button} onClick={teacherSelection}>
+//             Select this Teacher
+//           </button>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default SSelectionTeatcher;
+
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import "./SSelectionTeatcher.css";
 import { useSelector } from "react-redux";
-import jwt_decode from "jwt-decode";
-const SSelectionTeatcher = () => {
+import { Toast } from "primereact/toast";
+import { useNavigate } from "react-router-dom";
+
+const SSelectionTeatcher = (props) => {
+  const styles = {
+    teacherSelection: {
+      fontFamily: "Arial, sans-serif",
+      padding: "20px",
+      maxWidth: "1200px",
+      margin: "0 auto",
+    },
+    title: {
+      textAlign: "center",
+      color: "#333",
+    },
+    filters: {
+      display: "flex",
+      justifyContent: "center",
+      gap: "20px",
+      marginBottom: "20px",
+    },
+    select: {
+      padding: "10px",
+      borderRadius: "5px",
+      border: "1px solid #ccc",
+      backgroundColor: "#007bff",
+      color: "white",
+      fontWeight: "bold",
+      cursor: "pointer",
+      transition: "background-color 0.3s",
+    },
+    teacherList: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+      gap: "20px",
+    },
+    teacherCard: {
+      padding: "20px",
+      border: "1px solid #ccc",
+      borderRadius: "10px",
+      textAlign: "center",
+      transition: "transform 0.3s, box-shadow 0.3s",
+      cursor: "pointer",
+    },
+    teacherPreview: {
+      marginTop: "20px",
+      padding: "20px",
+      border: "1px solid #007bff",
+      borderRadius: "10px",
+      backgroundColor: "#f0f8ff",
+    },
+    button: {
+      marginTop: "20px",
+      padding: "10px 20px",
+      backgroundColor: "#007bff",
+      color: "white",
+      border: "none",
+      borderRadius: "5px",
+      cursor: "pointer",
+      fontWeight: "bold",
+      transition: "background-color 0.3s",
+    },
+    unavailable: {
+      backgroundColor: "#ccc",
+      color: "#666",
+      cursor: "not-allowed",
+    },
+  };
+
   const [teachers, setTeachers] = useState([]);
-  const [areas, setAreas] = useState([]); // רשימת אזורים
-  const [selectedArea, setSelectedArea] = useState(""); // אזור שנבחר
-  const [selectedGender, setSelectedGender] = useState(""); // מין שנבחר
-  const [loading, setLoading] = useState(false); // מצב טעינה
-  const [error, setError] = useState(null); // שגיאה
-  const accesstoken = useSelector((state) => state.token.token); // טוקן גישה
-  const decoded = accesstoken ? jwt_decode(accesstoken) : null;
+  const [areas, setAreas] = useState([]);
+  const [selectedArea, setSelectedArea] = useState("");
+  const [selectedGender, setSelectedGender] = useState("");
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const accesstoken = useSelector((state) => state.token.token);
+  const toast = useRef(null);
+  const navigate = useNavigate();
+
+  const teacherSelection = async () => {
+    if (!selectedTeacher) {
+      toast.current.show({
+        severity: "warn",
+        summary: "Warning",
+        detail: "Please select a teacher before proceeding.",
+        life: 3000,
+      });
+      return;
+    }
+
+    console.log("Selected Teacher ID:", selectedTeacher?._id);
+    console.log("Access Token:", accesstoken);
+
+    try {
+      const res = await axios.put(
+        "http://localhost:7000/student/teacherSelection",
+        JSON.stringify({ teacherId: selectedTeacher._id }),
+        {
+          headers: {
+            Authorization: "Bearer " + accesstoken,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        toast.current.show({
+          severity: "success",
+          summary: "Success",
+          detail: `You have successfully registered with teacher ${selectedTeacher.firstName} ${selectedTeacher.lastName}!`,
+          life: 3000,
+        });
+        props.setMyTeacher(selectedTeacher);
+        navigate('/Student/SHome');
+      } else {
+        throw new Error("Unexpected response status: " + res.status);
+      }
+    } catch (e) {
+      console.error("Error Status:", e.response?.status);
+      console.error("Error Data:", e.response?.data);
+      console.error("Error Message:", e.message);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: e.response?.data?.message || "Failed to register with the teacher. Please try again.",
+        life: 3000,
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchAreas = async () => {
@@ -363,12 +645,7 @@ const SSelectionTeatcher = () => {
         const res = await axios.get("http://localhost:7000/admin/getAllAreas", {
           headers: { Authorization: "Bearer " + accesstoken },
         });
-        if (res.data?.areas && Array.isArray(res.data.areas)) {
-          setAreas(res.data.areas);
-        } else {
-          setAreas([]);
-          console.error("Unexpected response format:", res.data);
-        }
+        setAreas(res.data?.areas || []);
       } catch (err) {
         console.error("Error fetching areas:", err);
         setAreas([]);
@@ -393,11 +670,12 @@ const SSelectionTeatcher = () => {
           params,
         });
 
-        if (Array.isArray(res.data)) {
-          setTeachers(res.data);
-        } else {
-          setTeachers([]);
-          console.error("Unexpected response format:", res.data);
+        setTeachers(res.data || []);
+        if (
+          selectedTeacher &&
+          !res.data.some((teacher) => teacher._id === selectedTeacher._id)
+        ) {
+          setSelectedTeacher(null);
         }
       } catch (err) {
         console.error("Error fetching teachers:", err);
@@ -411,15 +689,31 @@ const SSelectionTeatcher = () => {
     fetchTeachers();
   }, [selectedArea, selectedGender, accesstoken]);
 
-  return (
-    <div className="teacher-selection">
-      <h1>Select a Teacher</h1>
+  const handleSelectTeacher = (teacher) => {
+    if (teacher.listOfStudent.length > 3) {
+      // מורה עם מעל 3 תלמידים לא ניתן לבחור
+      toast.current.show({
+        severity: "warn",
+        summary: "Unavailable",
+        detail: "This teacher cannot accept more students.",
+        life: 3000,
+      });
+      return;
+    }
+    setSelectedTeacher(teacher);
+  };
 
-      <div className="filters">
+  return (
+    <div style={styles.teacherSelection}>
+      <Toast ref={toast} />
+      <h1 style={styles.title}>Select a Teacher</h1>
+
+      <div style={styles.filters}>
         <select
           id="area-select"
           onChange={(e) => setSelectedArea(e.target.value)}
           value={selectedArea}
+          style={styles.select}
         >
           <option value="">Select Area</option>
           {areas.map((area, index) => (
@@ -433,6 +727,7 @@ const SSelectionTeatcher = () => {
           id="gender-select"
           onChange={(e) => setSelectedGender(e.target.value)}
           value={selectedGender}
+          style={styles.select}
         >
           <option value="">Select Gender</option>
           <option value="male">Male</option>
@@ -443,27 +738,56 @@ const SSelectionTeatcher = () => {
       {loading ? (
         <p>Loading teachers...</p>
       ) : error ? (
-        <p className="error">{error}</p>
+        <p style={{ color: "red", textAlign: "center" }}>{error}</p>
       ) : teachers.length > 0 ? (
-        <div className="teacher-list">
+        <div style={styles.teacherList}>
           {teachers.map((teacher) => (
-            <div key={teacher._id} className="teacher-card">
+            <div
+              key={teacher._id}
+              style={{
+                ...styles.teacherCard,
+                ...(teacher.listOfStudent.length > 3 ? styles.unavailable : {}),
+              }}
+              onClick={() => handleSelectTeacher(teacher)}
+            >
               <h2>
                 {teacher.firstName} {teacher.lastName}
               </h2>
-              <p>Email: {teacher.email}</p>
-              <p>Phone: {teacher.phone}</p>
-              <p>Area: {teacher.area}</p>
-              <p>Gender: {teacher.gender}</p>
+              {teacher.listOfStudent.length > 3 && (
+                <p style={{ color: "red", fontWeight: "bold" }}>
+                  This teacher is unavailable.
+                </p>
+              )}
             </div>
           ))}
         </div>
       ) : (
         <p>No teachers found for the selected filters.</p>
       )}
+
+      {selectedTeacher && (
+        <div style={styles.teacherPreview}>
+          <h2>
+            {selectedTeacher.firstName} {selectedTeacher.lastName}
+          </h2>
+          <p>Area: {selectedTeacher.area}</p>
+          <p>Gender: {selectedTeacher.gender}</p>
+          <p>Email: {selectedTeacher.email}</p>
+          <p>Phone: {selectedTeacher.phone}</p>
+          <button
+            style={{
+              ...styles.button,
+              ...(selectedTeacher.listOfStudent.length > 3 ? styles.unavailable : {}),
+            }}
+            onClick={teacherSelection}
+            disabled={selectedTeacher.listOfStudent.length > 3}
+          >
+            Select this Teacher
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
 export default SSelectionTeatcher;
-

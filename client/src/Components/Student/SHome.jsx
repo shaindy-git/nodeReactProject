@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 import { Calendar } from "primereact/calendar";
 import SSelectionTeatcher from "./SSelectionTeatcher";
-import { useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom"; // שינוי בוצע כאן
 
 const SHome = () => {
     const [showEditor, setShowEditor] = useState(false); // מצב להצגת האדיטור
@@ -19,7 +19,7 @@ const SHome = () => {
     const overlayPanel = useRef(null); // הפניה ל-OverlayPanel
     const decoded = accesstoken ? jwtDecode(accesstoken) : null;
     const [teacher, setTeacher] = useState(null);
-    const [myTeacher, setMyTeacher] = useState({}); // שמירת פרטי המורה
+    const [myTeacher, setMyTeacher] = useState(null); // שמירת פרטי המורה
     const [lessonsLearned, setLessonsLearned] = useState(0); // מספר שיעורים שנלמדו
     const [lessonsRemaining, setLessonsRemaining] = useState(0); // מספר שיעורים שנותרו
     const [area, setArea] = useState();
@@ -47,32 +47,6 @@ const SHome = () => {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to send recommendation. Please try again.', life: 3000 });
         }
     };
-
-    // פונקציה שמביאה את המורה מהשרת
-    const getMyTeacher = async (event) => {
-        try {
-            const res = await axios({
-                method: 'get',
-                url: 'http://localhost:7000/student/getmyteacher',
-                headers: { Authorization: "Bearer " + accesstoken },
-            });
-            if (res.status === 200) {
-                setMyTeacher(res.data); // שמירת הנתונים של המורה
-                setArea(res.data.area); // שמירת האזור
-                setOverlayContent(
-                    <div>
-                        <p><strong>Teacher Name:</strong> {res.data.firstName} {res.data.lastName}</p>
-                        <p><strong>Email:</strong> {res.data.email}</p>
-                    </div>
-                );
-                overlayPanel.current.toggle(event); // פתיחת החלון
-            }
-        } catch (e) {
-            console.error("Error:", e.response?.status || "Unknown error");
-            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load teacher', life: 3000 });
-        }
-    };
-
     // יוז אפקט שמביא את פרטי המורה והאזור במהלך טעינת הקומפוננטה
     useEffect(() => {
         const fetchMyTeacher = async () => {
@@ -83,7 +57,7 @@ const SHome = () => {
                     headers: { Authorization: "Bearer " + accesstoken },
                 });
                 if (res.status === 200) {
-                    setMyTeacher(res.data); // שמירת נתוני המורה
+                    setTeacher(res.data); // שמירת נתוני המורה
                     setArea(res.data.area); // שמירת האזור
                 }
             } catch (e) {
@@ -92,10 +66,13 @@ const SHome = () => {
             }
         };
 
-        if (accesstoken) {
+        if (accesstoken && decoded.myTeacher) {
             fetchMyTeacher(); // קריאה לפונקציה בעת טעינת הקומפוננטה
         }
-    }, [accesstoken]); // תלוי בטוקן
+        else if (myTeacher) {
+            setArea(myTeacher.area)
+        }
+    }, [accesstoken, myTeacher]); // תלוי בטוקן
 
     // פונקציה להצגת פרטי האזור
     const showAreaDetails = (event) => {
@@ -107,6 +84,31 @@ const SHome = () => {
             );
             overlayPanel.current.toggle(event); // פתיחת החלון
         } else {
+            toast.current.show({ severity: 'info', summary: 'Info', detail: 'No area information available.', life: 3000 });
+        }
+    };
+
+    const showTetcherDetails = (event) => {
+        if (teacher) {
+            console.log("aaa",teacher);
+            
+            setOverlayContent(
+                <div>
+                    <p><strong>Teacher Name:</strong> {teacher.firstName} {teacher.lastName}</p>
+                    <p><strong>Email:</strong> {teacher.email}</p>
+                </div>
+            );
+            overlayPanel.current.toggle(event); // פתיחת החלון
+        } else if (myTeacher) {
+            setOverlayContent(
+                <div>
+                    <p><strong>Teacher Name:</strong> {myTeacher.firstName} {myTeacher.lastName}</p>
+                    <p><strong>Email:</strong> {myTeacher.email}</p>
+                </div>
+            );
+            overlayPanel.current.toggle(event); // פתיחת החלון
+        }
+        else {
             toast.current.show({ severity: 'info', summary: 'Info', detail: 'No area information available.', life: 3000 });
         }
     };
@@ -198,7 +200,7 @@ const SHome = () => {
             });
             if (res.status === 200) {
                 const { status, testDate, testHour } = res.data;
-    
+
                 if (status === 'false') {
                     setOverlayContent(
                         <div>
@@ -225,7 +227,7 @@ const SHome = () => {
                         </div>
                     );
                 }
-    
+
                 overlayPanel.current.toggle(event); // פתיחת החלון
             }
         } catch (e) {
@@ -233,17 +235,17 @@ const SHome = () => {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load test details', life: 3000 });
         }
     };
-    
+
     // עלינו לבדוק את זה וגם לשנות את עיצוב הכפתור
     const applyForTest = async () => {
-       
+
         try {
             const res = await axios({
                 method: 'put',
                 url: 'http://localhost:7000/student/testRequest',
                 headers: { Authorization: "Bearer " + accesstoken },
-                data:{
-                    "date":new Date("2025/05/28").toISOString()
+                data: {
+                    "date": new Date("2025/05/28").toISOString()
                 }
             });
             if (res.status === 200) {
@@ -293,10 +295,10 @@ const SHome = () => {
 
     // פריטים בתפריט הניווט
     let items = [
-        ...(teacher ? [{
+        ...(teacher || myTeacher ? [{
             label: 'MyTeacher',
             icon: 'pi pi-user',
-            command: (event) => getMyTeacher(event.originalEvent), // הפעלת הפונקציה בלחיצה
+            command: (event) => showTetcherDetails(event.originalEvent), // הפעלת הפונקציה בלחיצה
         }, {
             label: 'Area',
             icon: 'pi pi-map-marker',
@@ -307,7 +309,7 @@ const SHome = () => {
                 label: 'Selection Teacher',
                 icon: 'pi pi-filter',
                 command: () => {
-                    window.open("/Student/SSelectionTeatcher", "_blank"); // ניווט לדף "בחירת מורה"
+                    navigate('/Student/SSelectionTeatcher');
                 },
             },
         ]),
@@ -345,7 +347,7 @@ const SHome = () => {
 
     useEffect(() => {
         if (decoded && decoded.myTeacher) {
-            setTeacher(decoded.myTeacher);
+            setMyTeacher(decoded.myTeacher);
         }
     }, [decoded]);
 
@@ -354,11 +356,11 @@ const SHome = () => {
 
         <div className="card flex justify-content-end" style={{ position: "relative" }}>
 
-            <div className="card flex justify-content-center" style={{marginLeft:"40%"}}>
+            <div className="card flex justify-content-center" style={{ marginLeft: "40%" }}>
                 <Calendar value={date} onChange={(e) => setDate(e.value)} inline showWeek />
             </div>
 
-            
+
             <Menu model={items} className="w-full md:w-15rem" dir="ltr" />
             <Toast ref={toast} />
             <OverlayPanel ref={overlayPanel} style={{ width: '300px' }}>
@@ -379,6 +381,13 @@ const SHome = () => {
                     headerTemplate={header}
                     style={{ height: "300px" }}
                 />
+
+                <Routes>
+                    <Route
+                        path="/Student/SSelectionTeatcher"
+                        element={<SSelectionTeatcher setMyTeacher={setMyTeacher} />} // שינוי בוצע כאן
+                    />
+                </Routes>
 
                 <Button
                     label="Add Recommendation"

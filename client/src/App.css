@@ -28,7 +28,7 @@
   color: #61dafb;
 }
 
-/* //-------------------------- */
+
 .navbar {
   position: fixed; /* קובע שה-Navbar יהיה קבוע */
   top: 0;          /* מגדיר שה-Navbar יהיה בחלק העליון */
@@ -39,7 +39,7 @@
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* צל קל */
 }
 
-/* //-------------------------- */
+
 
 @keyframes App-logo-spin {
   from {

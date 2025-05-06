@@ -1,4 +1,4 @@
-//-------------------------------------------
+
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
@@ -203,4 +203,3 @@ const ADFormgChange = ({ visibleChange, setVisibleChange, manager }) => {
 };
 
 export default ADFormgChange;
-//---------------------------------------------------------------

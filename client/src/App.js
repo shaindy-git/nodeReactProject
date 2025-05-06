@@ -29,10 +29,9 @@ import FormUpdate from './Components/Auth/FromUpdate'
 import { setToken } from './redux/tokenSlice';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { InputText } from "primereact/inputtext";
-//-----------------------------------------------
+
 import axios from 'axios';
 import { Toast } from 'primereact/toast';
-//-----------------------------------------------
 
 const App = () => {
 
@@ -48,7 +47,7 @@ const App = () => {
 
   const [text, setText] = useState("user");
   const [role, setRole] = useState("");
-  //-----------------
+
 
   const [oldpassword, setOldPassword] = useState("");
   const [newpassword1, setNewPassword1] = useState("");
@@ -122,7 +121,7 @@ const App = () => {
       overlayPanel.current.toggle(event); // מציג את ה-OverlayPanel
     }
   };
-  //----------------
+  
 
   // const text = decoded ? `${decoded.firstName} ${decoded.lastName}` : "user";
 
@@ -161,9 +160,9 @@ const App = () => {
         if (overlayPanel.current) {
           overlayPanel.current.hide(); // סגירת ה-OverlayPanel
         }
-        //-----------------------
+       
         setText("user");
-        //-----------------------
+       
         navigate('/Auth/Auth');
         dispatch(setToken(null));
 
@@ -194,7 +193,7 @@ const App = () => {
     }
 
   ];
-  //---------------------
+
 
   const end = (decoded ?
     <div className="flex align-items-center gap-2">
@@ -213,17 +212,16 @@ const App = () => {
     </div> : null
   );
 
-  //-------------------
-
+  
   return (
     <div className="App">
       {<div className="card">
-        {/* //------------------------ */}
+       
 
         <div className="navbar">
           <Menubar model={items} end={end} dir="ltr" />
         </div>
-        {/* //--------------------------- */}
+       
 
       </div>}
       <Routes>
@@ -237,7 +235,7 @@ const App = () => {
         <Route path="/Student/SSelectionTeatcher" element={<SSelectionTeatcher />} />
       </Routes>
 
-      {/* //------------------- */}
+     
       <OverlayPanel ref={overlayPanel}
         style={{ width: '300px', padding: '1rem', textAlign: 'center' }}
         onHide={() => {
@@ -321,7 +319,7 @@ const App = () => {
         </div>
       </OverlayPanel>
       <Toast ref={toast} />
-      {/* //--------------- */}
+     
 
 
       {visibleU && accesstoken && (

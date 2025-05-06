@@ -70,7 +70,7 @@ const addManager = async (req, res) => {
         return res.status(400).json({ message: 'Invalid Manager' });
     }
 };
-//-------------------------------
+
 const getAllManagers = async (req, res) => {
     const { role } = req.user; // בדיקת תפקיד המשתמש המחובר
     if (role !== 'A') {
@@ -84,7 +84,7 @@ const getAllManagers = async (req, res) => {
     
     return res.status(200).json({ managers :managers});
 }
-//-------------------------------
+
 
 const updateManager = async (req, res) => {
     const { _id } = req.user
@@ -302,9 +302,7 @@ const getManagerById = async (req, res) => {
 
 module.exports = {
     addManager,
-    //---------------
     getAllManagers,
-    //----------------
     updateManager,
     getRequestsByManagerId,
     removeReqest,

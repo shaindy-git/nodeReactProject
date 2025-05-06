@@ -28,6 +28,19 @@
   color: #61dafb;
 }
 
+/* //-------------------------- */
+.navbar {
+  position: fixed; /* קובע שה-Navbar יהיה קבוע */
+  top: 0;          /* מגדיר שה-Navbar יהיה בחלק העליון */
+  left: 0;
+  width: 100%;     /* גורם ל-Navbar לכסות את כל רוחב המסך */
+  z-index: 1000;   /* מוודא שה-Navbar יישאר מעל כל אלמנט אחר */
+  background-color: #fff; /* צבע רקע */
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* צל קל */
+}
+
+/* //-------------------------- */
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -35,7 +48,15 @@
   to {
     transform: rotate(360deg);
   }
+
+
+
+
+
+
+
 }
+
 
 
 

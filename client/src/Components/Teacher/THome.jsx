@@ -188,7 +188,7 @@ const THome = () => {
                 url: "http://localhost:7000/teacher/settingTest",
                 headers: { Authorization: "Bearer " + accesstoken },
                 data: {
-                    "studentId": selectedRequest.studentId._id,
+                    "studentId": selectedRequest.studentId,
                     "date": selectedRequest.date,
                 },
             });
@@ -316,8 +316,8 @@ const THome = () => {
                             setVisibleD={setVisibleD}
                             visibleD={visibleD}
                             date={date}
-                            setFullHours={setFullHours}
-                            fullHours={fullHours}
+                            // setFullHours={setFullHours}
+                            // fullHours={fullHours}
                             setChangeDate={setChangeDate}
                             students={students}
                         />
@@ -360,9 +360,9 @@ const THome = () => {
                                                 transition: "all 0.3s ease",
                                             }}
                                             aria-label="AddTest"
-                                            onClick={AddTest}// Call AddTest function
-                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#163366"}
-                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#204392"}
+                                            onClick={()=>{AddTest()}}// Call AddTest function
+                                            // onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#163366"}
+                                            // onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#204392"}
                                         />
 
 

@@ -1,0 +1,19 @@
+.custom-special-date {
+    background-color: white; /* White background for the circle */
+    color: #6366F1; /* Text color */
+    border: 2px solid #204392; /* Green border */
+    border-radius: 50%; /* Circular shape */
+    display: flex; /* Use Flexbox for centering */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    width: 2rem;
+    height: 2rem;
+    font-weight: bold; /* Make text bold (optional) */
+}
+
+/* Optional: Add hover effects for special dates */
+.custom-special-date:hover {
+    background-color: #204392; /* Green background on hover */
+    color: white; /* White text color on hover */
+    cursor: pointer;
+}

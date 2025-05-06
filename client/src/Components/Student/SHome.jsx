@@ -9,8 +9,10 @@ import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 import { Calendar } from "primereact/calendar";
 import SSelectionTeatcher from "./SSelectionTeatcher";
+import SShowHoures from "./SShowHoures"// רכיב להצגת שעות
 import { Route, Routes, useNavigate } from "react-router-dom"; // שינוי בוצע כאן
 
+import './SHome.css';
 
 const SHome = () => {
     const [showEditor, setShowEditor] = useState(false); // מצב להצגת האדיטור
@@ -31,81 +33,21 @@ const SHome = () => {
     const [status, setStatus] = useState()
     const [dateTest, setDateTest] = useState()
     const [hourTest, setHourTest] = useState()
+    const [visible, setVisible] = useState(false); // מצב להצגת חלון ה-SShowStudent
+    const [specialDates, setSpecialDates] = useState([]);
+    const [changeDate, setChangeDate] = useState(Date.now());
 
+    const dateTemplate = (dateMeta) => {
+        const formattedDate = `${dateMeta.year}-${String(dateMeta.month + 1).padStart(2, '0')}-${String(dateMeta.day).padStart(2, '0')}`;
+       
 
+        if (specialDates.includes(formattedDate)) {
+            return <span className="custom-special-date">{dateMeta.day}</span>;
+        }
 
+        return dateMeta.day;
+    };
 
-
-    // useEffect(() => {
-    //     if (decoded && decoded.myTeacher) {
-    //         setTeacher(decoded.myTeacher);
-    //     }
-    // }, [decoded]);
-
-
-
-    // useEffect(() => {
-
-    //     const getStudentById = async () => {
-    //         if (decoded) {
-    //             console.log((decoded._id)); 
-
-    //             try {
-    //                 const StudentById = await axios({
-    //                     method: 'get',
-    //                     url: `http://localhost:7000/student/getStudentById/${decoded._id}`,
-    //                     headers: { Authorization: "Bearer " + accesstoken },
-    //                 });
-    //                 if (StudentById.status === 200) {
-    //                     setTeacher(StudentById.data.student.myTeacher ? StudentById.data.student.myTeacher : []); // שמירת נתוני המורה
-    //                     setArea(StudentById.data.student.area ? StudentById.data.student.area : []);
-    //                     setLessonsRemaining(StudentById.data.student.lessonsRemaining ? StudentById.data.student.lessonsRemaining : 0);
-    //                     setLessonsLearned(StudentById.data.student.lessonsLearned ? StudentById.data.student.lessonsLearned : 0)
-    //                     console.log("teacher",teacher);
-    //                 }
-
-    //             } catch (e) {
-    //                 if (e.response?.status === 400) {
-    //                     console.error("Error:", e.response?.status || "Unknown error");
-    //                     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch teacher details', life: 3000 });
-    //                 }
-    //                 else console.error("Unauthorized user - R / THome 8");
-    //             }
-
-    //         }
-
-    //     };
-
-
-
-    //     const getTeacher = async () => {
-    //         debugger
-    //         try {
-    //             const MyTeacher = await axios({
-    //                 method: 'get',
-    //                 url: `http://localhost:7000/teacher/getTeacherById/${teacher}`,
-    //                 headers: { Authorization: "Bearer " + accesstoken },
-    //             });
-    //             console.log("ooooo",MyTeacher.data.teacher);
-
-    //             if (MyTeacher.status === 200) {
-    //                 console.log("here");
-    //                 setMyTeacher(MyTeacher.data.teacher || []);
-    //             }
-    //         } catch (e) {
-    //             if (e.response?.status === 400);
-    //             else console.error("Unauthorized user - R / MHome");
-    //         }
-    //     }
-
-
-    //     getStudentById()
-    //     if(teacher){
-    //         getTeacher()
-
-    //     }
-
-    // }, [accesstoken])
 
     useEffect(() => {
         const getStudentById = async () => {
@@ -237,112 +179,9 @@ const SHome = () => {
         );
         overlayPanel.current.toggle(event); // פתיחת החלון
     };
-    // const getTestDetails = async (event) => {
-    //     overlayPanel.current.toggle(event); // פתיחת החלון
-    // }
 
 
-
-
-
-    // const getTest = async (event) => {
-    //     try {
-    //         const res = await axios({
-    //             method: 'get',
-    //             url: 'http://localhost:7000/student/getTestDetails',
-    //             headers: { Authorization: "Bearer " + accesstoken },
-    //         });
-    //         if (res.status === 200) {
-    //             const { status, testDate, testHour } = res.data;
-
-    //             if (status === 'false') {
-    //                 setOverlayContent(
-    //                     <p><strong>Test Status:</strong> You have not yet applied for a test</p>
-    //                 );
-    //             } else if (status === 'request') {
-    //                 setOverlayContent(
-    //                     <p><strong>Test Status:</strong> A request has been submitted and will be processed as soon as possible</p>
-    //                 );
-    //             } else if (status === 'test') {
-    //                 setOverlayContent(
-    //                     <div>
-    //                         <p><strong>Test Status:</strong> {status}</p>
-    //                         <p><strong>Date:</strong> {testDate}</p>
-    //                         <p><strong>Hour:</strong> {testHour}</p>
-    //                     </div>
-    //                 );
-    //             }
-
-    //             overlayPanel.current.toggle(event); // פתיחת החלון
-    //         }
-    //     } catch (e) {
-    //         console.error("Error:", e.response?.status || "Unknown error");
-    //         toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load test details', life: 3000 });
-    //     }
-    // };
-
-
-
-
-    // useEffect(() => {
-
-    //     const getTest = async (event) => {
-    //         try {
-    //             const res = await axios({
-    //                 method: 'get',
-    //                 url: 'http://localhost:7000/student/getTestDetails',
-    //                 headers: { Authorization: "Bearer " + accesstoken },
-    //             });
-    //             if (res.status === 200) {
-    //                 const { status, testDate, testHour } = res.data;
-    //                 setStatus(status);
-
-    //                 if (status === 'false') {
-    //                     setOverlayContent(
-    //                         <div>
-    //                             <p><strong>Test Status:</strong> You have not yet applied for a test</p>
-    //                             <Button
-    //                                 label="Apply for Test"
-    //                                 icon="pi pi-send"
-    //                                 onClick={applyForTest} // פונקציה שתשלח בקשה לשרת
-    //                                 className="p-button p-button-success"
-    //                                 style={{ marginTop: '1rem' }}
-    //                             />
-    //                         </div>
-    //                     );
-    //                 } else if (status === 'request') {
-    //                     setOverlayContent(
-    //                         <p><strong>Test Status:</strong> A request has been submitted and will be processed as soon as possible</p>
-    //                     );
-    //                 } else if (status === 'test') {
-    //                     setOverlayContent(
-    //                         <div>
-    //                             <p><strong>Test Status:</strong> {status}</p>
-    //                             <p><strong>Date:</strong> {testDate}</p>
-    //                             <p><strong>Hour:</strong> {testHour}</p>
-    //                         </div>
-    //                     );
-    //                 }
-
-    //                 overlayPanel.current.toggle(event); // פתיחת החלון
-    //             }
-    //         } catch (e) {
-    //             console.error("Error:", e.response?.status || "Unknown error");
-    //             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load test details', life: 3000 });
-    //         }
-    //     };
-    //     getTest()
-
-    // }, [status])
-
-    // פונקציה גלובלית בקומפוננטה
-    // קריאה לפונקציה מתוך useEffect בעת טעינת הקומפוננטה
-    // useEffect(() => {
-    //     if (accesstoken) {
-    //         getTest(); // קריאה לפונקציה בעת טעינת הקומפוננטה
-    //     }
-    // }, [accesstoken]); // תלות ב-accesstoken בלבד
-
+    //יש לתת לתלמיד לבחור יום מהימים שהמורה פנוי בהם ואז צריך לשים לב שהתאריך נכנס כראוי ולא יום לפני או יום אחרי!!!!!!!!!!!!!!!!
     const getTest = async (event) => {
 
         try {
@@ -354,6 +193,7 @@ const SHome = () => {
             if (res.status === 200) {
                 const { status, testDate, testHour } = res.data;
                 setStatus(status);
+
 
                 if (status === 'false') {
                     setOverlayContent(
@@ -383,10 +223,11 @@ const SHome = () => {
                         <p><strong>Test Status:</strong> A request has been submitted and will be processed as soon as possible</p>
                     );
                 } else if (status === 'test') {
+                    const dateOnly = new Date(testDate).toISOString().split('T')[0];
                     setOverlayContent(
                         <div>
                             <p><strong>Test Status:</strong> {status}</p>
-                            <p><strong>Date:</strong> {testDate}</p>
+                            <p><strong>Date:</strong> {dateOnly}</p>
                             <p><strong>Hour:</strong> {testHour}</p>
                         </div>
                     );
@@ -407,12 +248,13 @@ const SHome = () => {
     const applyForTest = async () => {
 
         try {
+            const selectedDate = new Date("2025/05/14");
             const res = await axios({
                 method: 'put',
                 url: 'http://localhost:7000/student/testRequest',
                 headers: { Authorization: "Bearer " + accesstoken },
                 data: {
-                    "date": new Date("2025/05/28").toISOString()
+                    "date": `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
                 }
             });
             if (res.status === 200) {
@@ -513,12 +355,26 @@ const SHome = () => {
         },
     ];
 
+    useEffect(() => {
+        const fetchDates = async () => {
+            try {
+                const datesRes = await axios.get('http://localhost:7000/teacher/getAllDatesWithClasses', {
+                    headers: { Authorization: "Bearer " + accesstoken },
+                });
 
-    // useEffect(() => {
-    //     if (accesstoken) {
-    //         getTest()
-    //     }
-    // }, [accesstoken]);
+                if (datesRes.status === 200 && datesRes.data.dates) {
+                    const formattedDates = datesRes.data.dates.map((date) => date.split('T')[0]);
+                    setSpecialDates(formattedDates);
+                }
+            } catch (e) {
+                if (e.response?.status === 400) setSpecialDates([]);
+                else console.error("Error fetching dates:", e);
+            }
+        };
+
+        fetchDates();
+    }, [accesstoken, changeDate]);
+
 
 
 
@@ -528,7 +384,31 @@ const SHome = () => {
         <div className="card flex justify-content-end" style={{ position: "relative" }}>
 
             <div className="card flex justify-content-center" style={{ marginLeft: "40%" }}>
-                <Calendar value={date} onChange={(e) => setDate(e.value)} inline showWeek />
+                <Calendar
+                    value={date}
+                    onChange={(e) => {
+                        console.log("jjjj",e.value);
+                        const selectedDate = e.value;
+                        const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(1, '0')}`;
+                        console.log("jjjj",formattedDate);
+                        setDate(formattedDate);
+                        setDate(e.value)
+                        setVisible(true);
+                    }}
+                    dateTemplate={dateTemplate}
+                    inline
+                    showWeek
+                />
+                {visible && (
+                    <SShowHoures
+                        date={date}
+                        setVisible={setVisible}
+                        visible={visible}
+                        setChangeDate={setChangeDate}
+                        setSpecialDates={setSpecialDates}
+                        specialDates={specialDates}
+                    />
+                )}
             </div>
 
 
@@ -543,7 +423,7 @@ const SHome = () => {
                     position: "absolute",
                     right: "15",
                     top: "65%",
-                    width: "11.2%",
+                    width: "11.2%"
                 }}
             >
                 <Editor

@@ -484,7 +484,7 @@ const getTeacherById = async (req, res) => {
     if (role === 'T' && teacher._id != id) {
         return res.status(400).json({ message: "no accsess" })
     }
-    console.log(teacher.firstName);
+    
 
     return res.status(200).json({teacher:teacher, firstName: teacher.firstName, lastName: teacher.lastName });
 }

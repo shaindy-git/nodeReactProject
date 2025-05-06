@@ -111,7 +111,6 @@ function App() {
         <Route path="/Teacher/THome" element={<THome />} />
         <Route path="/Student/SHome" element={<SHome />} />
         <Route path="/Auth/terms" element={<TermsPage />} />
-        {/* <Route path="/Student/SSelectionTeatcher" element={<SSelectionTeatcher />} /> */}
         <Route path="/Student/SSelectionTeatcher" element={<SSelectionTeatcher />} />
       </Routes>
 

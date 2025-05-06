@@ -112,8 +112,8 @@ const SHome = () => {
                         headers: { Authorization: "Bearer " + accesstoken },
                     });
                     if (StudentById.status === 200) {
-                        setTeacher(StudentById.data.student.myTeacher || []); // שמירת נתוני המורה
-                        setArea(StudentById.data.student.area || []);
+                        setTeacher(StudentById.data.student.myTeacher || null); // שמירת נתוני המורה
+                        setArea(StudentById.data.student.area || null);
                         setLessonsRemaining(StudentById.data.student.lessonsRemaining || 0);
                         setLessonsLearned(StudentById.data.student.lessonsLearned || 0);
                         console.log("teacher", StudentById.data.student.myTeacher);
@@ -129,8 +129,9 @@ const SHome = () => {
             }
         };
     
+        // קריאה ל-getStudentById רק כאשר decoded זמין
         getStudentById();
-    }, [accesstoken, decoded]);
+    }, [accesstoken, decoded]); // התלות כאן תוודא שה-UseEffect ירוץ רק פעם אחת כאשר accesstoken ו-decoded מתעדכנים.
     
     useEffect(() => {
         if (teacher) {
@@ -145,7 +146,7 @@ const SHome = () => {
     
                     if (MyTeacher.status === 200) {
                         console.log("here");
-                        setMyTeacher(MyTeacher.data.teacher || []);
+                        setMyTeacher(MyTeacher.data.teacher || null);
                     }
                 } catch (e) {
                     if (e.response?.status === 400);
@@ -155,7 +156,7 @@ const SHome = () => {
     
             getTeacher();
         }
-    }, [teacher, accesstoken]); // יפעל כאשר 'teacher' יתעדכן
+    }, [teacher]); // הפעלת useEffect רק כאשר 'teacher' מתעדכן.
 
 
 
@@ -229,9 +230,9 @@ const SHome = () => {
         );
         overlayPanel.current.toggle(event); // פתיחת החלון
     };
-    const getTestDetails = async (event) => {
-        overlayPanel.current.toggle(event); // פתיחת החלון
-    }
+    // const getTestDetails = async (event) => {
+    //     overlayPanel.current.toggle(event); // פתיחת החלון
+    // }
 
 
 
@@ -310,7 +311,7 @@ const SHome = () => {
                     );
                 }
 
-                //overlayPanel.current.toggle(event); // פתיחת החלון
+                overlayPanel.current.toggle(event); // פתיחת החלון
             }
         } catch (e) {
             console.error("Error:", e.response?.status || "Unknown error");
@@ -380,7 +381,7 @@ const SHome = () => {
 
     // פריטים בתפריט הניווט
     let items = [
-        ...(teacher || myTeacher ? [{
+        ...(teacher ? [{
             label: 'MyTeacher',
             icon: 'pi pi-user',
             command: (event) => showTetcherDetails(event.originalEvent), // הפעלת הפונקציה בלחיצה
@@ -401,7 +402,7 @@ const SHome = () => {
         {
             label: 'Test',
             icon: 'pi pi-car',
-            command: (event) => getTestDetails(event.originalEvent)
+            command: (event) => getTest(event.originalEvent)
             //getTest,
         },
         {
@@ -470,13 +471,6 @@ const SHome = () => {
                     headerTemplate={header}
                     style={{ height: "300px" }}
                 />
-
-                <Routes>
-                    <Route
-                        path="/Student/SSelectionTeatcher"
-                        element={<SSelectionTeatcher setMyTeacher={setMyTeacher} myTeacher={myTeacher} />} // הוספת myTeacher כ-prop
-                    />
-                </Routes>
 
                 <Button
                     label="Add Recommendation"

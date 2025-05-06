@@ -118,7 +118,7 @@ const updateStudent = async (req, res) => {
     // console.log({ students, role: 'Student' })
     // return res.status(200).json(student)
     const SInfo = {
-        _id: foundS._id,
+        _id: student._id,
         firstName: student.firstName,
         lastName: student.lastName,
         userName: student.userName,
@@ -171,7 +171,6 @@ const updateStudent = async (req, res) => {
 // }
 
 
-//לא בדקנו
 const getstudentById = async (req, res) => {
     const { _id, role } = req.user
     const { id } = req.params
@@ -182,10 +181,10 @@ const getstudentById = async (req, res) => {
     if (!student) {
         return res.status(400).json({ message: "student not found" })
     }
-    if (role === 'S'&&id!==_id) {
+    if (role === 'S' && id!==_id) {
         return res.status(400).json({ message: "no accsess" })
     }    
-    if (role === 'T'&&student.myTeacher!==_id) {
+    if (role === 'T' && student.myTeacher!==_id) {
         return res.status(400).json({ message: "no accsess" })
     }
     if (role === 'M') {
@@ -428,7 +427,7 @@ const testRequest = async (req, res) => {
    
     const { _id, role } = req.user
     const { date } = req.body
-    if (!_id || !date||!role) {
+    if (!_id || !date || !role) {
         return res.status(400).json({ message: "files are required" })
     }
     if (role != 'S') {
@@ -438,17 +437,17 @@ const testRequest = async (req, res) => {
     if (!student) {
         return res.status(400).json({ message: 'No student found' })
     }
-    if(student.lessonsRemaining>0){
-        return res.status(400).json({ message: 'You havent yet determined all the lessons you need to learn' })
-    }
-    if(student.test!=='false'){
-        console.log(student.test);
+    // if(student.lessonsRemaining>0){
+    //     return res.status(400).json({ message: 'You havent yet determined all the lessons you need to learn' })
+    // }
+    // if(student.test!=='false'){
+    //     console.log(student.test);
 
-        if(student.test==='test') 
-            return res.status(400).json({ message: 'You have already been scheduled for a test' })
-        else
-        return res.status(400).json({ message: 'You already requested a test' })
-    }
+    //     if(student.test==='test') 
+    //         return res.status(400).json({ message: 'You have already been scheduled for a test' })
+    //     else
+    //     return res.status(400).json({ message: 'You already requested a test' })
+    // }
     const teacherId = student.myTeacher
     const teacher = await Teacher.findById(teacherId, { password: 0 }).exec()
     if (!teacher) {

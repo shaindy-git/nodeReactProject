@@ -7,60 +7,6 @@ const jwt = require('jsonwebtoken')
 const generatePassword = require('generate-password');
 
 
-// const addManager = async (req, res) => {
-//     const {role}=req.user
-//     if(role!='A'){
-//         return res.status(400).json({ message: "No accsess" })
-//     }
-//     const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, area } = req.body
-//     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !area) {
-//         return res.status(400).json({ message: "files are required" })
-//     }
-
-//     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
-//     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
-//     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-//     const doubleUserNameA = await Admin.findOne({ userName: userName }).lean()
-//     const allManagers = await Manager.find().exec();
-//     const userExistsInRequests = allManagers.some(manager =>
-//         manager.RequestList.some(request => request.userName === userName)
-//     );
-//     if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
-//         return res.status(400).json({ message: "doubleUserName" })
-//     }
-//     const doublarea = await Manager.findOne({ area: area }).lean()
-//     if (doublarea) {
-//         return res.status(400).json({ message: "doublarea" })
-//     }
-
-//     const password = generatePassword.generate({
-//         length: 12, // אורך הסיסמה
-//         numbers: true, // כולל מספרים
-//         symbols: true, // כולל סימנים מיוחדים
-//         uppercase: true, // כולל אותיות גדולות
-//         lowercase: true, // כולל אותיות קטנות
-//     });
-
-
-//     const hashedPwd = await bcrypt.hash(password, 10)
-//     const manager = await Manager.create({
-//         firstName, lastName, userName, numberID, dateOfBirth, phone, email, password: hashedPwd, area
-//     })
-
-//     if (manager) {
-//         const managers = await Manager.find()
-//         .sort({ firstName: 1, lastName: 1 })
-//         .select('-password') // לא כולל את הסיסמה בתוצאות
-//         .lean();
-
-//         console.log('Generated Password:aaa', password);
-//         return res.status(200).json({ managers })
-//     } else {
-//         return res.status(400).json({ message: 'Invalid Manager ' })
-//     }
-
-// }
-
 const addManager = async (req, res) => {
     const { role } = req.user; // בדיקת תפקיד המשתמש המחובר
     if (role !== 'A') {
@@ -124,6 +70,22 @@ const addManager = async (req, res) => {
         return res.status(400).json({ message: 'Invalid Manager' });
     }
 };
+//-------------------------------
+const getAllManagers = async (req, res) => {
+    const { role } = req.user; // בדיקת תפקיד המשתמש המחובר
+    if (role !== 'A') {
+        return res.status(400).json({ message: "No access" }); // אין הרשאות
+    }
+    const managers = await Manager.find({}, { password: 0 }).sort({ firstName: 1, lastName: 1 }).lean(); // שליפת כל המנהלים ללא סיסמאות
+    if (!managers) {
+        return res.status(400).json({ message: 'No managers found' });
+    }
+    // החזרת רשימת המנהלים
+    
+    return res.status(200).json({ managers :managers});
+}
+//-------------------------------
+
 const updateManager = async (req, res) => {
     const { _id } = req.user
     console.log(_id)
@@ -340,6 +302,9 @@ const getManagerById = async (req, res) => {
 
 module.exports = {
     addManager,
+    //---------------
+    getAllManagers,
+    //----------------
     updateManager,
     getRequestsByManagerId,
     removeReqest,

@@ -6,6 +6,7 @@ const mangerController = require("../controllers/mangerController")
 //router.use(verifyJWT)
 
 router.post("/addManager",verifyJWT, mangerController.addManager)
+router.get("/getAllManagers",verifyJWT, mangerController.getAllManagers)
 router.put("/updateManager",verifyJWT, mangerController.updateManager)
 router.get("/getRequestsByManagerId",verifyJWT, mangerController.getRequestsByManagerId)
 router.put("/removeReqest",verifyJWT, mangerController.removeReqest)

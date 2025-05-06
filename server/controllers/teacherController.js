@@ -91,7 +91,7 @@ const addTeacher = async (req, res) => {
 
         maneger.RequestList = maneger.RequestList.filter(item => item !== foundItem);
         await maneger.save();
-        const teachers = await Teacher.find({area:maneger.area}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
+        const teachers = await Teacher.find({ area: maneger.area }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
         // console.log({ maneger, teachers })
         return res.status(200).json({ teacher: teacher, teachers: teachers })
     } else {
@@ -466,7 +466,7 @@ const getTeacherById = async (req, res) => {
         return res.status(400).json({ message: "files are required" })
     }
     if (role === 'S') {
-        const student = await Student.findOne({ _id: _id, myTeacher: id },{password:0}).lean()
+        const student = await Student.findOne({ _id: _id, myTeacher: id }, { password: 0 }).lean()
         if (!student) {
             return res.status(400).json({ message: "no accsess" })
         }
@@ -476,7 +476,7 @@ const getTeacherById = async (req, res) => {
         return res.status(400).json({ message: 'teacher not found' })
     }
     if (role === 'M') {
-        const manager = await Manager.findOne({ _id: _id, area: teacher.area },{password:0}).lean()
+        const manager = await Manager.findOne({ _id: _id, area: teacher.area }, { password: 0 }).lean()
         if (!manager) {
             return res.status(400).json({ message: "no accsess" })
         }
@@ -484,9 +484,9 @@ const getTeacherById = async (req, res) => {
     if (role === 'T' && teacher._id != id) {
         return res.status(400).json({ message: "no accsess" })
     }
-    
 
-    return res.status(200).json({teacher:teacher, firstName: teacher.firstName, lastName: teacher.lastName });
+
+    return res.status(200).json({ teacher: teacher, firstName: teacher.firstName, lastName: teacher.lastName });
 }
 
 
@@ -570,18 +570,28 @@ const addAvailableClasses = async (req, res) => {
 const getAllDatesWithClasses = async (req, res) => {
     const { _id, role } = req.user;
 
-
-
     if (!_id || !role) {
         console.log("1");
         console.error("files are is required");
         return res.status(400).json({ message: "files are is required" });
     }
-    if (role != 'T') {
+    let teacherId
+    if (role === 'S') {
+        const student = await Student.findById(_id, { password: 0 }).lean();
+        if (!student) {
+            return res.status(400).json({ message: "no accsess" })
+        }
+        teacherId = student.myTeacher
+    }
+    else if (role === 'T') {
+        teacherId = _id
+
+    }
+    else {
         return res.status(400).json({ message: "no accsess" })
     }
 
-    const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).lean();
+    const teacher = await Teacher.findById(teacherId, { dateforLessonsAndTests: 1 }).lean();
     if (!teacher) {
         console.log("2");
         console.error("Teacher not found:", _id);
@@ -607,54 +617,145 @@ const getAllDatesWithClasses = async (req, res) => {
 };
 
 
+// const getClassesByDate = async (req, res) => {
+//     const { _id, role } = req.user; // מזהה המורה מהמשתמש המחובר
+//     const { date } = req.params; // תאריך שנשלח בבקשה
+
+//     // בדיקת תקינות הפרמטרים
+//     if (!_id || !date || !role) {
+//         console.log("1");
+
+//         return res.status(400).json({ message: "files are required" });
+//     }
+//     if (role != 'T' && role !='S') {
+//         return res.status(400).json({ message: "no accsess" })
+//     }
+//     if (role === 'T') {
+
+//         const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).exec();
+//         if (!teacher) {
+//             console.log("2");
+//             return res.status(404).json({ message: 'No teacher found' });
+//         }
+
+//         // חיפוש תאריך ספציפי במערך
+//         const lessonsOnDate = teacher.dateforLessonsAndTests.filter((e) => {
+//             const dbDate = new Date(e.date).toISOString().split('T')[0]; // רק התאריך
+//             const requestDate = new Date(date).toISOString().split('T')[0]; // רק התאריך
+//             return dbDate === requestDate;
+//         });
+
+//         // בדיקה אם נמצאו שיעורים
+//         if (!lessonsOnDate || lessonsOnDate.length === 0) {
+//             console.log("3");
+//             return res.status(404).json({ message: 'No lessons or tests found on this date' });
+//         }
+
+//         // חילוץ רשימת השעות מתוך השיעורים באותו יום
+//         const hoursFull = lessonsOnDate
+//             .flatMap(e => e.hours.filter(h => h.full === true).map(h => h.hour));
+//         const hoursEmpty = lessonsOnDate
+//             .flatMap(e => e.hours.filter(h => h.full === false).map(h => h.hour));
+//         console.log(hoursFull, hoursEmpty);
+
+//         // החזרת השעות בלבד
+//         if (!hoursFull || !hoursEmpty) {
+//             console.log("5");
+//             return res.status(404).json({ message: 'No lessons or tests found on this date' });
+//         }
+//         return res.status(200).json({ hoursFull: hoursFull, hoursEmpty: hoursEmpty });
+
+//     } 
+//     if (role === 'S') {
+
+//     }
+
+
+
+
+// };
+
 const getClassesByDate = async (req, res) => {
-    const { _id ,role} = req.user; // מזהה המורה מהמשתמש המחובר
+    const { _id, role } = req.user; // מזהה המשתמש המחובר
     const { date } = req.params; // תאריך שנשלח בבקשה
 
     // בדיקת תקינות הפרמטרים
-    if (!_id || !date||!role) {
+    if (!_id || !date || !role) {
         console.log("1");
-
         return res.status(400).json({ message: "files are required" });
     }
-    if (role != 'T') {
-        return res.status(400).json({ message: "no accsess" })
+
+    if (role !== 'T' && role !== 'S') {
+        return res.status(400).json({ message: "no access" });
     }
 
-    // שליפת המורה עם שדה dateforLessonsAndTests בלבד
-    const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).exec();
-    if (!teacher) {
-        console.log("2");
-        return res.status(404).json({ message: 'No teacher found' });
+    if (role === 'T') {
+        const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).exec();
+        if (!teacher) {
+            console.log("2");
+            return res.status(404).json({ message: 'No teacher found' });
+        }
+
+        // חיפוש תאריך ספציפי במערך
+        const lessonsOnDate = teacher.dateforLessonsAndTests.filter((e) => {
+            const dbDate = new Date(e.date).toISOString().split('T')[0]; // רק התאריך
+            const requestDate = new Date(date).toISOString().split('T')[0]; // רק התאריך
+            return dbDate === requestDate;
+        });
+
+        // בדיקה אם נמצאו שיעורים
+        if (!lessonsOnDate || lessonsOnDate.length === 0) {
+            console.log("3");
+            return res.status(404).json({ message: 'No lessons or tests found on this date' });
+        }
+
+        // חילוץ רשימת השעות מתוך השיעורים באותו יום
+        const hoursFull = lessonsOnDate
+            .flatMap(e => e.hours.filter(h => h.full === true).map(h => h.hour));
+        const hoursEmpty = lessonsOnDate
+            .flatMap(e => e.hours.filter(h => h.full === false).map(h => h.hour));
+        console.log(hoursFull, hoursEmpty);
+
+        // החזרת השעות בלבד
+        if (!hoursFull || !hoursEmpty) {
+            console.log("5");
+            return res.status(404).json({ message: 'No lessons or tests found on this date' });
+        }
+        return res.status(200).json({ hoursFull: hoursFull, hoursEmpty: hoursEmpty });
     }
 
-    // חיפוש תאריך ספציפי במערך
-    const lessonsOnDate = teacher.dateforLessonsAndTests.filter((e) => {
-        const dbDate = new Date(e.date).toISOString().split('T')[0]; // רק התאריך
-        const requestDate = new Date(date).toISOString().split('T')[0]; // רק התאריך
-        return dbDate === requestDate;
-    });
+    if (role === 'S') {
+        // מציאת התלמיד
+        const student = await Student.findById(_id).populate('myTeacher', 'dateforLessonsAndTests').exec();
+        if (!student) {
+            return res.status(404).json({ message: 'No student found' });
+        }
 
-    // בדיקה אם נמצאו שיעורים
-    if (!lessonsOnDate || lessonsOnDate.length === 0) {
-        console.log("3");
-        return res.status(404).json({ message: 'No lessons or tests found on this date' });
+        const teacher = student.myTeacher;
+        if (!teacher) {
+            return res.status(404).json({ message: 'No teacher assigned to this student' });
+        }
+
+        // חיפוש תאריך ספציפי במערך
+        const lessonsOnDate = teacher.dateforLessonsAndTests.filter((e) => {
+            const dbDate = new Date(e.date).toISOString().split('T')[0]; // רק התאריך
+            const requestDate = new Date(date).toISOString().split('T')[0]; // רק התאריך
+            return dbDate === requestDate;
+        });
+
+        // בדיקה אם נמצאו שיעורים
+        if (!lessonsOnDate || lessonsOnDate.length === 0) {
+            return res.status(404).json({ message: 'No lessons or tests found on this date' });
+        }
+
+        // חילוץ רשימת השעות
+        const hoursEmpty = lessonsOnDate
+            .flatMap(e => e.hours.filter(h => h.full === false).map(h => h.hour)); // שעות ריקות
+        const hoursFull = lessonsOnDate
+            .flatMap(e => e.hours.filter(h => h.studentId?.toString() === _id.toString()).map(h => h.hour)); // שעות שתלמיד זה תפס
+
+        return res.status(200).json({ hoursFull: hoursFull, hoursEmpty: hoursEmpty });
     }
-
-    // חילוץ רשימת השעות מתוך השיעורים באותו יום
-    const hoursFull = lessonsOnDate
-        .flatMap(e => e.hours.filter(h => h.full === true).map(h => h.hour));
-    const hoursEmpty = lessonsOnDate
-        .flatMap(e => e.hours.filter(h => h.full === false).map(h => h.hour));
-    console.log(hoursFull, hoursEmpty);
-
-    // החזרת השעות בלבד
-    if (!hoursFull || !hoursEmpty) {
-        console.log("5");
-        return res.status(404).json({ message: 'No lessons or tests found on this date' });
-    }
-    return res.status(200).json({ hoursFull: hoursFull, hoursEmpty: hoursEmpty });
-
 };
 
 
@@ -841,10 +942,10 @@ const getClassesByDate = async (req, res) => {
 
 const settingTest = async (req, res) => {
     try {
-        const { _id ,role} = req.user; // מזהה המורה
+        const { _id, role } = req.user; // מזהה המורה
         const { studentId, date } = req.body; // מזהה התלמיד והתאריך המבוקש
 
-        if (!studentId || !date||!_id||!role) {
+        if (!studentId || !date || !_id || !role) {
             return res.status(400).json({ message: "All fields are required" });
         }
         if (role != 'T') {
@@ -946,7 +1047,7 @@ const cancelTestRequest = async (req, res) => {
     const { _id, role } = req.user;
     const { studentId, date } = req.body;
 
-    if (!studentId || !date||!role) {
+    if (!studentId || !date || !role) {
         return res.status(400).json({ message: "All fields are required" });
     }
     if (role != 'T') {
@@ -991,9 +1092,9 @@ const cancelTestRequest = async (req, res) => {
 
 
 const addLessonToStudent = async (req, res) => {
-    const { _id ,role} = req.user
+    const { _id, role } = req.user
     const { studentId } = req.body
-    if (!_id || !studentId||!role) {
+    if (!_id || !studentId || !role) {
         return res.status(400).json({ message: "files are required" })
     }
     if (role != 'T') {
@@ -1043,7 +1144,7 @@ const getAllRecommendations = async (req, res) => {
 }
 
 const getRequests = async (req, res) => {
-    const { _id , role} = req.user;
+    const { _id, role } = req.user;
     if (role != 'T') {
         return res.status(400).json({ message: "no accsess" })
     }

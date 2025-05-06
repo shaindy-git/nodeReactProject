@@ -53,9 +53,26 @@ const getAllAreas = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred while fetching areas' });
     }
 };
+const changePassword = async (req, res) => {
+    const { _id, role } = req.user
+    if (role != 'A') {
+        return res.status(400).json({ message: "No accsess" })
+    }
+    const { oldPassword, newPassword } = req.body
+    const admin = await Admin.findById(_id).exec();
+    if (!admin) {
+        return res.status(400).json({ message: 'admin not found' });
+    }
+    const match = await bcrypt.compare(oldPassword, admin.password)
+    if (!match) return res.status(401).json({ message: 'Incorrect password' })
+        admin.password = await bcrypt.hash(newPassword, 10)
+    await admin.save()
+    return res.status(200).json({ message: 'Password changed successfully.' })
+}
 
 module.exports = {
     addAdmin,
-    getAllAreas
+    getAllAreas,
+    changePassword
    
 }

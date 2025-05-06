@@ -18,7 +18,7 @@ const SHome = () => {
     const toast = useRef(null); // הפניה ל-Toast
     const overlayPanel = useRef(null); // הפניה ל-OverlayPanel
     const decoded = accesstoken ? jwtDecode(accesstoken) : null;
-    const [teacher, setTeacher] = useState(null);
+    const [teacher, setTeacher] = useState(null); //ID
     const [myTeacher, setMyTeacher] = useState(null); // שמירת פרטי המורה
     const [lessonsLearned, setLessonsLearned] = useState(0); // מספר שיעורים שנלמדו
     const [lessonsRemaining, setLessonsRemaining] = useState(0); // מספר שיעורים שנותרו
@@ -27,6 +27,138 @@ const SHome = () => {
     const [overlayContent, setOverlayContent] = useState(null); // תוכן דינמי עבור OverlayPanel
     const [date, setDate] = useState(null);
     const navigate = useNavigate(); // שימוש ב-Hook לניווט
+
+
+    // useEffect(() => {
+    //     if (decoded && decoded.myTeacher) {
+    //         setTeacher(decoded.myTeacher);
+    //     }
+    // }, [decoded]);
+
+
+
+    // useEffect(() => {
+
+    //     const getStudentById = async () => {
+    //         if (decoded) {
+    //             console.log((decoded._id)); 
+                
+    //             try {
+    //                 const StudentById = await axios({
+    //                     method: 'get',
+    //                     url: `http://localhost:7000/student/getStudentById/${decoded._id}`,
+    //                     headers: { Authorization: "Bearer " + accesstoken },
+    //                 });
+    //                 if (StudentById.status === 200) {
+    //                     setTeacher(StudentById.data.student.myTeacher ? StudentById.data.student.myTeacher : []); // שמירת נתוני המורה
+    //                     setArea(StudentById.data.student.area ? StudentById.data.student.area : []);
+    //                     setLessonsRemaining(StudentById.data.student.lessonsRemaining ? StudentById.data.student.lessonsRemaining : 0);
+    //                     setLessonsLearned(StudentById.data.student.lessonsLearned ? StudentById.data.student.lessonsLearned : 0)
+    //                     console.log("teacher",teacher);
+    //                 }
+
+    //             } catch (e) {
+    //                 if (e.response?.status === 400) {
+    //                     console.error("Error:", e.response?.status || "Unknown error");
+    //                     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch teacher details', life: 3000 });
+    //                 }
+    //                 else console.error("Unauthorized user - R / THome 8");
+    //             }
+
+    //         }
+
+    //     };
+
+        
+
+    //     const getTeacher = async () => {
+    //         debugger
+    //         try {
+    //             const MyTeacher = await axios({
+    //                 method: 'get',
+    //                 url: `http://localhost:7000/teacher/getTeacherById/${teacher}`,
+    //                 headers: { Authorization: "Bearer " + accesstoken },
+    //             });
+    //             console.log("ooooo",MyTeacher.data.teacher);
+
+    //             if (MyTeacher.status === 200) {
+    //                 console.log("here");
+    //                 setMyTeacher(MyTeacher.data.teacher || []);
+    //             }
+    //         } catch (e) {
+    //             if (e.response?.status === 400);
+    //             else console.error("Unauthorized user - R / MHome");
+    //         }
+    //     }
+
+
+    //     getStudentById()
+    //     if(teacher){
+    //         getTeacher()
+
+    //     }
+       
+    // }, [accesstoken])
+
+    useEffect(() => {
+        const getStudentById = async () => {
+            if (decoded) {
+                console.log(decoded._id); 
+    
+                try {
+                    const StudentById = await axios({
+                        method: 'get',
+                        url: `http://localhost:7000/student/getStudentById/${decoded._id}`,
+                        headers: { Authorization: "Bearer " + accesstoken },
+                    });
+                    if (StudentById.status === 200) {
+                        setTeacher(StudentById.data.student.myTeacher || []); // שמירת נתוני המורה
+                        setArea(StudentById.data.student.area || []);
+                        setLessonsRemaining(StudentById.data.student.lessonsRemaining || 0);
+                        setLessonsLearned(StudentById.data.student.lessonsLearned || 0);
+                        console.log("teacher", StudentById.data.student.myTeacher);
+                    }
+                } catch (e) {
+                    if (e.response?.status === 400) {
+                        console.error("Error:", e.response?.status || "Unknown error");
+                        toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch teacher details', life: 3000 });
+                    } else {
+                        console.error("Unauthorized user - R / THome 8");
+                    }
+                }
+            }
+        };
+    
+        getStudentById();
+    }, [accesstoken, decoded]);
+    
+    useEffect(() => {
+        if (teacher) {
+            const getTeacher = async () => {
+                try {
+                    const MyTeacher = await axios({
+                        method: 'get',
+                        url: `http://localhost:7000/teacher/getTeacherById/${teacher}`,
+                        headers: { Authorization: "Bearer " + accesstoken },
+                    });
+                    console.log("ooooo", MyTeacher.data.teacher);
+    
+                    if (MyTeacher.status === 200) {
+                        console.log("here");
+                        setMyTeacher(MyTeacher.data.teacher || []);
+                    }
+                } catch (e) {
+                    if (e.response?.status === 400);
+                    else console.error("Unauthorized user - R / MHome");
+                }
+            };
+    
+            getTeacher();
+        }
+    }, [teacher, accesstoken]); // יפעל כאשר 'teacher' יתעדכן
+
+
+
 
     // פונקציה ששולחת את ההמלצה לשרת
     const sendRecommendation = async () => {
@@ -47,33 +179,7 @@ const SHome = () => {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to send recommendation. Please try again.', life: 3000 });
         }
     };
-    // יוז אפקט שמביא את פרטי המורה והאזור במהלך טעינת הקומפוננטה
-    useEffect(() => {
-        const fetchMyTeacher = async () => {
-            try {
-                const res = await axios({
-                    method: 'get',
-                    url: 'http://localhost:7000/student/getmyteacher',
-                    headers: { Authorization: "Bearer " + accesstoken },
-                });
-                if (res.status === 200) {
-                    setTeacher(res.data); // שמירת נתוני המורה
-                    setArea(res.data.area); // שמירת האזור
-                }
-            } catch (e) {
-                console.error("Error:", e.response?.status || "Unknown error");
-                toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch teacher details', life: 3000 });
-            }
-        };
-
-        if (accesstoken && decoded.myTeacher) {
-            fetchMyTeacher(); // קריאה לפונקציה בעת טעינת הקומפוננטה
-        }
-        else if (myTeacher) {
-            setArea(myTeacher.area)
-        }
-    }, [accesstoken, myTeacher]); // תלוי בטוקן
-
+    
     // פונקציה להצגת פרטי האזור
     const showAreaDetails = (event) => {
         if (area) {
@@ -88,97 +194,48 @@ const SHome = () => {
         }
     };
 
-    const showTetcherDetails = (event) => {
-        if (teacher) {
-            console.log("aaa", teacher);
 
+
+    const showTetcherDetails = (event) => {
+
+        if (myTeacher) {
             setOverlayContent(
                 <div>
-                    <p><strong>Teacher Name:</strong> {teacher.firstName} {teacher.lastName}</p>
-                    <p><strong>Email:</strong> {teacher.email}</p>
-                </div>
+                <p><strong>Teacher Name:</strong> {myTeacher.firstName} {myTeacher.lastName} </p>
+                <p><strong>Email:</strong> {myTeacher.email}</p>
+            </div>
             );
             overlayPanel.current.toggle(event); // פתיחת החלון
-        } else if (myTeacher) {
-            setOverlayContent(
-                <div>
-                    <p><strong>Teacher Name:</strong> {myTeacher.firstName} {myTeacher.lastName}</p>
-                    <p><strong>Email:</strong> {myTeacher.email}</p>
-                </div>
-            );
-            overlayPanel.current.toggle(event); // פתיחת החלון
-        }
-        else {
-            toast.current.show({ severity: 'info', summary: 'Info', detail: 'No area information available.', life: 3000 });
+        } else {
+            toast.current.show({ severity: 'info', summary: 'Info', detail: 'No teacher information available.', life: 3000 });
         }
     };
 
-   // פונקציה שמביאה את מספר השיעורים שנלמדו
+
+
+
+
+
+    // פונקציה שמביאה את מספר השיעורים שנלמדו
     const getLessonsLearned = async (event) => {
-        // try {
-        //     const res = await axios({
-        //         method: 'get',
-        //         url: 'http://localhost:7000/student/getLessonsLearned',
-        //         headers: { Authorization: "Bearer " + accesstoken },
-        //     });
-        //     if (res.status === 200) {
-        //         setLessonsLearned(res.data.lessonsLearned); // שמירת מספר השיעורים שנלמדו
-                setOverlayContent(
-                    <p><strong>Lessons Learned:</strong> {lessonsLearned}</p>
-                );
-                overlayPanel.current.toggle(event); // פתיחת החלון
-        //     }
-        // } catch (e) {
-        //     console.error("Error:", e.response?.status || "Unknown error");
-        //     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load lessons learned', life: 3000 });
-        // }
+        setOverlayContent(
+            <p><strong>Lessons Learned:</strong> {lessonsLearned}</p>
+        );
+        overlayPanel.current.toggle(event); // פתיחת החלון
     };
     const getLessonsRemaining = async (event) => {
-        // try {
-        //     const res = await axios({
-        //         method: 'get',
-        //         url: 'http://localhost:7000/student/getLessonsLearned',
-        //         headers: { Authorization: "Bearer " + accesstoken },
-        //     });
-        //     if (res.status === 200) {
-        //         setLessonsLearned(res.data.lessonsLearned); // שמירת מספר השיעורים שנלמדו
-                setOverlayContent(
-                    <p><strong>Lessons Learned:</strong> {lessonsRemaining}</p>
-                );
-                overlayPanel.current.toggle(event); // פתיחת החלון
-        //     }
-        // } catch (e) {
-        //     console.error("Error:", e.response?.status || "Unknown error");
-        //     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load lessons learned', life: 3000 });
-        // }
+        setOverlayContent(
+            <p><strong>Lessons Learned:</strong> {lessonsRemaining}</p>
+        );
+        overlayPanel.current.toggle(event); // פתיחת החלון
     };
-    const getTestDetails=async(event)=>{
+    const getTestDetails = async (event) => {
         overlayPanel.current.toggle(event); // פתיחת החלון
     }
-    
 
-    // פונקציה שמביאה את מספר השיעורים שנותרו
-    const getLessonsNumbers = async (event) => {
-        try {
-            const res = await axios({
-                method: 'get',
-                url: 'http://localhost:7000/student/getLessonsNumbers',
-                headers: { Authorization: "Bearer " + accesstoken },
-            });
-            if (res.status === 200) {
-                setLessonsRemaining(res.data.lessonsRemaining);
-                setLessonsLearned(res.data.lessonsLearned) // שמירת מספר השיעורים שנותרו
-                // setOverlayContent(
-                //     <p><strong>Lessons Remaining:</strong> {res.data.lessonsRemaining}</p>
-                // );
-                // overlayPanel.current.toggle(event); // פתיחת החלון
-            }
-        } catch (e) {
-            console.error("Error:", e.response?.status || "Unknown error");
-            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load lessons remaining', life: 3000 });
-        }
-    };
-    
+
+
+
 
     // const getTest = async (event) => {
     //     try {
@@ -261,6 +318,9 @@ const SHome = () => {
         }
     };
 
+
+
+
     // עלינו לבדוק את זה וגם לשנות את עיצוב הכפתור
     const applyForTest = async () => {
 
@@ -341,7 +401,7 @@ const SHome = () => {
         {
             label: 'Test',
             icon: 'pi pi-car',
-            command: (event) => getTestDetails (event.originalEvent)
+            command: (event) => getTestDetails(event.originalEvent)
             //getTest,
         },
         {
@@ -372,18 +432,13 @@ const SHome = () => {
     ];
 
 
-    useEffect(() => {
-        if (accesstoken) {
-            getLessonsNumbers()
-            getTest()
-        }
-    }, [accesstoken]);
+    // useEffect(() => {
+    //     if (accesstoken) {
+    //         getTest()
+    //     }
+    // }, [accesstoken]);
 
-    useEffect(() => {
-        if (decoded && decoded.myTeacher) {
-            setMyTeacher(decoded.myTeacher);
-        }
-    }, [decoded]);
+
 
     return (
 

@@ -62,14 +62,29 @@ const MHome = () => {
             }
         };
 
-        const Request = async () => {
+        // const Request = async () => {
+        //     try {
+        //         const reqRes = await axios({
+        //             method: 'get',
+        //             url: 'http://localhost:7000/manager/getRequestsByManagerId',
+        //             headers: { Authorization: "Bearer " + accesstoken },
+        //         });
+        //         if (reqRes.status === 200) setReq(reqRes.data);
+        //     } catch (e) {
+        //         if (e.response?.status === 400) setReq([]);
+        //         else console.error("Unauthorized user - R / MHome");
+        //     }
+        // };
+
+        const getManagerById = async () => {
             try {
                 const reqRes = await axios({
                     method: 'get',
-                    url: 'http://localhost:7000/manager/getRequestsByManagerId',
+                    url: `http://localhost:7000/manager/getManagerById/${decoded._id}`,
                     headers: { Authorization: "Bearer " + accesstoken },
                 });
-                if (reqRes.status === 200) setReq(reqRes.data);
+                console.log(reqRes.data.manager.RequestList);
+                if (reqRes.status === 200) setReq(reqRes.data.manager.RequestList);
             } catch (e) {
                 if (e.response?.status === 400) setReq([]);
                 else console.error("Unauthorized user - R / MHome");
@@ -79,25 +94,25 @@ const MHome = () => {
         // הפונקציות ירוצו רק אם יש טוקן תקף
         Techer();
         Student();
-        Request();
+        getManagerById();
 
     }, [accesstoken, ID]); // הוספת accesstoken לתלות
 
-    const itemTemplateteacher = (teacher) => (
-        <div>{teacher.firstName} {teacher.lastName}</div>
-    );
+    // const itemTemplateteacher = (teacher) => (
+    //     <div>{teacher.firstName} {teacher.lastName}</div>
+    // );
 
-    const itemTemplatestudent = (student) => (
-        <div>{student.firstName} {student.lastName}</div>
-    );
+    // const itemTemplatestudent = (student) => (
+    //     <div>{student.firstName} {student.lastName}</div>
+    // );
 
-    const itemTemplatereq = (req) => (
-        <div>{req.firstName} {req.lastName}</div>
-    );
+    // const itemTemplatereq = (req) => (
+    //     <div>{req.firstName} {req.lastName}</div>
+    // );
 
-    const itemTemplateEmpty = (label) => (
-        <div style={{ color: 'gray', fontStyle: 'italic', textAlign: 'center' }}>{label}</div>
-    );
+    // const itemTemplateEmpty = (label) => (
+    //     <div style={{ color: 'gray', fontStyle: 'italic', textAlign: 'center' }}>{label}</div>
+    // );
 
     const removeTeacherFromList = (idToRemove) => {
         setTeachers(prev => prev.filter(t => t._id !== idToRemove));

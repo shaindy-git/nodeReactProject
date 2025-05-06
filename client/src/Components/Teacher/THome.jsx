@@ -95,44 +95,70 @@ const THome = () => {
         fetchDates();
     }, [accesstoken, changeDate]);
 
-    useEffect(() => {
-        const fetchRecommendations = async () => {
+    // useEffect(() => {
+    //     const fetchRecommendations = async () => {
+    //         try {
+    //             const recommendationsRes = await axios.get('http://localhost:7000/teacher/getAllRecommendations', {
+    //                 headers: { Authorization: "Bearer " + accesstoken },
+    //             });
+
+    //             if (recommendationsRes.status === 200 && recommendationsRes.data.recommendations) {
+    //                 setRecommendations(recommendationsRes.data.recommendations);
+    //             }
+    //         } catch (e) {
+    //             console.error("Error fetching recommendations:", e);
+    //         }
+    //     };
+
+    //     if (accesstoken) {
+    //         fetchRecommendations();
+    //     }
+    // }, [accesstoken]);
+
+    // useEffect(() => {
+    //     const fetchRequests = async () => {
+    //         try {
+    //             const requestRes = await axios.get('http://localhost:7000/teacher/getRequests', {
+    //                 headers: { Authorization: "Bearer " + accesstoken },
+    //             });
+
+    //             if (requestRes.status === 200 && requestRes.data.listOfRequires) {
+    //                 console.log("Requests fetched:", requestRes.data.listOfRequires);
+    //                 setRequests(requestRes.data.listOfRequires);
+    //             }
+    //         } catch (e) {
+    //             console.error("Error fetching requests:", e);
+    //         }
+    //     };
+
+    //     fetchRequests();
+    // }, [accesstoken, changeRequests]); // Added `changeRequests` as dependency
+
+    useEffect(()=>{
+        const getTeatcherById = async () => {
             try {
-                const recommendationsRes = await axios.get('http://localhost:7000/teacher/getAllRecommendations', {
+                const TeatcherById = await axios({
+                    method: 'get',
+                    url: `http://localhost:7000/teacher/getTeacherById/${decoded._id}`,
                     headers: { Authorization: "Bearer " + accesstoken },
                 });
+                if (TeatcherById.status === 200) {
+                    setRecommendations(TeatcherById.data.teacher.recommendations?TeatcherById.data.teacher.recommendations:[])
+                    setRequests(TeatcherById.data.teacher.listOfRequires?TeatcherById.data.teacher.listOfRequires:[])
 
-                if (recommendationsRes.status === 200 && recommendationsRes.data.recommendations) {
-                    setRecommendations(recommendationsRes.data.recommendations);
                 }
+
             } catch (e) {
-                console.error("Error fetching recommendations:", e);
+                if (e.response?.status === 400) {
+                    setRecommendations([])
+                    setRequests([])
+                }
+                else console.error("Unauthorized user - R / THome");
             }
         };
+        getTeatcherById()
 
-        if (accesstoken) {
-            fetchRecommendations();
-        }
-    }, [accesstoken]);
-
-    useEffect(() => {
-        const fetchRequests = async () => {
-            try {
-                const requestRes = await axios.get('http://localhost:7000/teacher/getRequests', {
-                    headers: { Authorization: "Bearer " + accesstoken },
-                });
-
-                if (requestRes.status === 200 && requestRes.data.listOfRequires) {
-                    console.log("Requests fetched:", requestRes.data.listOfRequires);
-                    setRequests(requestRes.data.listOfRequires);
-                }
-            } catch (e) {
-                console.error("Error fetching requests:", e);
-            }
-        };
-
-        fetchRequests();
-    }, [accesstoken, changeRequests]); // Added `changeRequests` as dependency
+    },[accesstoken,changeRequests])
 
     // Show dialog when selectedRequest changes
     useEffect(() => {

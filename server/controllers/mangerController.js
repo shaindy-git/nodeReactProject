@@ -16,7 +16,7 @@ const generatePassword = require('generate-password');
 //     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !area) {
 //         return res.status(400).json({ message: "files are required" })
 //     }
-  
+
 //     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
 //     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
 //     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
@@ -40,8 +40,8 @@ const generatePassword = require('generate-password');
 //         uppercase: true, // כולל אותיות גדולות
 //         lowercase: true, // כולל אותיות קטנות
 //     });
-    
-    
+
+
 //     const hashedPwd = await bcrypt.hash(password, 10)
 //     const manager = await Manager.create({
 //         firstName, lastName, userName, numberID, dateOfBirth, phone, email, password: hashedPwd, area
@@ -95,7 +95,7 @@ const addManager = async (req, res) => {
     }
 
     // יצירת סיסמה אקראית
-    const password = "RandomPassword"+ generatePassword.generate({
+    const password = "RandomPassword" + generatePassword.generate({
         length: 12,
         numbers: true,
         symbols: true,
@@ -188,7 +188,7 @@ const updateManager = async (req, res) => {
 const getRequestsByManagerId = async (req, res) => {
 
     const { _id, role } = req.user
-    if(role!='M'){
+    if (role != 'M') {
         return res.status(400).json({ message: "No accsess" })
     }
     const manager = await Manager.findById(_id, { password: 0 });
@@ -206,7 +206,7 @@ const getRequestsByManagerId = async (req, res) => {
 const removeReqest = async (req, res) => {
     //איתור הבקשה
     const { _id, role } = req.user
-    if(role!='M'){
+    if (role != 'M') {
         return res.status(400).json({ message: "No accsess" })
     }
     const maneger = await Manager.findOne({ _id: _id }).exec()
@@ -257,8 +257,8 @@ const removeReqest = async (req, res) => {
 }
 
 const changePassword = async (req, res) => {
-    const { _id , role} = req.user
-    if(role!='M'){
+    const { _id, role } = req.user
+    if (role != 'M') {
         return res.status(400).json({ message: "No accsess" })
     }
     const { oldPassword, newPassword } = req.body
@@ -304,9 +304,9 @@ const deleteManager = async (req, res) => {
             .sort({ firstName: 1 })
             .lean();
 
-        return res.status(200).json({ 
-            message: "Manager deleted successfully", 
-            managers: managers 
+        return res.status(200).json({
+            message: "Manager deleted successfully",
+            managers: managers
         });
     } catch (error) {
         // טיפול בשגיאות
@@ -316,6 +316,27 @@ const deleteManager = async (req, res) => {
 };
 
 
+const getManagerById = async (req, res) => {
+    const { _id, role } = req.user//של המבקש
+    const { id } = req.params//של הסטודנט
+    if (!_id || !role || !id) {
+        return res.status(400).json({ message: "files are required" })
+    }
+    if (role !== 'M' && role !== 'A') {
+
+        return res.status(400).json({ message: "no accsess" })
+    }
+
+
+    const manager = await Manager.findOne({ _id }, { password: 0 }).lean()
+    if (!manager) {
+        return res.status(400).json({ message: "no accsess" })
+    }
+
+    return res.status(200).json({ manager:manager});
+}
+
+
 
 module.exports = {
     addManager,
@@ -323,6 +344,7 @@ module.exports = {
     getRequestsByManagerId,
     removeReqest,
     changePassword,
-    deleteManager
+    deleteManager,
+    getManagerById
 
 }

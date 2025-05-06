@@ -11,6 +11,7 @@ router.get("/getRequestsByManagerId",verifyJWT, mangerController.getRequestsByMa
 router.put("/removeReqest",verifyJWT, mangerController.removeReqest)
 router.put("/changePassword",verifyJWT, mangerController.changePassword)
 router.delete("/deleteManager/:id",verifyJWT, mangerController.deleteManager)
+router.get("/getManagerById/:id", verifyJWT,mangerController.getManagerById)
 
 
 

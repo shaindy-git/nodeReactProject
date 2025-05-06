@@ -460,13 +460,13 @@ const updateTeacher = async (req, res) => {
 }
 
 const getTeacherById = async (req, res) => {
-    const { _id, role } = req.user
-    const { id } = req.params
+    const { _id, role } = req.user//של המבקש
+    const { id } = req.params//של הסטודנט
     if (!_id || !role || !id) {
         return res.status(400).json({ message: "files are required" })
     }
     if (role === 'S') {
-        const student = await Student.findOne({ _id: _id, myTeacher: id }).lean()
+        const student = await Student.findOne({ _id: _id, myTeacher: id },{password:0}).lean()
         if (!student) {
             return res.status(400).json({ message: "no accsess" })
         }
@@ -476,7 +476,7 @@ const getTeacherById = async (req, res) => {
         return res.status(400).json({ message: 'teacher not found' })
     }
     if (role === 'M') {
-        const manager = await Manager.findOne({ _id: _id, area: teacher.area }).lean()
+        const manager = await Manager.findOne({ _id: _id, area: teacher.area },{password:0}).lean()
         if (!manager) {
             return res.status(400).json({ message: "no accsess" })
         }
@@ -486,7 +486,7 @@ const getTeacherById = async (req, res) => {
     }
     console.log(teacher.firstName);
 
-    return res.status(200).json({ firstName: teacher.firstName, lastName: teacher.lastName });
+    return res.status(200).json({teacher:teacher, firstName: teacher.firstName, lastName: teacher.lastName });
 }
 
 

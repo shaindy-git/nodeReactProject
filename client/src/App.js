@@ -40,6 +40,7 @@ function App() {
 
   const [text, setText] = useState("user");
   const [role, setRole] = useState("");
+  
   // const text = decoded ? `${decoded.firstName} ${decoded.lastName}` : "user";
 
   useEffect(() => {
@@ -110,6 +111,7 @@ function App() {
         <Route path="/Teacher/THome" element={<THome />} />
         <Route path="/Student/SHome" element={<SHome />} />
         <Route path="/Auth/terms" element={<TermsPage />} />
+        {/* <Route path="/Student/SSelectionTeatcher" element={<SSelectionTeatcher />} /> */}
         <Route path="/Student/SSelectionTeatcher" element={<SSelectionTeatcher />} />
       </Routes>
 

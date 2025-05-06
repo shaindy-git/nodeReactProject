@@ -634,7 +634,7 @@ const changePassword = async (req, res) => {
     return res.status(200).json({ message: 'Password changed successfully.' })
 }
 
-const getLessonsRemaining = async (req, res)=>{
+const getLessonsNumbers = async (req, res)=>{
 
     const { _id, role } = req.user
     if (!_id|| !role) {
@@ -645,24 +645,25 @@ const getLessonsRemaining = async (req, res)=>{
     }
     const student = await Student.findById({ _id }, { password: 0 }).lean()
     lessonsRemaining = student.lessonsRemaining
-    return res.status(200).json({lessonsRemaining:lessonsRemaining})
-
-}
-
-const getLessonsLearned = async (req, res)=>{
-
-    const { _id, role } = req.user
-    if (!_id|| !role) {
-        return res.status(400).json({ message: "files are required" })
-    }
-     if (role != 'S') {
-        return res.status(400).json({ message: 'only for students' })
-    }
-    const student = await Student.findById({ _id }, { password: 0 }).lean()
     lessonsLearned = student.lessonsLearned
-    return res.status(200).json({lessonsLearned:lessonsLearned})
+    return res.status(200).json({lessonsRemaining:lessonsRemaining, lessonsLearned:lessonsLearned})
 
 }
+
+// const getLessonsLearned = async (req, res)=>{
+
+//     const { _id, role } = req.user
+//     if (!_id|| !role) {
+//         return res.status(400).json({ message: "files are required" })
+//     }
+//      if (role != 'S') {
+//         return res.status(400).json({ message: 'only for students' })
+//     }
+//     const student = await Student.findById({ _id }, { password: 0 }).lean()
+//     lessonsLearned = student.lessonsLearned
+//     return res.status(200).json({lessonsLearned:lessonsLearned})
+
+// }
 
 const getTestDetails = async (req, res) => {
     const { _id, role } = req.user;
@@ -726,8 +727,8 @@ module.exports = {
     testRequest,
     deleteStudent,
     changePassword,
-    getLessonsRemaining,
-    getLessonsLearned,
+    getLessonsNumbers,
+    // getLessonsLearned,
     getTestDetails
 
 }

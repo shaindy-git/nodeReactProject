@@ -90,8 +90,8 @@ const SHome = () => {
 
     const showTetcherDetails = (event) => {
         if (teacher) {
-            console.log("aaa",teacher);
-            
+            console.log("aaa", teacher);
+
             setOverlayContent(
                 <div>
                     <p><strong>Teacher Name:</strong> {teacher.firstName} {teacher.lastName}</p>
@@ -113,47 +113,72 @@ const SHome = () => {
         }
     };
 
-    // פונקציה שמביאה את מספר השיעורים שנלמדו
+   // פונקציה שמביאה את מספר השיעורים שנלמדו
     const getLessonsLearned = async (event) => {
-        try {
-            const res = await axios({
-                method: 'get',
-                url: 'http://localhost:7000/student/getLessonsLearned',
-                headers: { Authorization: "Bearer " + accesstoken },
-            });
-            if (res.status === 200) {
-                setLessonsLearned(res.data.lessonsLearned); // שמירת מספר השיעורים שנלמדו
+        // try {
+        //     const res = await axios({
+        //         method: 'get',
+        //         url: 'http://localhost:7000/student/getLessonsLearned',
+        //         headers: { Authorization: "Bearer " + accesstoken },
+        //     });
+        //     if (res.status === 200) {
+        //         setLessonsLearned(res.data.lessonsLearned); // שמירת מספר השיעורים שנלמדו
                 setOverlayContent(
-                    <p><strong>Lessons Learned:</strong> {res.data.lessonsLearned}</p>
+                    <p><strong>Lessons Learned:</strong> {lessonsLearned}</p>
                 );
                 overlayPanel.current.toggle(event); // פתיחת החלון
-            }
-        } catch (e) {
-            console.error("Error:", e.response?.status || "Unknown error");
-            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load lessons learned', life: 3000 });
-        }
+        //     }
+        // } catch (e) {
+        //     console.error("Error:", e.response?.status || "Unknown error");
+        //     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load lessons learned', life: 3000 });
+        // }
     };
+    const getLessonsRemaining = async (event) => {
+        // try {
+        //     const res = await axios({
+        //         method: 'get',
+        //         url: 'http://localhost:7000/student/getLessonsLearned',
+        //         headers: { Authorization: "Bearer " + accesstoken },
+        //     });
+        //     if (res.status === 200) {
+        //         setLessonsLearned(res.data.lessonsLearned); // שמירת מספר השיעורים שנלמדו
+                setOverlayContent(
+                    <p><strong>Lessons Learned:</strong> {lessonsRemaining}</p>
+                );
+                overlayPanel.current.toggle(event); // פתיחת החלון
+        //     }
+        // } catch (e) {
+        //     console.error("Error:", e.response?.status || "Unknown error");
+        //     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load lessons learned', life: 3000 });
+        // }
+    };
+    const getTestDetails=async(event)=>{
+        overlayPanel.current.toggle(event); // פתיחת החלון
+    }
+    
 
     // פונקציה שמביאה את מספר השיעורים שנותרו
-    const getLessonsRemaining = async (event) => {
+    const getLessonsNumbers = async (event) => {
         try {
             const res = await axios({
                 method: 'get',
-                url: 'http://localhost:7000/student/getLessonsRemaining',
+                url: 'http://localhost:7000/student/getLessonsNumbers',
                 headers: { Authorization: "Bearer " + accesstoken },
             });
             if (res.status === 200) {
-                setLessonsRemaining(res.data.lessonsRemaining); // שמירת מספר השיעורים שנותרו
-                setOverlayContent(
-                    <p><strong>Lessons Remaining:</strong> {res.data.lessonsRemaining}</p>
-                );
-                overlayPanel.current.toggle(event); // פתיחת החלון
+                setLessonsRemaining(res.data.lessonsRemaining);
+                setLessonsLearned(res.data.lessonsLearned) // שמירת מספר השיעורים שנותרו
+                // setOverlayContent(
+                //     <p><strong>Lessons Remaining:</strong> {res.data.lessonsRemaining}</p>
+                // );
+                // overlayPanel.current.toggle(event); // פתיחת החלון
             }
         } catch (e) {
             console.error("Error:", e.response?.status || "Unknown error");
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load lessons remaining', life: 3000 });
         }
     };
+    
 
     // const getTest = async (event) => {
     //     try {
@@ -228,7 +253,7 @@ const SHome = () => {
                     );
                 }
 
-                overlayPanel.current.toggle(event); // פתיחת החלון
+                //overlayPanel.current.toggle(event); // פתיחת החלון
             }
         } catch (e) {
             console.error("Error:", e.response?.status || "Unknown error");
@@ -316,7 +341,8 @@ const SHome = () => {
         {
             label: 'Test',
             icon: 'pi pi-car',
-            command: (event) => getTest(event.originalEvent),
+            command: (event) => getTestDetails (event.originalEvent)
+            //getTest,
         },
         {
             label: 'LessonsLearned',
@@ -344,6 +370,14 @@ const SHome = () => {
             icon: 'pi pi-plus-circle',
         },
     ];
+
+
+    useEffect(() => {
+        if (accesstoken) {
+            getLessonsNumbers()
+            getTest()
+        }
+    }, [accesstoken]);
 
     useEffect(() => {
         if (decoded && decoded.myTeacher) {
@@ -385,7 +419,7 @@ const SHome = () => {
                 <Routes>
                     <Route
                         path="/Student/SSelectionTeatcher"
-                        element={<SSelectionTeatcher setMyTeacher={setMyTeacher} />} // שינוי בוצע כאן
+                        element={<SSelectionTeatcher setMyTeacher={setMyTeacher} myTeacher={myTeacher} />} // הוספת myTeacher כ-prop
                     />
                 </Routes>
 

@@ -598,6 +598,13 @@ const SSelectionTeatcher = (props) => {
       });
       return;
     }
+debugger
+    console.log("Props received in SSelectionTeatcher:", props);
+
+if (typeof props.setMyTeacher !== "function") {
+  console.error("Error: setMyTeacher is not a function!");
+  return;
+}
 
     console.log("Selected Teacher ID:", selectedTeacher?._id);
     console.log("Access Token:", accesstoken);

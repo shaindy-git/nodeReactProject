@@ -11,6 +11,7 @@ import { Calendar } from "primereact/calendar";
 import SSelectionTeatcher from "./SSelectionTeatcher";
 import { Route, Routes, useNavigate } from "react-router-dom"; // שינוי בוצע כאן
 
+
 const SHome = () => {
     const [showEditor, setShowEditor] = useState(false); // מצב להצגת האדיטור
     const [text, setText] = useState(''); // טקסט שמוזן באדיטור
@@ -27,6 +28,12 @@ const SHome = () => {
     const [overlayContent, setOverlayContent] = useState(null); // תוכן דינמי עבור OverlayPanel
     const [date, setDate] = useState(null);
     const navigate = useNavigate(); // שימוש ב-Hook לניווט
+    const [status, setStatus] = useState()
+    const [dateTest, setDateTest] = useState()
+    const [hourTest, setHourTest] = useState()
+
+
+
 
 
     // useEffect(() => {
@@ -42,7 +49,7 @@ const SHome = () => {
     //     const getStudentById = async () => {
     //         if (decoded) {
     //             console.log((decoded._id)); 
-                
+
     //             try {
     //                 const StudentById = await axios({
     //                     method: 'get',
@@ -69,7 +76,7 @@ const SHome = () => {
 
     //     };
 
-        
+
 
     //     const getTeacher = async () => {
     //         debugger
@@ -97,14 +104,14 @@ const SHome = () => {
     //         getTeacher()
 
     //     }
-       
+
     // }, [accesstoken])
 
     useEffect(() => {
         const getStudentById = async () => {
             if (decoded) {
-                console.log(decoded._id); 
-    
+                console.log(decoded._id);
+
                 try {
                     const StudentById = await axios({
                         method: 'get',
@@ -128,11 +135,11 @@ const SHome = () => {
                 }
             }
         };
-    
+
         // קריאה ל-getStudentById רק כאשר decoded זמין
         getStudentById();
     }, [accesstoken, decoded]); // התלות כאן תוודא שה-UseEffect ירוץ רק פעם אחת כאשר accesstoken ו-decoded מתעדכנים.
-    
+
     useEffect(() => {
         if (teacher) {
             const getTeacher = async () => {
@@ -143,7 +150,7 @@ const SHome = () => {
                         headers: { Authorization: "Bearer " + accesstoken },
                     });
                     console.log("ooooo", MyTeacher.data.teacher);
-    
+
                     if (MyTeacher.status === 200) {
                         console.log("here");
                         setMyTeacher(MyTeacher.data.teacher || null);
@@ -153,7 +160,7 @@ const SHome = () => {
                     else console.error("Unauthorized user - R / MHome");
                 }
             };
-    
+
             getTeacher();
         }
     }, [teacher]); // הפעלת useEffect רק כאשר 'teacher' מתעדכן.
@@ -180,7 +187,7 @@ const SHome = () => {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to send recommendation. Please try again.', life: 3000 });
         }
     };
-    
+
     // פונקציה להצגת פרטי האזור
     const showAreaDetails = (event) => {
         if (area) {
@@ -202,9 +209,9 @@ const SHome = () => {
         if (myTeacher) {
             setOverlayContent(
                 <div>
-                <p><strong>Teacher Name:</strong> {myTeacher.firstName} {myTeacher.lastName} </p>
-                <p><strong>Email:</strong> {myTeacher.email}</p>
-            </div>
+                    <p><strong>Teacher Name:</strong> {myTeacher.firstName} {myTeacher.lastName} </p>
+                    <p><strong>Email:</strong> {myTeacher.email}</p>
+                </div>
             );
             overlayPanel.current.toggle(event); // פתיחת החלון
         } else {
@@ -274,7 +281,70 @@ const SHome = () => {
     //     }
     // };
 
+
+
+
+    // useEffect(() => {
+
+    //     const getTest = async (event) => {
+    //         try {
+    //             const res = await axios({
+    //                 method: 'get',
+    //                 url: 'http://localhost:7000/student/getTestDetails',
+    //                 headers: { Authorization: "Bearer " + accesstoken },
+    //             });
+    //             if (res.status === 200) {
+    //                 const { status, testDate, testHour } = res.data;
+    //                 setStatus(status);
+
+    //                 if (status === 'false') {
+    //                     setOverlayContent(
+    //                         <div>
+    //                             <p><strong>Test Status:</strong> You have not yet applied for a test</p>
+    //                             <Button
+    //                                 label="Apply for Test"
+    //                                 icon="pi pi-send"
+    //                                 onClick={applyForTest} // פונקציה שתשלח בקשה לשרת
+    //                                 className="p-button p-button-success"
+    //                                 style={{ marginTop: '1rem' }}
+    //                             />
+    //                         </div>
+    //                     );
+    //                 } else if (status === 'request') {
+    //                     setOverlayContent(
+    //                         <p><strong>Test Status:</strong> A request has been submitted and will be processed as soon as possible</p>
+    //                     );
+    //                 } else if (status === 'test') {
+    //                     setOverlayContent(
+    //                         <div>
+    //                             <p><strong>Test Status:</strong> {status}</p>
+    //                             <p><strong>Date:</strong> {testDate}</p>
+    //                             <p><strong>Hour:</strong> {testHour}</p>
+    //                         </div>
+    //                     );
+    //                 }
+
+    //                 overlayPanel.current.toggle(event); // פתיחת החלון
+    //             }
+    //         } catch (e) {
+    //             console.error("Error:", e.response?.status || "Unknown error");
+    //             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load test details', life: 3000 });
+    //         }
+    //     };
+    //     getTest()
+
+    // }, [status])
+
+    // פונקציה גלובלית בקומפוננטה
+    // קריאה לפונקציה מתוך useEffect בעת טעינת הקומפוננטה
+    // useEffect(() => {
+    //     if (accesstoken) {
+    //         getTest(); // קריאה לפונקציה בעת טעינת הקומפוננטה
+    //     }
+    // }, [accesstoken]); // תלות ב-accesstoken בלבד
+
     const getTest = async (event) => {
+
         try {
             const res = await axios({
                 method: 'get',
@@ -283,6 +353,7 @@ const SHome = () => {
             });
             if (res.status === 200) {
                 const { status, testDate, testHour } = res.data;
+                setStatus(status);
 
                 if (status === 'false') {
                     setOverlayContent(
@@ -291,9 +362,19 @@ const SHome = () => {
                             <Button
                                 label="Apply for Test"
                                 icon="pi pi-send"
-                                onClick={applyForTest} // פונקציה שתשלח בקשה לשרת
-                                className="p-button p-button-success"
-                                style={{ marginTop: '1rem' }}
+                                onClick={applyForTest}
+                                className="p-button"
+                                style={{
+                                    marginTop: "0.5rem",
+                                    width: "100%",
+                                    backgroundColor: "#000",
+                                    color: "#fff",
+                                    fontSize: "0.9rem",
+                                    textTransform: "none",
+                                    borderRadius: "12px",
+                                    border: "none",
+                                    marginTop: '1rem'
+                                }}
                             />
                         </div>
                     );
@@ -315,7 +396,7 @@ const SHome = () => {
             }
         } catch (e) {
             console.error("Error:", e.response?.status || "Unknown error");
-            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load test details', life: 3000 });
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load test details8989', life: 3000 });
         }
     };
 

@@ -30,6 +30,8 @@ import { setToken } from './redux/tokenSlice';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { InputText } from "primereact/inputtext";
 
+import './styles/global.css'; 
+
 import axios from 'axios';
 import { Toast } from 'primereact/toast';
 

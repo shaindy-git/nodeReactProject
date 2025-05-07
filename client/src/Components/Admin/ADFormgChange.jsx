@@ -1,58 +1,83 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
 import { classNames } from 'primereact/utils';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
-const ADFormgChange = ({ visibleChange, setVisibleChange, manager }) => {
+const ADFormgChange = (props) => {
     const accesstoken = useSelector((state) => state.token.token);
+    const decoded = accesstoken ? jwtDecode(accesstoken) : null;
+
     const [showMessage, setShowMessage] = useState(false);
+    const [newManager, setNewManager] = useState(null);
 
     const { control, formState: { errors }, handleSubmit, reset } = useForm({
         defaultValues: {
-            firstName: manager?.firstName || '',
-            lastName: manager?.lastName || '',
-            gender: manager?.gender || '',
-            dateOfBirth: manager?.dateOfBirth ? new Date(manager.dateOfBirth) : null,
-            userName: manager?.userName || '',
-            numberID: manager?.numberID || '',
-            phone: manager?.phone || '',
-            email: manager?.email || '',
-            area: manager?.area || '',
+            firstName: '',
+            lastName: '',
+            gender: '',
+            dateOfBirth: null,
+            userName: '',
+            numberID: '',
+            phone: '',
+            email: '',
+            area: ''
         }
     });
 
-    const genders = ['male', 'female'];
+    useEffect(() => {
+        if (props.manager) {
+            reset({
+                firstName: '',
+                lastName: '',
+                userName: '',
+                numberID: '',
+                dateOfBirth: null,
+                phone: '',
+                email: '',
+                area: props.manager.area || ''
+            });
+        }
+    }, [props.manager, reset]);
 
     const onSubmit = async (data) => {
+        if ((new Date() - new Date(data.dateOfBirth)) < 0) {
+            alert("Invalid date of birth");
+            return;
+        }
+
+        if ((new Date() - new Date(data.dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(data.dateOfBirth)) < 50 * 31536000000) {
+            alert("The age is not appropriate, for a teacher the required age is between 50-70");
+            return;
+        }
+
         try {
             const res = await axios({
-                method: 'put',
-                url: `http://localhost:7000/manager/updateManager/${manager.id}`,
+                method: 'delete',
+                url: `http://localhost:7000/manager/deleteManager/${props.manager._id}`,
                 headers: { Authorization: "Bearer " + accesstoken },
                 data: {
                     ...data,
-                    dateOfBirth: data.dateOfBirth.toISOString(),
-                },
+                    dateOfBirth: new Date(data.dateOfBirth)
+                }
             });
 
-            if (res.status === 200) {
+            if (res.status === 200 && res.data.managers) {
+                props.setManagers(res.data.managers || []);
+                props.setChange(res.data);
+                setNewManager(data); // שמור את הנתונים של המנהל החדש
                 setShowMessage(true);
-                reset();
             } else {
                 alert("Unexpected response from the server.");
             }
         } catch (e) {
-            const errorMessage =
-                e.response && e.response.data && e.response.data.message
-                    ? e.response.data.message
-                    : "An error occurred, please try again.";
+            const errorMessage = e?.response?.data?.message || "An error occurred, please try again.";
             alert(errorMessage);
             console.error(e);
         }
@@ -66,114 +91,84 @@ const ADFormgChange = ({ visibleChange, setVisibleChange, manager }) => {
                 autoFocus
                 onClick={() => {
                     setShowMessage(false);
-                    setVisibleChange(false);
+                    props.setVisibleChange(false);
                 }}
             />
         </div>
     );
 
-    const getFormErrorMessage = (name) => {
-        return errors[name] && <small className="p-error">{errors[name].message}</small>;
-    };
+    const getFormErrorMessage = (name) => errors[name] && <small className="p-error">{errors[name].message}</small>;
 
     return (
         <div className="form-demo">
-            {/* הודעה על הצלחה */}
+            {/* דיאלוג החלפת מנהל מוצלחת */}
             <Dialog
                 visible={showMessage}
                 onHide={() => setShowMessage(false)}
-                position="top"
                 footer={dialogFooter}
-                showHeader={false}
-                breakpoints={{ '960px': '80vw' }}
                 style={{ width: '30vw' }}
             >
-                <div className="flex justify-content-center flex-column pt-6 px-3">
-                    <i className="pi pi-check-circle" style={{ fontSize: '5rem', color: 'var(--green-500)' }}></i>
-                    <h5>Manager details updated successfully!</h5>
+                <div className="flex flex-column align-items-center text-center">
+                    <i className="pi pi-check-circle text-green-500" style={{ fontSize: '3rem' }}></i>
+                    <h4 className="mt-3">Manager successfully replaced</h4>
+                    {newManager && (
+                        <p>Manager <b>{props.manager.firstName} {props.manager.lastName}</b> has been successfully replaced by manager <b>{newManager.firstName} {newManager.lastName}</b>.<br />
+Password has been sent to email <b>{newManager.email}</b>.
+                        </p>
+                    )}
                 </div>
             </Dialog>
 
-            {/* דיאלוג לשינוי פרטי מנהל */}
-            <Dialog
-                visible={visibleChange}
-                style={{ width: '40vw' }}
-                onHide={() => setVisibleChange(false)}
-            >
+            {/* דיאלוג הטופס עצמו */}
+            <Dialog visible={props.visibleChange} style={{ width: '28vw' }} onHide={() => props.setVisibleChange(false)}>
                 <div className="flex justify-content-center">
                     <div className="card">
-                        <h5 className="text-center">Change Manager Details</h5>
+                        <h5 className="text-center">Exchange Manager</h5>
                         <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
-                            {/* First Name */}
-                            <div className="field">
-                                <span className="p-float-label">
-                                    <Controller
-                                        name="firstName"
-                                        control={control}
-                                        rules={{ required: 'First name is required.' }}
-                                        render={({ field, fieldState }) => (
-                                            <InputText
-                                                id={field.name}
-                                                {...field}
-                                                autoFocus
-                                                className={classNames({ 'p-invalid': fieldState.invalid })}
-                                            />
-                                        )}
-                                    />
-                                    <label htmlFor="firstName" className={classNames({ 'p-error': errors.firstName })}>
-                                        First Name*
-                                    </label>
-                                </span>
-                                {getFormErrorMessage('firstName')}
-                            </div>
-
-                            {/* Last Name */}
-                            <div className="field">
-                                <span className="p-float-label">
-                                    <Controller
-                                        name="lastName"
-                                        control={control}
-                                        rules={{ required: 'Last name is required.' }}
-                                        render={({ field, fieldState }) => (
-                                            <InputText
-                                                id={field.name}
-                                                {...field}
-                                                className={classNames({ 'p-invalid': fieldState.invalid })}
-                                            />
-                                        )}
-                                    />
-                                    <label htmlFor="lastName" className={classNames({ 'p-error': errors.lastName })}>
-                                        Last Name*
-                                    </label>
-                                </span>
-                                {getFormErrorMessage('lastName')}
-                            </div>
-
-                            {/* Gender */}
-                            <div className="field">
-                                <Controller
-                                    name="gender"
-                                    control={control}
-                                    rules={{ required: 'Gender is required.' }}
-                                    render={({ field }) => (
-                                        <Dropdown
-                                            value={field.value}
-                                            onChange={(e) => field.onChange(e.value)}
-                                            options={genders}
-                                            placeholder="Select a Gender"
+                            {['firstName', 'lastName', 'userName', 'numberID', 'phone', 'email'].map(fieldName => (
+                                <div className="field" key={fieldName}>
+                                    <span className="p-float-label">
+                                        <Controller
+                                            name={fieldName}
+                                            control={control}
+                                            rules={fieldName === 'email' ? {
+                                                required: 'Email is required.',
+                                                pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, message: 'Invalid email address. E.g. example@email.com' }
+                                            } : { required: `${fieldName} is required.` }}
+                                            render={({ field, fieldState }) => (
+                                                <InputText
+                                                    id={field.name}
+                                                    {...field}
+                                                    className={classNames({ 'p-invalid': fieldState.invalid })}
+                                                />
+                                            )}
                                         />
-                                    )}
-                                />
-                                {getFormErrorMessage('gender')}
-                            </div>
+                                        <label htmlFor={fieldName} className={classNames({ 'p-error': errors[fieldName] })}>{fieldName}*</label>
+                                    </span>
+                                    {getFormErrorMessage(fieldName)}
+                                </div>
+                            ))}
 
-                            {/* Date of Birth */}
                             <div className="field">
                                 <span className="p-float-label">
+                                    <Controller
+                                        name="area"
+                                        control={control}
+                                        rules={{ required: 'Area is required.' }}
+                                        render={({ field }) => (
+                                            <InputText id={field.name} {...field} readOnly />
+                                        )}
+                                    />
+                                    <label htmlFor="area">Area*</label>
+                                </span>
+                            </div>
+
+                            <div className="field">
+                                <span className="p-float-label" dir='ltr'>
                                     <Controller
                                         name="dateOfBirth"
                                         control={control}
-                                        rules={{ required: 'Date of Birth is required.' }}
+                                        rules={{ required: 'Date of birth is required.' }}
                                         render={({ field, fieldState }) => (
                                             <Calendar
                                                 id={field.name}
@@ -186,14 +181,12 @@ const ADFormgChange = ({ visibleChange, setVisibleChange, manager }) => {
                                             />
                                         )}
                                     />
-                                    <label htmlFor="dateOfBirth" className={classNames({ 'p-error': !!errors.dateOfBirth })}>
-                                        Date of Birth*
-                                    </label>
+                                    <label htmlFor="dateOfBirth" className={classNames({ 'p-error': !!errors.dateOfBirth })}>Date of Birth*</label>
                                 </span>
                                 {getFormErrorMessage('dateOfBirth')}
                             </div>
 
-                            <Button type="submit" label="Save Changes" className="mt-2" />
+                            <Button type="submit" label="Submit" className="mt-2" />
                         </form>
                     </div>
                 </div>

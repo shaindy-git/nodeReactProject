@@ -14,23 +14,26 @@ const SSelectionTeatcher = (props) => {
     },
     title: {
       textAlign: "center",
-      color: "#333",
+      color: "#222", // אפור כהה
     },
     filters: {
       display: "flex",
       justifyContent: "center",
       gap: "20px",
       marginBottom: "20px",
+      flexWrap: "wrap", // מאפשר לסנן את התוכן כדי שיהיה מותאם למסכים קטנים
     },
     select: {
       padding: "10px",
       borderRadius: "5px",
-      border: "1px solid #ccc",
-      backgroundColor: "#007bff",
-      color: "white",
+      border: "1px solid #000", // גבול שחור
+      backgroundColor: "white", // רקע לבן
+      color: "black", // צבע טקסט שחור
       fontWeight: "bold",
       cursor: "pointer",
       transition: "background-color 0.3s",
+      width: "100%", // ודא שהסלקטור יופיע על כל הרוחב במסכים קטנים
+      maxWidth: "250px", // מגביל את הרוחב המקסימלי של הסלקטור
     },
     teacherList: {
       display: "grid",
@@ -39,7 +42,7 @@ const SSelectionTeatcher = (props) => {
     },
     teacherCard: {
       padding: "20px",
-      border: "1px solid #ccc",
+      border: "1px solid #ccc", // אפור בינוני
       borderRadius: "10px",
       textAlign: "center",
       transition: "transform 0.3s, box-shadow 0.3s",
@@ -51,31 +54,94 @@ const SSelectionTeatcher = (props) => {
       justifyContent: "center",
       alignItems: "center",
       overflow: "hidden",
+      backgroundColor: "white", // רקע לבן
+      color: "black", // צבע טקסט שחור
+    },
+    teacherCardHover: {
+      transform: "scale(1.05)",
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)", // הצללה אפרפרה
+    },
+    teacherCardSelected: {
+      borderColor: "#666", // אפור כהה
+      backgroundColor: "#f5f5f5", // רקע אפרפר בהיר
     },
     teacherPreview: {
       marginTop: "20px",
       padding: "20px",
-      border: "1px solid #007bff",
+      border: "1px solid #666", // אפור כהה
       borderRadius: "10px",
-      backgroundColor: "#f0f8ff",
+      backgroundColor: "#f5f5f5", // רקע אפרפר בהיר
+      color: "black",
     },
     button: {
       marginTop: "20px",
       padding: "10px 20px",
-      backgroundColor: "#007bff",
-      color: "white",
+      backgroundColor: "#000", // רקע שחור לכפתור
+      color: "white", // טקסט לבן
       border: "none",
       borderRadius: "5px",
       cursor: "pointer",
       fontWeight: "bold",
       transition: "background-color 0.3s",
     },
+    buttonHover: {
+      backgroundColor: "#333", // רקע אפור כהה כאשר הכפתור על hover
+    },
     unavailable: {
-      backgroundColor: "#ccc",
-      color: "#666",
+      backgroundColor: "#ccc", // אפור בהיר
+      color: "#666", // אפור כהה
       cursor: "not-allowed",
     },
+  
+    // מדיה קווארי לרספונסיביות
+    "@media (max-width: 1200px)": {
+      teacherSelection: {
+        padding: "15px", // ריווח מותאם למסכים בינוניים
+      },
+      select: {
+        width: "100%", // רוחב מלא במסכים קטנים יותר
+      },
+      teacherCard: {
+        width: "90%", // רוחב כרטיסים יהיה 90% במסכים קטנים
+        height: "auto", // גובה כרטיסים יסתגל לגודל התוכן
+      },
+    },
+  
+    "@media (max-width: 768px)": {
+      filters: {
+        flexDirection: "column", // כל הסלקטורים יעמדו אחד על השני
+        gap: "15px", // מרווח קטן יותר
+      },
+      teacherList: {
+        gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", // תצוגת כרטיסים מותאמת למסכים קטנים יותר
+      },
+      teacherCard: {
+        width: "100%", // כרטיסים יתפוס את כל רוחב המסך במסכים בינוניים
+      },
+      button: {
+        width: "100%", // כפתור יתפוס את כל רוחב המסך
+      },
+    },
+  
+    "@media (max-width: 480px)": {
+      teacherSelection: {
+        padding: "10px", // צמצום ריווח במסכים קטנים מאוד
+      },
+      select: {
+        width: "100%", // רוחב מלא
+      },
+      teacherCard: {
+        width: "100%", // כרטיסים יתפוס את כל רוחב המסך במסכים קטנים מאוד
+      },
+      button: {
+        width: "100%", // כפתור יתפוס את כל רוחב המסך
+      },
+    },
   };
+  
+  
+  
+  
 
   const [teachers, setTeachers] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -236,7 +302,7 @@ const SSelectionTeatcher = (props) => {
       {loading ? (
         <p>Loading teachers...</p>
       ) : error ? (
-        <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+        <p style={{ color: "black", textAlign: "center" }}>{error}</p>
       ) : teachers.length > 0 ? (
         <div style={styles.teacherList}>
           {teachers.map((teacher) => (
@@ -252,7 +318,7 @@ const SSelectionTeatcher = (props) => {
                 {teacher.firstName} {teacher.lastName}
               </h2>
               {teacher.listOfStudent.length > 3 && (
-                <p style={{ color: "red", fontWeight: "bold" }}>
+                <p style={{ color: "black", fontWeight: "bold" }}>
                   This teacher is unavailable.
                 </p>
               )}

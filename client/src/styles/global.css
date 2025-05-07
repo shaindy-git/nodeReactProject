@@ -1,0 +1,148 @@
+/* כפתור ברירת מחדל */
+.p-button {
+    background-color: black !important; /* צבע רקע שחור */
+    color: white !important;            /* צבע טקסט לבן */
+    border: none !important;            /* בלי גבול סביב הכפתור */
+    padding: 0.75rem 2rem;             /* ריווח פנימי בכפתור */
+    font-size: 1rem;                    /* גודל טקסט */
+    border-radius: 5px;                 /* פינות מעוגלות */
+    transition: background-color 0.3s ease !important; /* אנימציה חלקה לשינוי צבע */
+}
+
+/* צבע לבן לאיקון בתוך כפתור */
+.p-button i {
+    color: white !important; /* איקון בצבע לבן */
+}
+
+/* מצב כשהכפתור נמצא במעבר (hover) */
+.p-button:hover {
+    background-color: #333 !important;  /* שינוי צבע ברקע לכחול כהה */
+    cursor: pointer;                    /* יד כשמעבירים מעל הכפתור */
+}
+
+/* מצב כשהכפתור נלחץ (active) */
+.p-button:active {
+    background-color: #111 !important;  /* צבע כהה עוד יותר כשנלחץ */
+}
+
+/* כפתור שקוף (לפי דרישתך) */
+.p-button.p-button-outlined {
+    border-color: black !important; /* גבול שחור לכפתור מוכלל */
+    color: black !important;        /* טקסט שחור */
+}
+
+.p-button.p-button-outlined i {
+    color: black !important; /* איקון שחור כאשר הכפתור שקוף */
+}
+
+/* כפתורים עם צבעים שונים */
+.p-button.p-button-success,
+.p-button.p-button-warning,
+.p-button.p-button-info,
+.p-button.p-button-danger,
+.p-button.p-button-secondary {
+    background-color: black !important;
+    color: white !important; /* טקסט לבן */
+}
+
+/* התאמות לרספונסיביות */
+@media screen and (max-width: 960px) {
+    .p-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .p-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* אינפוטים אפורים */
+.p-inputtext {
+    background-color: #f0f0f0 !important;  /* צבע אפור */
+    border-radius: 4px !important;           /* פינות מעוגלות */
+    border: 1px solid #ccc !important;       /* גבול אפור */
+    color: #333 !important;                  /* צבע טקסט כהה */
+    padding: 0.75rem;                        /* ריווח פנימי */
+    font-size: 1rem;                         /* גודל טקסט */
+}
+
+/* מצב כשיש טעות באינפוט */
+.p-inputtext.p-invalid {
+    border-color: red !important;            /* גבול אדום כשיש טעות */
+    background-color: #ffe6e6 !important;    /* רקע אדום בהיר */
+}
+
+/* כפתורים של פריים שונים */
+.p-button.p-button-outlined {
+    border-color: black !important; /* גבול שחור לכפתור מוכלל */
+}
+
+.p-button.p-button-success {
+    background-color: black !important;  /* כפתור ירוק יהפוך לשחור */
+    color: white !important;             /* טקסט לבן */
+}
+
+.p-button.p-button-warning {
+    background-color: black !important;  /* כפתור סגול יהפוך לשחור */
+    color: white !important;             /* טקסט לבן */
+}
+
+.p-button.p-button-info {
+    background-color: black !important;  /* כפתור אינפו יהפוך לשחור */
+    color: white !important;             /* טקסט לבן */
+}
+
+/* כפתורים נוספים של פריים ריאקט (כמו danger, secondary) */
+.p-button.p-button-danger,
+.p-button.p-button-secondary {
+    background-color: black !important;
+    color: white !important;
+}
+.p-calendar .p-calendar-icon {
+    color: white !important;  /* איקון בצבע לבן */
+}
+
+/* הפוך את כפתור האייקון של לוח השנה לאפור */
+.p-calendar .p-button.p-datepicker-trigger {
+    background-color: #e0e0e0 !important;  /* אפור בהיר */
+    border: none !important;
+  }
+  
+  /* האייקון בפנים יישאר בצבע המקורי של PrimeReact (בד"כ שחור) */
+  .p-calendar .p-button.p-datepicker-trigger .pi-calendar {
+    color: inherit !important;  /* לא לשנות את הצבע */
+  }
+
+  /* רקע אפור לפריט שנבחר בכל ListBox */
+.p-listbox .p-listbox-item.p-highlight {
+    background-color: #e0e0e0 !important; /* רקע אפור */
+    color: black !important; /* טקסט קריא */
+}
+
+/* הסרת outline מכפתורים בכל הפרויקט */
+button:focus,
+.p-button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+/* צבע רקע אפור לכפתורי מספרים בדפדוף של DataTable */
+.p-paginator .p-paginator-page {
+    background-color: #f0f0f0 !important; /* רקע אפור */
+    color: black !important; /* טקסט שחור */
+    border: none !important;
+}
+
+/* צבע רקע כהה יותר לכפתור הפעיל (העמוד הנוכחי) */
+.p-paginator .p-paginator-page.p-highlight {
+    background-color: #d0d0d0 !important;
+    color: black !important;
+    font-weight: bold;
+}
+
+  
+
+  

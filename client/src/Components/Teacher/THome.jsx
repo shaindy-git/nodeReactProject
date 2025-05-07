@@ -182,13 +182,15 @@ const THome = () => {
 
         console.log("Processing AddTest for:", selectedRequest);
 
+
+        console.log(";;;",selectedRequest.studentId);
         try {
             const res = await axios({
                 method: "PUT",
                 url: "http://localhost:7000/teacher/settingTest",
                 headers: { Authorization: "Bearer " + accesstoken },
                 data: {
-                    "studentId": selectedRequest.studentId,
+                    "studentId": selectedRequest.studentId._id,
                     "date": selectedRequest.date,
                 },
             });
@@ -234,7 +236,7 @@ const THome = () => {
                 url: "http://localhost:7000/teacher/cancelTestRequest",
                 headers: { Authorization: "Bearer " + accesstoken },
                 data: {
-                    "studentId": selectedRequest.studentId,
+                    "studentId": selectedRequest.studentId._id,
                     "date": selectedRequest.date,
                 },
             });

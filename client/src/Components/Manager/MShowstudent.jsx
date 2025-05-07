@@ -32,8 +32,8 @@ const MShowstudent = (props) => {
                 headers: { Authorization: "Bearer " + accesstoken},
             });
             if (res.status === 200) {
-
-                setTeacher([res.data]);
+console.log(res.data.teacher.firstName);
+                setTeacher([res.data.teacher]);
             }
 
         } catch (e) {
@@ -96,7 +96,7 @@ const MShowstudent = (props) => {
             <Dialog
                 header={`${props.student ? `${props.student.firstName} ${props.student.lastName}` : "No student selected."}`}
                 visible={props.visibleS}
-                style={{ width: '25vw', height: "25vw" }}
+                style={{ width: '18vw', height: "18vw" }}
                 onHide={() => { props.setVisibleS(false); }}
                 dir="ltr"
                 footer={
@@ -127,7 +127,7 @@ const MShowstudent = (props) => {
                         <div className="student-info" ><span style={{ fontWeight: "bold" }}>Name: </span> <span className="info-value">{props.student.firstName} {props.student.lastName}</span></div>
                         <div className="student-info" ><span style={{ fontWeight: "bold" }}>Email: </span><span className="info-value">{props.student.email}</span></div>
                         <div className="student-info" ><span style={{ fontWeight: "bold" }}>Phone: </span><span className="info-value">{props.student.phone}</span></div>
-                        <div className="student-info" ><span style={{ fontWeight: "bold" }}>Teacher: </span><span className="info-value">{teacher.length > 0 ? `${teacher[0].firstName} ${teacher[0].lastName}` : "Not assigned"}</span></div>
+                        <div className="student-info" ><span style={{ fontWeight: "bold" }}>Teacher: </span><span className="info-value">{teacher.length>0 ? `${teacher[0].firstName} ${teacher[0].lastName}` : "Not assigned"}</span></div>
                     </div>
                 ) : (
                     <div>No student selected.</div>

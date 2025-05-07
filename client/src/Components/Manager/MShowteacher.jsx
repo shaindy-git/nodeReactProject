@@ -95,7 +95,7 @@ const MShowteacher = (props) => {
             <Dialog 
                 header={`${props.teacher ? props.teacher.firstName : "No teacher selected."} ${props.teacher && props.teacher.lastName ? props.teacher.lastName : ""}`}
                 visible={props.visibleT}
-                style={{ width: '25vw', height: "25vw" }}
+                style={{ width: '18vw', height: "18vw" }}
                 onHide={() => { props.setVisibleT(false); }}
                 dir="ltr"
                 footer={

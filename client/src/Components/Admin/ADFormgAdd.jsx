@@ -282,7 +282,7 @@ const ADFormgAdd = (props) => {
             >
                 <div className="flex flex-column align-items-center text-center p-3">
                     <i className="pi pi-check-circle text-green-500" style={{ fontSize: '3rem' }}></i>
-                    <h4 className="mt-3">Manager successfully added</h4>
+                    <h4 className="mt-3">School successfully added</h4>
                     {addedManager && (
                         <p>
                             Manager <b>{addedManager.firstName} {addedManager.lastName}</b> has been successfully added.<br />
@@ -296,7 +296,7 @@ const ADFormgAdd = (props) => {
             <Dialog visible={props.visibleAdd} style={{ width: '28vw' }} onHide={() => props.setVisibleAdd(false)}>
                 <div className="flex justify-content-center">
                     <div className="card">
-                        <h5 className="text-center">Add New Manager</h5>
+                        <h5 className="text-center">Add New School</h5>
                         <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
                             {['firstName', 'lastName', 'userName', 'numberID', 'phone', 'email'].map(fieldName => (
                                 <div className="field" key={fieldName}>
@@ -384,7 +384,7 @@ const ADFormgAdd = (props) => {
                                 {getFormErrorMessage('dateOfBirth')}
                             </div>
 
-                            <Button type="submit" label="Submit" className="mt-2" />
+                            <Button type="submit" label="Submit" className="mt-2"  />
                         </form>
                     </div>
                 </div>

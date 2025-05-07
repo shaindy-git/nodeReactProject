@@ -89,7 +89,7 @@ const Auth = () => {
                         <label className="w-6rem">Password</label>
                         <InputText id="password" type="password" className="w-12rem" onChange={(e) => { setPassword(e.target.value); }} />
                     </div>
-                    <Button label="Login" icon="pi pi-user" className="w-10rem mx-auto" onClick={login} ></Button>
+                    <Button label="Login" icon="pi pi-user" className="w-10rem mx-auto" onClick={login} style={{ backgroundColor: "black", border: "none" }}></Button>
                 </div>
 
                 {/* Divider Section */}
@@ -100,8 +100,8 @@ const Auth = () => {
 
                 {/* Registration Section */}
                 <div className="md:w-5 flex flex-column align-items-center gap-3 py-5 mt-5">
-                    <Button label="Student Register" icon="pi pi-user-plus" severity="success" className="w-10rem" onClick={() => { setVisibleS(visibleS === false ? true : false); setVisibleT(false); }}></Button>
-                    <Button label="Teacher Register" icon="pi pi-user-plus" severity="success" className="w-10rem" onClick={() => { setVisibleT(visibleT === false ? true : false); setVisibleS(false); }}></Button>
+                    <Button label="Student Register" icon="pi pi-user-plus" severity="success" className="w-10rem" onClick={() => { setVisibleS(visibleS === false ? true : false); setVisibleT(false); }} style={{ backgroundColor: "black", border: "none" }}></Button>
+                    <Button label="Teacher Register" icon="pi pi-user-plus" severity="success" className="w-10rem" onClick={() => { setVisibleT(visibleT === false ? true : false); setVisibleS(false); }} style={{ backgroundColor: "black", border: "none" }}></Button>
                     {visibleT && <FormRegT setVisibleT={setVisibleT} visibleT={visibleT} />}
                     {visibleS && <FormRegS setVisibleS={setVisibleS} visibleS={visibleS} />}
                 </div>

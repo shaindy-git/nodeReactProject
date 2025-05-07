@@ -217,12 +217,11 @@ const registerT = async (req, res) => {
 
     sendEmail(email, `The request has been sent`, `                      
     Hello  ${firstName}  ${lastName}! \n
-            Your request to be a driving instructor at a school
-     in the ${area} area is being reviewed \n
+            Your request to be a driving instructor at a school in the ${area} area is being reviewed \n
             A response will be received within 10 business days \n
-            This is your personal password:${password}
-           If accepted, we recommend changing the password 
-    the first time you log in to your personal area.\n Save the password and delete this email `)
+            This is your personal password: ${password} If accepted,\n
+             we recommend changing the password the first time you log in to your personal area.\n 
+             Save the password and delete this email `)
         .then(response => {
             console.log('Email sent from Function One:', response);
         })

@@ -215,6 +215,10 @@ const removeReqest = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
         return res.status(400).json({ message: "files are required" })
     }
+
+    if(! validateUserDetails(phone, email)){
+        return res.status(400).json({ message: "The details are invalid." })
+    }
     const genders = ["male", "female"]
 
     if (!genders.includes(gender)) {
@@ -246,6 +250,16 @@ const removeReqest = async (req, res) => {
     //מחיקת הבקשה
     maneger.RequestList = maneger.RequestList.filter(item => item !== foundItem);
     await maneger.save();
+
+    sendEmail(email, ` Your request was not accepted`, `Hello  ${firstName}  ${lastName}! \n
+        Your request to be accepted as a driving instructor in the ${area} rea was rejected.\n
+       Best of luck in the future! \n`)
+        .then(response => {
+            console.log('Email sent from Function One:', response);
+        })
+        .catch(error => {
+            console.error('Error sending email from Function One:', error);
+        });
 
     //res
     return res.status(200).json({ message: 'The deletion was successful' })

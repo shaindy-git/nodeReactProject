@@ -11,6 +11,7 @@ import { Calendar } from "primereact/calendar";
 import SSelectionTeatcher from "./SSelectionTeatcher";
 import SShowHoures from "./SShowHoures"// רכיב להצגת שעות
 import { Route, Routes, useNavigate } from "react-router-dom"; // שינוי בוצע כאן
+import { Image } from 'primereact/image';
 
 import './SHome.css';
 
@@ -31,12 +32,12 @@ const SHome = () => {
     const [date, setDate] = useState(null);
     const navigate = useNavigate(); // שימוש ב-Hook לניווט
     const [status, setStatus] = useState()
-    const [dateTest, setDateTest] = useState()
-    const [hourTest, setHourTest] = useState()
+    // const [dateTest, setDateTest] = useState()
+    // const [hourTest, setHourTest] = useState()
     const [visible, setVisible] = useState(false); // מצב להצגת חלון ה-SShowStudent
     const [specialDates, setSpecialDates] = useState([]);
     const [changeDate, setChangeDate] = useState(Date.now());
-    const [newDate, setNewDate] = useState(null);
+    // const [newDate, setNewDate] = useState(null);
     const [isButtonEnabled, setIsButtonEnabled] = useState(false);
     const [newdate, setNewdate] = useState(""); // משתנה לאחסון התאריך
     const [dateInput, setDateInput] = useState("");
@@ -110,7 +111,7 @@ const SHome = () => {
                         setArea(StudentById.data.student.area || null);
                         setLessonsRemaining(StudentById.data.student.lessonsRemaining || 0);
                         setLessonsLearned(StudentById.data.student.lessonsLearned || 0);
-                        console.log("teacher", StudentById.data.student.myTeacher);
+
                     }
                 } catch (e) {
                     if (e.response?.status === 400) {
@@ -251,10 +252,10 @@ const SHome = () => {
                             {/* שורה ראשונה - Calendar וכפתור Confirm */}
                             <div className="flex gap-2 mb-4 items-end">
                                 <div className="flex-grow">
-                                    
+
                                     <label htmlFor="dateInput" className="text-sm font-medium mb-1"></label>
                                     <Calendar
-                                    
+
                                         id="dateInput"
                                         value={dateInput}
                                         onChange={(e) => {
@@ -344,6 +345,12 @@ const SHome = () => {
 
     // עלינו לבדוק את זה וגם לשנות את עיצוב הכפתור
     const applyForTest = async () => {
+
+
+        if (lessonsRemaining > 0) {
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'You havent yet determined all the lessons you need to learn', life: 3000 });
+            return;
+        }
         try {
             const selectedDate = new Date(newdate); // המרה למבנה Date
 
@@ -366,7 +373,7 @@ const SHome = () => {
             }
         } catch (e) {
             console.error("Error:", e.response?.status || "Unknown error");
-            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to apply for test. Please try again.', life: 3000 });
+            toast.current.show({ severity: 'error', summary: 'Error', detail: e.response.message, life: 3000 });
         }
     };
 
@@ -483,21 +490,99 @@ const SHome = () => {
 
 
 
+    // return (
+
+
+    //     <div className="card flex justify-content-end" style={{ position: "relative" , backgroundColor:'rgba(5,5,5,0)'}}>
+
+    //         <div className="card flex justify-content-center" style={{ marginLeft: "33%" , marginTop:"5%"}}>
+    //             <Calendar
+    //                 value={date}
+    //                 onChange={(e) => {
+
+    //                     const selectedDate = e.value;
+    //                     const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(1, '0')}`;
+
+    //                     setDate(formattedDate);
+    //                     setDate(e.value)
+    //                     setVisible(true);
+    //                 }}
+    //                 dateTemplate={dateTemplate}
+    //                 inline
+    //                 showWeek
+    //             />
+    //             {visible && (
+    //                 <SShowHoures
+    //                     date={date}
+    //                     setVisible={setVisible}
+    //                     visible={visible}
+    //                     setChangeDate={setChangeDate}
+    //                     setSpecialDates={setSpecialDates}
+    //                     specialDates={specialDates}
+    //                 />
+    //             )}
+    //         </div>
+
+    //         {/* <div className="card flex justify-content-center" >
+    //             <Image src="../../Pictures/Carousel/various-people-taking-part-protests_23-2151559837.JPG" alt="Image" width="250" />
+    //         </div> */}
+
+
+    //         <Menu model={items} className="w-full md:w-15rem" dir="ltr" />
+    //         <Toast ref={toast} />
+    //         <OverlayPanel ref={overlayPanel} style={{ width: '300px' }}>
+    //             <div dir="ltr">{overlayContent}</div>
+    //         </OverlayPanel>
+
+    //         <div
+    //             style={{
+    //                 position: "absolute",
+    //                 right: "15",
+    //                 top: "70%",
+    //                 width: "11.2%"
+    //             }}
+    //         >
+    //             <Editor
+    //                 value={text}
+    //                 onTextChange={(e) => setText(e.htmlValue || '')}
+    //                 headerTemplate={header}
+    //                 style={{ height: "300px" }}
+    //             />
+
+    //             <Button
+    //                 label="Add Recommendation"
+    //                 icon="pi pi-check"
+    //                 onClick={sendRecommendation}
+    //                 className="p-button"
+    //                 style={{
+    //                     marginTop: "0.5rem",
+    //                     width: "100%",
+    //                     backgroundColor: "#000",
+    //                     color: "#fff",
+    //                     fontSize: "0.8rem",
+    //                     textTransform: "none",
+    //                     borderRadius: "12px",
+    //                     border: "none",
+    //                 }}
+    //             />
+    //         </div>
+    //     </div>
+    // );
+
     return (
+        <div className="card flex justify-content-end" style={{ position: "relative", backgroundColor: 'rgba(5,5,5,0)' }}>
 
+           
 
-        <div className="card flex justify-content-end" style={{ position: "relative" }}>
-
-            <div className="card flex justify-content-center" style={{ marginLeft: "40%" }}>
+            <div className="card flex justify-content-center" style={{ marginLeft: "33%", marginTop: "5%" }}>
                 <Calendar
                     value={date}
                     onChange={(e) => {
-
                         const selectedDate = e.value;
                         const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(1, '0')}`;
 
                         setDate(formattedDate);
-                        setDate(e.value)
+                        setDate(e.value);
                         setVisible(true);
                     }}
                     dateTemplate={dateTemplate}
@@ -515,29 +600,20 @@ const SHome = () => {
                     />
                 )}
             </div>
+            <Menu model={items} className="w-full md:w-15rem" dir="ltr" style={{ background: 'transparent', padding: '0' }} />
 
-
-            <Menu model={items} className="w-full md:w-15rem" dir="ltr" />
             <Toast ref={toast} />
             <OverlayPanel ref={overlayPanel} style={{ width: '300px' }}>
                 <div dir="ltr">{overlayContent}</div>
             </OverlayPanel>
 
-            <div
-                style={{
-                    position: "absolute",
-                    right: "15",
-                    top: "65%",
-                    width: "11.2%"
-                }}
-            >
+            <div style={{ position: "absolute", right: "15", top: "70%", width: "11.2%" }}>
                 <Editor
                     value={text}
                     onTextChange={(e) => setText(e.htmlValue || '')}
                     headerTemplate={header}
-                    style={{ height: "300px" }}
+                    style={{ height: "300px", backgroundColor: "white" }} // White background for the editor
                 />
-
                 <Button
                     label="Add Recommendation"
                     icon="pi pi-check"

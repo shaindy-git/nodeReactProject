@@ -40,7 +40,6 @@ function validateUserDetails(phone, email, dateOfBirth, numberID) {
         return false;
     }
 
-    // אם הכל תקין
     return true;
 }
 

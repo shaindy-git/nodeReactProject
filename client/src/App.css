@@ -29,15 +29,7 @@
 }
 
 
-.navbar {
-  position: fixed; /* קובע שה-Navbar יהיה קבוע */
-  top: 0;          /* מגדיר שה-Navbar יהיה בחלק העליון */
-  left: 0;
-  width: 100%;     /* גורם ל-Navbar לכסות את כל רוחב המסך */
-  z-index: 1000;   /* מוודא שה-Navbar יישאר מעל כל אלמנט אחר */
-  background-color: #fff; /* צבע רקע */
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* צל קל */
-}
+
 
 
 
@@ -49,13 +41,50 @@
     transform: rotate(360deg);
   }
 
-
-
-
-
-
-
 }
+
+.app-background {
+  background-image: url('../../client/src/Pictures/Carousel/img76774.jpg'); /* Update with your image path */
+  background-size: cover;
+  background-position: center;
+  height: 100vh; /* Full viewport height */
+  width: 100%; /* Full width */
+  position: relative; /* Ensure it is positioned relative */
+}
+
+.child-background {
+  background-color: rgba(255, 255, 255, 0.9); /* Example with a white background with some transparency */
+  height: 100%; /* Ensure it takes the full height */
+  width: 100%; /* Make sure it takes full width */
+  /* You can add padding or margin as needed */
+}
+
+.navbar {
+  position: fixed; /* שומר את ה-Navbar בחלק העליון גם בזמן גלילה */
+  top: 0;          /* ממקם אותו בדיוק בראש המסך */
+  left: 0;
+  width: 100%;     /* מכסה את כל רוחב המסך */
+  z-index: 1000;   /* מוודא שה-Navbar יישאר מעל רוב האלמנטים */
+  background-color: #fff; /* צבע רקע */
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* צל קל */
+}
+
+.toast-container {
+  position: fixed; /* הטוסטים יוצגו קבועים במסך */
+  top: 20px;       /* ריווח מהחלק העליון */
+  right: 20px;     /* ריווח מצד ימין */
+  z-index: 1100;   /*מוודא שהטוסטים יופיעו מעל ה-Navbar*/
+}
+
+button[type="submit"] {
+  background-color: black; /* Set background color to black */
+  border: none; /* Remove border */
+  color: white; /* Set text color to white */
+  cursor: pointer; /* Change cursor to pointer */
+  transition: background-color 0.3s; /* Add transition for background color */
+}
+
+
 
 
 

@@ -20,7 +20,7 @@ import SSelectionTeatcher from './Components/Student/SSelectionTeatcher'
 import { Menubar } from 'primereact/menubar';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { jwtDecode }from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import Logo from './Pictures/Ministry of Transportation.jpg';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
@@ -31,7 +31,7 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import { InputText } from "primereact/inputtext";
 import ImageCarousel from "./Components/images/ImageCarousel"
 
-import './styles/global.css'; 
+// import './styles/global.css'; 
 
 import axios from 'axios';
 import { Toast } from 'primereact/toast';
@@ -124,7 +124,7 @@ const App = () => {
       overlayPanel.current.toggle(event); // מציג את ה-OverlayPanel
     }
   };
-  
+
 
   // const text = decoded ? `${decoded.firstName} ${decoded.lastName}` : "user";
 
@@ -163,9 +163,9 @@ const App = () => {
         if (overlayPanel.current) {
           overlayPanel.current.hide(); // סגירת ה-OverlayPanel
         }
-       
+
         setText("user");
-       
+
         navigate('/Auth/Auth');
         dispatch(setToken(null));
 
@@ -201,138 +201,142 @@ const App = () => {
   const end = (decoded ?
     <div className="flex align-items-center gap-2">
       <div
-        className="p-menuitem-link"
+        className="p-menuitem-link button-hover"
         style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
         onClick={(event) => {
           if (decoded) {
-            showDetails(event); // מעביר את האירוע לפונקציה
+            showDetails(event); // Passes the event to the function
           }
         }}
       >
-        {/* <span className="pi pi-barcode" style={{ marginRight: "0.5rem" }}></span> */}
-        <span style={{ fontWeight: "bold" }}>Password change</span>
+        <span style={{ fontWeight: "bold", marginRight: "20%" }}>Password change</span>
       </div>
     </div> : null
   );
 
-  
+
   return (
-    <div className="App">
-      {<div className="card">
-       
 
-        <div className="navbar">
-          <Menubar model={items} end={end} dir="ltr" />
-        </div>
-       
-
-      </div>}
-      <Routes>
-        <Route path="/Auth/Logout" element={<Logout />} />
-        <Route path="/Auth/Auth" element={<Auth />} />
-        <Route path="/Admin/ADHome" element={<ADHome />} />
-        <Route path="/Manager/MHome" element={<MHome />} />
-        <Route path="/Teacher/THome" element={<THome />} />
-        <Route path="/Student/SHome" element={<SHome />} />
-        <Route path="/Auth/terms" element={<TermsPage />} />
-        <Route path="/Student/SSelectionTeatcher" element={<SSelectionTeatcher />} />
-      </Routes>
-
-     
-      <OverlayPanel ref={overlayPanel}
-        style={{ width: '300px', padding: '1rem', textAlign: 'center' }}
-        onHide={() => {
-          // איפוס הנתונים כאשר ה-OverlayPanel נסגר
-          setOldPassword("");
-          setNewPassword1("");
-          setNewPassword2("");
-          setErrorMessage("");
-        }}
-      >
+    <div className="app-background">
 
 
-        <div
-          className="card flex flex-column gap-3"
-          style={{
-            textAlign: 'center', // יישור אופקי
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center', // יישור אנכי
+
+      <div className="App child-background">
+        {<div className="card">
+
+
+          <div className="navbar">
+            <Menubar model={items} end={end} dir="ltr" />
+          </div>
+
+
+        </div>}
+        <Routes>
+          <Route path="/Auth/Logout" element={<Logout />} />
+          <Route path="/Auth/Auth" element={<Auth />} />
+          <Route path="/Admin/ADHome" element={<ADHome />} />
+          <Route path="/Manager/MHome" element={<MHome />} />
+          <Route path="/Teacher/THome" element={<THome />} />
+          <Route path="/Student/SHome" element={<SHome />} />
+          <Route path="/Auth/terms" element={<TermsPage />} />
+          <Route path="/Student/SSelectionTeatcher" element={<SSelectionTeatcher />} />
+        </Routes>
+
+
+        <OverlayPanel ref={overlayPanel}
+          style={{ width: '300px', padding: '1rem', textAlign: 'center' }}
+          onHide={() => {
+            // איפוס הנתונים כאשר ה-OverlayPanel נסגר
+            setOldPassword("");
+            setNewPassword1("");
+            setNewPassword2("");
+            setErrorMessage("");
           }}
         >
-          <InputText
-            type="text"
-            className="p-inputtext-sm"
-            placeholder="old password"
-            value={oldpassword} // קישור לסטייט
-            onChange={(e) => setOldPassword(e.target.value)} // עדכון הסטייט
-          />
-          <InputText
-            type="text"
-            className="p-inputtext-sm"
-            placeholder="new password"
-            value={newpassword1} // קישור לסטייט
-            onChange={(e) => setNewPassword1(e.target.value)} // עדכון הסטייט
-          />
-          <InputText
-            type="text"
-            className="p-inputtext-sm"
-            placeholder="new password"
-            value={newpassword2} // קישור לסטייט
-            onChange={(e) => setNewPassword2(e.target.value)} // עדכון הסטייט
-          />
 
-          {errorMessage && ( // הצגת הודעת השגיאה אם קיימת
-            <p
-              style={{
-                color: "black",
-                fontWeight: "bold",
-                fontSize: "0.8rem", // גודל אותיות קטן יותר
-                //marginTop: "0.25rem",
-                whiteSpace: "nowrap", // מניעת שבירת שורה
-              }}
-            >
-              {errorMessage}
-            </p>
-          )}
 
-          <Button
-            label="Password change"
-            onClick={() => {
-              if (accesstoken) {
-                const decoded = jwtDecode(accesstoken);
-                if (decoded.role) {
-                  passwordChange()
-                }
-              }
-            }}
-            className="p-button"
+          <div
+            className="card flex flex-column gap-3"
             style={{
-              marginTop: "0.5rem",
-              width: "75%",
-              backgroundColor: "#000",
-              color: "#fff",
-              fontSize: "0.8rem",
-              textTransform: "none",
-              borderRadius: "12px",
-              border: "none",
+              textAlign: 'center', // יישור אופקי
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center', // יישור אנכי
             }}
-          />
+          >
+            <InputText
+              type="text"
+              className="p-inputtext-sm"
+              placeholder="old password"
+              value={oldpassword} // קישור לסטייט
+              onChange={(e) => setOldPassword(e.target.value)} // עדכון הסטייט
+            />
+            <InputText
+              type="text"
+              className="p-inputtext-sm"
+              placeholder="new password"
+              value={newpassword1} // קישור לסטייט
+              onChange={(e) => setNewPassword1(e.target.value)} // עדכון הסטייט
+            />
+            <InputText
+              type="text"
+              className="p-inputtext-sm"
+              placeholder="new password"
+              value={newpassword2} // קישור לסטייט
+              onChange={(e) => setNewPassword2(e.target.value)} // עדכון הסטייט
+            />
 
-        </div>
-      </OverlayPanel>
-      <Toast ref={toast} />
-     
+            {errorMessage && ( // הצגת הודעת השגיאה אם קיימת
+              <p
+                style={{
+                  color: "black",
+                  fontWeight: "bold",
+                  fontSize: "0.8rem", // גודל אותיות קטן יותר
+                  //marginTop: "0.25rem",
+                  whiteSpace: "nowrap", // מניעת שבירת שורה
+                }}
+              >
+                {errorMessage}
+              </p>
+            )}
+
+            <Button
+              label="Password change"
+              onClick={() => {
+                if (accesstoken) {
+                  const decoded = jwtDecode(accesstoken);
+                  if (decoded.role) {
+                    passwordChange()
+                  }
+                }
+              }}
+              className="p-button"
+              style={{
+                marginTop: "0.5rem",
+                width: "75%",
+                backgroundColor: "#000",
+                color: "#fff",
+                fontSize: "0.8rem",
+                textTransform: "none",
+                borderRadius: "12px",
+                border: "none",
+              }}
+            />
+
+          </div>
+        </OverlayPanel>
+        <Toast ref={toast} className="toast-container" />
 
 
-      {visibleU && accesstoken && (
-        <FormUpdate visibleU={visibleU} setVisibleU={setVisibleU} />
-      )}
+        {visibleU && accesstoken && (
+          <FormUpdate visibleU={visibleU} setVisibleU={setVisibleU} />
+        )}
 
-      <ImageCarousel></ImageCarousel>
+        {/* <ImageCarousel></ImageCarousel> */}
 
 
 
+      </div>
     </div>
 
 

@@ -6,7 +6,7 @@ const { format, hoursToMinutes, getDate } = require("date-fns")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const sendEmail = require('../nodemailer');
-const validateUserDetails=require("../validation")
+const validateUserDetails = require("../validation")
 
 
 
@@ -29,7 +29,7 @@ const addTeacher = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
         return res.status(400).json({ message: "files are required" })
     }
-    if(! validateUserDetails(phone, email, dateOfBirth, numberID)){
+    if (!validateUserDetails(phone, email, dateOfBirth, numberID)) {
         return res.status(400).json({ message: "The details are invalid." })
     }
     // const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
@@ -100,17 +100,17 @@ const addTeacher = async (req, res) => {
         // console.log({ maneger, teachers })
 
 
- sendEmail(email, `Congratulations, you have been accepted as a teacher at the school in the ${area} area.`, `                      
+        sendEmail(email, `Congratulations, you have been accepted as a teacher at the school in the ${area} area.`, `                      
     Hello  ${firstName}  ${lastName}! \n
             your application to become a teacher in the ${area} area has been accepted \n
             You can log in to your personal area using the username you set and the password that was sent to you \n
             We recommend changing your password upon first logging into your personal area `)
-        .then(response => {
-            console.log('Email sent from Function One:', response);
-        })
-        .catch(error => {
-            console.error('Error sending email from Function One:', error);
-        });
+            .then(response => {
+                console.log('Email sent from Function One:', response);
+            })
+            .catch(error => {
+                console.error('Error sending email from Function One:', error);
+            });
 
 
         return res.status(200).json({ teacher: teacher, teachers: teachers })
@@ -405,6 +405,8 @@ const deleteTeacher = async (req, res) => {
 
         await teacher.deleteOne();
 
+
+
         const teachersInArea = await Teacher.find({ area: manager.area }, { password: 0 }).lean();
         const studentsInArea = await Student.find({ area: manager.area }, { password: 0 }).lean();
 
@@ -429,7 +431,7 @@ const updateTeacher = async (req, res) => {
 
         return res.status(400).json({ message: 'fields are required' })
     }
-    if(! validateUserDetails(phone, email)){
+    if (!validateUserDetails(phone, email)) {
         return res.status(400).json({ message: "The details are invalid." })
     }
     let teacher = await Teacher.findById(_id).exec()
@@ -484,7 +486,7 @@ const updateTeacher = async (req, res) => {
 
 const getTeacherById = async (req, res) => {
     const { _id, role } = req.user//של המבקש
-    const { id } = req.params//של הסטודנט
+    const { id } = req.params//של המורה
     if (!_id || !role || !id) {
         return res.status(400).json({ message: "files are required" })
     }
@@ -494,7 +496,11 @@ const getTeacherById = async (req, res) => {
             return res.status(400).json({ message: "no accsess" })
         }
     }
-    const teacher = await Teacher.findById(id, { password: 0 }).lean()
+    const teacher = await Teacher.findById(id)
+        .populate({
+            path: 'listOfRequires.studentId', // שדה שמכיל את ה-ObjectId של התלמידים
+            select: 'firstName lastName _id' // בחירת השדות שברצוננו לאחזר מה-Student
+        });
     if (!teacher) {
         return res.status(400).json({ message: 'teacher not found' })
     }
@@ -508,7 +514,9 @@ const getTeacherById = async (req, res) => {
         return res.status(400).json({ message: "no accsess" })
     }
 
-    return res.status(200).json({ teacher: teacher, firstName: teacher.firstName, lastName: teacher.lastName });
+
+
+    return res.status(200).json({ teacher: teacher });
 }
 
 
@@ -1089,6 +1097,19 @@ const settingTest = async (req, res) => {
         await teacher.save();
         await student.save();
 
+
+        sendEmail(email, `A test has been scheduled for you`, `                      
+            Hello  ${firstName}  ${lastName}! \n
+                    Your request to schedule a test has been accepted. \n
+                    The test will take place on: ${date} \n
+                   Mostly successful!!`)
+            .then(response => {
+                console.log('Email sent from Function One:', response);
+            })
+            .catch(error => {
+                console.error('Error sending email from Function One:', error);
+            });
+
         res.status(200).json({
             message: "Test scheduled successfully",
             hour: availableHour.hour,
@@ -1145,6 +1166,18 @@ const cancelTestRequest = async (req, res) => {
 
     student.test = "false"
     await student.save()
+
+    sendEmail(email, `Your request was not accepted`, `                      
+        Hello  ${firstName}  ${lastName}! \n
+                Your request to schedule a test has been rejected. \n
+                You can try to schedule a different date later  `)
+        .then(response => {
+            console.log('Email sent from Function One:', response);
+        })
+        .catch(error => {
+            console.error('Error sending email from Function One:', error);
+        });
+
 
     // Respond with success
     res.status(200).json({ listOfRequires: teacher.listOfRequires });

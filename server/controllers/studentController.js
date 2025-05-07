@@ -6,7 +6,7 @@ const Admin = require("../models/Admin")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const sendEmail = require('../nodemailer');
-const validateUserDetails=require("../validation")
+const validateUserDetails = require("../validation")
 
 
 const addStudent = async (req, res) => {
@@ -14,18 +14,18 @@ const addStudent = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password) {
         return res.status(400).json({ message: "files are required" })
     }
-    if(! validateUserDetails(phone, email, dateOfBirth, numberID)){
+    if (!validateUserDetails(phone, email, dateOfBirth, numberID)) {
         return res.status(400).json({ message: "The details are invalid." })
     }
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean()
-     const doubleUserNameA = await Admin.findOne({ userName: userName }).lean()
+    const doubleUserNameA = await Admin.findOne({ userName: userName }).lean()
     const allManagers = await Manager.find().exec();
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA||userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
 
@@ -90,7 +90,7 @@ const updateStudent = async (req, res) => {
     if (!_id || !firstName || !lastName || !userName || !phone || !email) {
         return res.status(400).json({ message: 'fields are required' })
     }
-    if(! validateUserDetails(phone, email)){
+    if (!validateUserDetails(phone, email)) {
         return res.status(400).json({ message: "The details are invalid." })
     }
     const student = await Student.findById(_id).exec()
@@ -109,7 +109,7 @@ const updateStudent = async (req, res) => {
     const userExistsInRequests = allManagers.some(manager =>
         manager.RequestList.some(request => request.userName === userName)
     );
-    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA||userExistsInRequests) {
+    if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
 
@@ -185,25 +185,25 @@ const getstudentById = async (req, res) => {
     if (!_id || !role || !id) {
         return res.status(400).json({ message: "files are required" })
     }
-    const student = await Student.findById( _id ,{password:0}).lean()
+    const student = await Student.findById(_id, { password: 0 }).lean()
     if (!student) {
         return res.status(400).json({ message: "student not found" })
     }
-    if (role === 'S' && id!==_id) {
+    if (role === 'S' && id !== _id) {
         return res.status(400).json({ message: "no accsess" })
-    }    
-    if (role === 'T' && student.myTeacher!==_id) {
+    }
+    if (role === 'T' && student.myTeacher !== _id) {
         return res.status(400).json({ message: "no accsess" })
     }
     if (role === 'M') {
-        const manager = await Manager.findById( _id ,{password:0}).lean()
-        if (!manager||manager.area!==student.area) {
+        const manager = await Manager.findById(_id, { password: 0 }).lean()
+        if (!manager || manager.area !== student.area) {
             return res.status(400).json({ message: "no accsess" })
         }
     }
     console.log(student.myTeacher);
 
-    return res.status(200).json({student:student });
+    return res.status(200).json({ student: student });
 }
 
 
@@ -211,10 +211,10 @@ const getstudentById = async (req, res) => {
 const teacherSelection = async (req, res) => {
     const { _id, role } = req.user
     console.log("1");
-    
-    
+
+
     const { teacherId } = req.body
-    if (!teacherId || !_id||!role) {
+    if (!teacherId || !_id || !role) {
         console.log("2");
         return res.status(400).json({ message: "files are required" })
     }
@@ -256,7 +256,7 @@ const teacherSelection = async (req, res) => {
 //         return res.status(400).json({ message: 'No teacher found' })
 //     }
 //     console.log(teacher.firstName);
-    
+
 //     return res.status(200).json(teacher)
 
 // }
@@ -264,9 +264,9 @@ const teacherSelection = async (req, res) => {
 
 
 const addRecommendation = async (req, res) => {
-    const { _id , role} = req.user
+    const { _id, role } = req.user
     const { rec } = req.body
-    if (!rec || !_id||!role) {
+    if (!rec || !_id || !role) {
         return res.status(400).json({ message: "files are required" })
     }
     if (role != 'S') {
@@ -289,9 +289,9 @@ const addRecommendation = async (req, res) => {
 }
 
 const settingLesson = async (req, res) => {
-    const { _id , role} = req.user
+    const { _id, role } = req.user
     const { date, hour } = req.body
-    if (!_id || !date || !hour||!role) {
+    if (!_id || !date || !hour || !role) {
         return res.status(400).json({ message: "files are required" })
     }
     if (role != 'S') {
@@ -301,7 +301,7 @@ const settingLesson = async (req, res) => {
     if (!student) {
         return res.status(400).json({ message: 'No student found' })
     }
-    if(student.lessonsRemaining<=0){
+    if (student.lessonsRemaining <= 0) {
         return res.status(400).json({ message: 'You dont need any more lessons.' })
     }
     const teacherId = student.myTeacher
@@ -309,10 +309,10 @@ const settingLesson = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
-    if ( (new Date(date) - new Date()) <   3 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות מ3 ימים
+    if ((new Date(date) - new Date()) < 3 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות מ3 ימים
         return res.status(400).json({ message: "too late" })
     }
-    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+    if ((new Date(date) - new Date()) < 0) {//התאריך כבר עבר
         return res.status(400).json({ message: "too late" })
     }
     // const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
@@ -325,14 +325,14 @@ const settingLesson = async (req, res) => {
     // }
 
 
-    const searchD = teacher.dateforLessonsAndTests.find((e) => 
+    const searchD = teacher.dateforLessonsAndTests.find((e) =>
         new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
     );
     if (!searchD) {
         return res.status(400).json({ message: 'No Date found' });
     }
-    
-    const oneOnDay = student.dateforLessonsAndTest.find((e) => 
+
+    const oneOnDay = student.dateforLessonsAndTest.find((e) =>
         new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
     );
     if (oneOnDay) {
@@ -349,8 +349,8 @@ const settingLesson = async (req, res) => {
     }
     searchH.full = true
     searchH.typeOfHour = "Lesson"
-    searchH.studentId=_id
-    console.log("Id",searchH.studentId);
+    searchH.studentId = _id
+    console.log("Id", searchH.studentId);
     await teacher.save()
 
     const newDateAndHour = { date: date, hour: hour, typeOfHour: "Lesson" }
@@ -363,9 +363,9 @@ const settingLesson = async (req, res) => {
 }
 
 const cancellationLesson = async (req, res) => {
-    const { _id , role} = req.user
+    const { _id, role } = req.user
     const { date, hour } = req.body
-    if (!_id || !date || !hour||!role) {
+    if (!_id || !date || !hour || !role) {
         return res.status(400).json({ message: "files are required" })
     }
     if (role != 'S') {
@@ -380,15 +380,15 @@ const cancellationLesson = async (req, res) => {
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
-    if ( (new Date(date) - new Date()) <   3 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות מ3 ימים
+    if ((new Date(date) - new Date()) < 3 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות מ3 ימים
         return res.status(400).json({ message: "too late" })
     }
-    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+    if ((new Date(date) - new Date()) < 0) {//התאריך כבר עבר
         return res.status(400).json({ message: "too late" })
     }
-    
+
     // const searchD = await teacher.dateforLessonsAndTests.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
-    const searchD = await teacher.dateforLessonsAndTests.find((e) => 
+    const searchD = await teacher.dateforLessonsAndTests.find((e) =>
         new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
     );
     if (!searchD) {
@@ -402,12 +402,12 @@ const cancellationLesson = async (req, res) => {
         return res.status(400).json({ message: 'This lesson already false' })
     }
     searchH.full = false
-    searchH.studentId=null
+    searchH.studentId = null
     await teacher.save()
 
     // const searchD2 = await student.dateforLessonsAndTest.find((e) => ((e.date).toISOString()) === ((new Date(date)).toISOString()))
 
-    const searchD2 = student.dateforLessonsAndTest.find((e) => 
+    const searchD2 = student.dateforLessonsAndTest.find((e) =>
         new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
     );
     if (!searchD2) {
@@ -432,7 +432,7 @@ const cancellationLesson = async (req, res) => {
 }
 
 const testRequest = async (req, res) => {
-   
+
     const { _id, role } = req.user
     const { date } = req.body
     if (!_id || !date || !role) {
@@ -445,37 +445,37 @@ const testRequest = async (req, res) => {
     if (!student) {
         return res.status(400).json({ message: 'No student found' })
     }
-    // if(student.lessonsRemaining>0){
-    //     return res.status(400).json({ message: 'You havent yet determined all the lessons you need to learn' })
-    // }
-    // if(student.test!=='false'){
-    //     console.log(student.test);
+    if(student.lessonsRemaining>0){
+        return res.status(400).json({ message: 'You havent yet determined all the lessons you need to learn' })
+    }
+    if(student.test!=='false'){
+        console.log(student.test);
 
-    //     if(student.test==='test') 
-    //         return res.status(400).json({ message: 'You have already been scheduled for a test' })
-    //     else
-    //     return res.status(400).json({ message: 'You already requested a test' })
-    // }
+        if(student.test==='test') 
+            return res.status(400).json({ message: 'You have already been scheduled for a test' })
+        else
+        return res.status(400).json({ message: 'You already requested a test' })
+    }
     const teacherId = student.myTeacher
     const teacher = await Teacher.findById(teacherId, { password: 0 }).exec()
     if (!teacher) {
         return res.status(400).json({ message: 'No teacher found' })
     }
-    if ( (new Date(date) - new Date()) <   7 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות משבוע
+    if ((new Date(date) - new Date()) < 7 * 24 * 60 * 60 * 1000) {//התאריך עוד פחות משבוע
         return res.status(400).json({ message: "too late" })
     }
-    if ( (new Date(date) - new Date()) < 0) {//התאריך כבר עבר
+    if ((new Date(date) - new Date()) < 0) {//התאריך כבר עבר
         return res.status(400).json({ message: "too late" })
     }
 
-    const finddate = teacher.dateforLessonsAndTests.find((e) => 
+    const finddate = teacher.dateforLessonsAndTests.find((e) =>
         new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
     );
     if (!finddate) {
         return res.status(400).json({ message: 'No date found' });
     }
-    
-    const oneOnDay = student.dateforLessonsAndTest.find((e) => 
+
+    const oneOnDay = student.dateforLessonsAndTest.find((e) =>
         new Date(e.date).toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
     );
     if (oneOnDay) {
@@ -484,7 +484,7 @@ const testRequest = async (req, res) => {
     const newreq = { studentId: _id, date }
     teacher.listOfRequires = [...teacher.listOfRequires, newreq]
     await teacher.save()
-    student.test='request'
+    student.test = 'request'
     await student.save()
     return res.status(200).json(teacher)
 
@@ -552,12 +552,12 @@ const testRequest = async (req, res) => {
 
 const deleteStudent = async (req, res) => {
     try {
-        const { _id , role} = req.user; // מזהה המשתמש
+        const { _id, role } = req.user; // מזהה המשתמש
         const { studentID } = req.params; // מזהה התלמיד
-        if ( !_id||!role||!studentID) {
+        if (!_id || !role || !studentID) {
             return res.status(400).json({ message: "files are required" })
         }
-        if (role != 'T'&&role!='M') {
+        if (role != 'T' && role != 'M') {
             return res.status(400).json({ message: 'no accsess' })
         }
         // מציאת התלמיד
@@ -620,6 +620,16 @@ const deleteStudent = async (req, res) => {
         const thisMyTeacher = student.myTeacher?.toString();
         await student.deleteOne();
 
+        sendEmail(email, `You left the school`, `Hello  ${firstName}  ${lastName}! \n
+           You are no longer registered with the driving school in the Jerusalem ${area} area\n
+           Best of luck in the future! \n`)
+            .then(response => {
+                console.log('Email sent from Function One:', response);
+            })
+            .catch(error => {
+                console.error('Error sending email from Function One:', error);
+            });
+
         // החזרת מידע נוסף
         const teachersInArea = await Teacher.find({ area: student.area }, { password: 0 }).lean();
         const studentInArea = await Student.find({ area: student.area }, { password: 0 }).lean();
@@ -653,19 +663,19 @@ const changePassword = async (req, res) => {
     return res.status(200).json({ message: 'Password changed successfully.' })
 }
 
-const getLessonsNumbers = async (req, res)=>{
+const getLessonsNumbers = async (req, res) => {
 
     const { _id, role } = req.user
-    if (!_id|| !role) {
+    if (!_id || !role) {
         return res.status(400).json({ message: "files are required" })
     }
-     if (role != 'S') {
+    if (role != 'S') {
         return res.status(400).json({ message: 'only for students' })
     }
     const student = await Student.findById({ _id }, { password: 0 }).lean()
     lessonsRemaining = student.lessonsRemaining
     lessonsLearned = student.lessonsLearned
-    return res.status(200).json({lessonsRemaining:lessonsRemaining, lessonsLearned:lessonsLearned})
+    return res.status(200).json({ lessonsRemaining: lessonsRemaining, lessonsLearned: lessonsLearned })
 
 }
 
@@ -714,7 +724,7 @@ const getTestDetails = async (req, res) => {
         // אם הסטטוס הוא 'test', חפש את תאריך ושעת הטסט
         if (status === 'test') {
             const testDetails = student.dateforLessonsAndTest.find(entry => entry.typeOfHour === 'Test');
-            
+
             if (testDetails) {
                 return res.status(200).json({
                     status,

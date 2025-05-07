@@ -17,6 +17,21 @@
     cursor: pointer;
 }
 
+/* In your CSS file */
+.p-menubar {
+    background: transparent !important; /* Make menu background transparent */
+}
+
+.p-menuitem {
+    padding: 0.5rem; /* Adjust padding as needed for a better layout */
+}
+
+/* Your specific styles to prevent the sidebar from stretching too far */
+.menu-container {
+    max-height: fit-content; /* Ensures the menu doesn’t stretch too long */
+    overflow: hidden; /* Prevent any overflow */
+}
+
 
 
 

@@ -37,25 +37,26 @@ const SSelectionTeatcher = (props) => {
     },
     teacherList: {
       display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-      gap: "20px",
+      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
+      gap: "20px", // Space between cards
+      justifyItems: "center", // Center cards in their grid cells
     },
     teacherCard: {
       padding: "20px",
-      border: "1px solid #ccc", // אפור בינוני
+      border: "1px solid #ccc",
       borderRadius: "10px",
       textAlign: "center",
       transition: "transform 0.3s, box-shadow 0.3s",
       cursor: "pointer",
-      width: "200px", // גודל קבוע לרוחב
-      height: "250px", // גודל קבוע לגובה
+      width: "200px", // Fixed width for cards
+      height: "250px", // Fixed height for cards
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
       overflow: "hidden",
-      backgroundColor: "white", // רקע לבן
-      color: "black", // צבע טקסט שחור
+      backgroundColor: "white",
+      color: "black",
     },
     teacherCardHover: {
       transform: "scale(1.05)",

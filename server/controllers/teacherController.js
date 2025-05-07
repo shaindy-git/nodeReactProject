@@ -5,6 +5,8 @@ const Admin = require("../models/Admin")
 const { format, hoursToMinutes, getDate } = require("date-fns")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const sendEmail = require('../nodemailer');
+const validateUserDetails=require("../validation")
 
 
 
@@ -26,6 +28,9 @@ const addTeacher = async (req, res) => {
 
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password || !area || !gender) {
         return res.status(400).json({ message: "files are required" })
+    }
+    if(! validateUserDetails(phone, email, dateOfBirth, numberID)){
+        return res.status(400).json({ message: "The details are invalid." })
     }
     // const cities = ["Jerusalem - Talpiot", "Jerusalem - Beit Hakerem", "Jerusalem - Ramot",
     //     "Jerusalem - Pisgat Zeev", "Tel Aviv - Center", "Tel Aviv - Arlozorov",
@@ -93,6 +98,21 @@ const addTeacher = async (req, res) => {
         await maneger.save();
         const teachers = await Teacher.find({ area: maneger.area }, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
         // console.log({ maneger, teachers })
+
+
+ sendEmail(email, `Congratulations, you have been accepted as a teacher at the school in the ${area} area.`, `                      
+    Hello  ${firstName}  ${lastName}! \n
+            your application to become a teacher in the ${area} area has been accepted \n
+            You can log in to your personal area using the username you set and the password that was sent to you \n
+            We recommend changing your password upon first logging into your personal area `)
+        .then(response => {
+            console.log('Email sent from Function One:', response);
+        })
+        .catch(error => {
+            console.error('Error sending email from Function One:', error);
+        });
+
+
         return res.status(200).json({ teacher: teacher, teachers: teachers })
     } else {
         return res.status(400).json({ message: 'Invalid Teacher ' })
@@ -409,6 +429,9 @@ const updateTeacher = async (req, res) => {
 
         return res.status(400).json({ message: 'fields are required' })
     }
+    if(! validateUserDetails(phone, email)){
+        return res.status(400).json({ message: "The details are invalid." })
+    }
     let teacher = await Teacher.findById(_id).exec()
     if (!teacher) {
         return res.status(400).json({ message: 'Teacher not found' })
@@ -485,9 +508,10 @@ const getTeacherById = async (req, res) => {
         return res.status(400).json({ message: "no accsess" })
     }
 
-
     return res.status(200).json({ teacher: teacher, firstName: teacher.firstName, lastName: teacher.lastName });
 }
+
+
 
 
 const addAvailableClasses = async (req, res) => {
@@ -617,21 +641,22 @@ const getAllDatesWithClasses = async (req, res) => {
 };
 
 
+
 // const getClassesByDate = async (req, res) => {
-//     const { _id, role } = req.user; // מזהה המורה מהמשתמש המחובר
+//     const { _id, role } = req.user; // מזהה המשתמש המחובר
 //     const { date } = req.params; // תאריך שנשלח בבקשה
 
 //     // בדיקת תקינות הפרמטרים
 //     if (!_id || !date || !role) {
 //         console.log("1");
-
 //         return res.status(400).json({ message: "files are required" });
 //     }
-//     if (role != 'T' && role !='S') {
-//         return res.status(400).json({ message: "no accsess" })
-//     }
-//     if (role === 'T') {
 
+//     if (role !== 'T' && role !== 'S') {
+//         return res.status(400).json({ message: "no access" });
+//     }
+
+//     if (role === 'T') {
 //         const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).exec();
 //         if (!teacher) {
 //             console.log("2");
@@ -664,16 +689,42 @@ const getAllDatesWithClasses = async (req, res) => {
 //             return res.status(404).json({ message: 'No lessons or tests found on this date' });
 //         }
 //         return res.status(200).json({ hoursFull: hoursFull, hoursEmpty: hoursEmpty });
-
-//     } 
-//     if (role === 'S') {
-
 //     }
 
+//     if (role === 'S') {
+//         // מציאת התלמיד
+//         const student = await Student.findById(_id).populate('myTeacher', 'dateforLessonsAndTests').exec();
+//         if (!student) {
+//             return res.status(404).json({ message: 'No student found' });
+//         }
 
+//         const teacher = student.myTeacher;
+//         if (!teacher) {
+//             return res.status(404).json({ message: 'No teacher assigned to this student' });
+//         }
 
+//         // חיפוש תאריך ספציפי במערך
+//         const lessonsOnDate = teacher.dateforLessonsAndTests.filter((e) => {
+//             const dbDate = new Date(e.date).toISOString().split('T')[0]; // רק התאריך
+//             const requestDate = new Date(date).toISOString().split('T')[0]; // רק התאריך
+//             return dbDate === requestDate;
+//         });
 
+//         // בדיקה אם נמצאו שיעורים
+//         if (!lessonsOnDate || lessonsOnDate.length === 0) {
+//             return res.status(404).json({ message: 'No lessons or tests found on this date' });
+//         }
+
+//         // חילוץ רשימת השעות
+//         const hoursEmpty = lessonsOnDate
+//             .flatMap(e => e.hours.filter(h => h.full === false).map(h => h.hour)); // שעות ריקות
+//         const hoursFull = lessonsOnDate
+//             .flatMap(e => e.hours.filter(h => h.studentId?.toString() === _id.toString()).map(h => h.hour)); // שעות שתלמיד זה תפס
+
+//         return res.status(200).json({ hoursFull: hoursFull, hoursEmpty: hoursEmpty });
+//     }
 // };
+
 
 const getClassesByDate = async (req, res) => {
     const { _id, role } = req.user; // מזהה המשתמש המחובר
@@ -681,7 +732,6 @@ const getClassesByDate = async (req, res) => {
 
     // בדיקת תקינות הפרמטרים
     if (!_id || !date || !role) {
-        console.log("1");
         return res.status(400).json({ message: "files are required" });
     }
 
@@ -692,7 +742,6 @@ const getClassesByDate = async (req, res) => {
     if (role === 'T') {
         const teacher = await Teacher.findById(_id, { dateforLessonsAndTests: 1 }).exec();
         if (!teacher) {
-            console.log("2");
             return res.status(404).json({ message: 'No teacher found' });
         }
 
@@ -705,22 +754,15 @@ const getClassesByDate = async (req, res) => {
 
         // בדיקה אם נמצאו שיעורים
         if (!lessonsOnDate || lessonsOnDate.length === 0) {
-            console.log("3");
             return res.status(404).json({ message: 'No lessons or tests found on this date' });
         }
 
-        // חילוץ רשימת השעות מתוך השיעורים באותו יום
+        // חילוץ שעות מלאות וריקות
         const hoursFull = lessonsOnDate
             .flatMap(e => e.hours.filter(h => h.full === true).map(h => h.hour));
         const hoursEmpty = lessonsOnDate
             .flatMap(e => e.hours.filter(h => h.full === false).map(h => h.hour));
-        console.log(hoursFull, hoursEmpty);
 
-        // החזרת השעות בלבד
-        if (!hoursFull || !hoursEmpty) {
-            console.log("5");
-            return res.status(404).json({ message: 'No lessons or tests found on this date' });
-        }
         return res.status(200).json({ hoursFull: hoursFull, hoursEmpty: hoursEmpty });
     }
 
@@ -748,13 +790,32 @@ const getClassesByDate = async (req, res) => {
             return res.status(404).json({ message: 'No lessons or tests found on this date' });
         }
 
-        // חילוץ רשימת השעות
+        // חילוץ שעות ריקות ושעות שתפס התלמיד
         const hoursEmpty = lessonsOnDate
             .flatMap(e => e.hours.filter(h => h.full === false).map(h => h.hour)); // שעות ריקות
         const hoursFull = lessonsOnDate
             .flatMap(e => e.hours.filter(h => h.studentId?.toString() === _id.toString()).map(h => h.hour)); // שעות שתלמיד זה תפס
 
-        return res.status(200).json({ hoursFull: hoursFull, hoursEmpty: hoursEmpty });
+        // יצירת רשימות שיעורים לפי סוג
+        const hoursLessons = lessonsOnDate
+            .flatMap(lesson => lesson.hours
+                .filter(hour => hour.typeOfHour === 'Lesson') // פילטור שיעורים מסוג "Lesson"
+                .map(hour => hour.hour));
+
+        const hoursTests = lessonsOnDate
+            .flatMap(lesson => lesson.hours
+                .filter(hour => hour.typeOfHour === 'Test') // פילטור שיעורים מסוג "Test"
+                .map(hour => hour.hour));
+
+        // החזרת המידע עם שני השדות
+        const result = {
+            hoursFull: hoursFull,
+            hoursEmpty: hoursEmpty,
+            hoursLessons: hoursLessons, // שיעורים מסוג שיעור
+            hoursTests: hoursTests, // שיעורים מסוג טסט
+        };
+
+        return res.status(200).json(result);
     }
 };
 
@@ -1113,7 +1174,6 @@ const addLessonToStudent = async (req, res) => {
     console.log(students);
     return res.status(200).json({ students: students, student: student })
 
-
 }
 
 const changePassword = async (req, res) => {
@@ -1163,7 +1223,7 @@ const getRequests = async (req, res) => {
         return res.status(400).json({ message: 'no requests' });
     }
 
-    return res.status(200).json({ listOfRequires: teacher.listOfRequires, });
+    return res.status(200).json({ listOfRequires: teacher.listOfRequires });
 };
 
 const getDateforLessonsAndTests = async (req, res) => {
@@ -1214,7 +1274,4 @@ module.exports = {
     getAllRecommendations,
     getDateforLessonsAndTests,
     getRequests,//לא ממשנו
-
-
-
 }

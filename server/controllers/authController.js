@@ -5,6 +5,10 @@ const Admin = require("../models/Admin")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const generatePassword = require('generate-password');
+const sendEmail = require('../nodemailer');
+const validateUserDetails = require("../validation")
+
+
 
 const login = async (req, res) => {
     const { userName, password } = req.body
@@ -76,7 +80,7 @@ const login = async (req, res) => {
             email: foundT.email,
             area: foundT.area,
             gender: foundT.gender,
-            recommendations:foundT.recommendations,
+            recommendations: foundT.recommendations,
             role: "T"
         }
         const accessToken = jwt.sign(TInfo, process.env.ACCESS_TOKEN_SECRET)
@@ -117,6 +121,9 @@ const registerS = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password) {
         return res.status(400).json({ message: "all fields are required" })
     }
+    if (!validateUserDetails(phone, email, dateOfBirth, numberID)) {
+        return res.status(400).json({ message: "The details are invalid." })
+    }
 
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
@@ -130,7 +137,7 @@ const registerS = async (req, res) => {
     if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
-    if ( (new Date() - new Date(dateOfBirth)) < 0) {
+    if ((new Date() - new Date(dateOfBirth)) < 0) {
         return res.status(400).json({ message: "Invalid date of birth" })
     }
     if ((new Date() - new Date(dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 18 * 31536000000) {//מציג את 1/1000 השניה בשנה
@@ -157,6 +164,9 @@ const registerT = async (req, res) => {
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !area || !gender) {
         return res.status(400).json({ message: "files are required" })
     }
+    if (!validateUserDetails(phone, email, dateOfBirth, numberID)) {
+        return res.status(400).json({ message: "The details are invalid." })
+    }
 
     const meneger = await Manager.findOne({ area: area }).exec()
     if (!meneger) {
@@ -180,14 +190,14 @@ const registerT = async (req, res) => {
     if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
         return res.status(400).json({ message: "doubleUserName" })
     }
-    if ( (new Date() - new Date(dateOfBirth)) < 0) {
+    if ((new Date() - new Date(dateOfBirth)) < 0) {
         return res.status(400).json({ message: "Invalid date of birth" })
     }
     if ((new Date() - new Date(dateOfBirth)) > 60 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 40 * 31536000000) {//מציג את 1/1000 השניה בשנה
         return res.status(400).json({ message: "The age is not appropriate" })
     }
     // יצירת סיסמה אקראית
-    const password = "RandomPassword"+ generatePassword.generate({
+    const password = "RandomPassword" + generatePassword.generate({
         length: 12,
         numbers: true,
         symbols: true,
@@ -203,8 +213,25 @@ const registerT = async (req, res) => {
     meneger.RequestList = [...meneger.RequestList, teacher]
     // meneger.RequestList.push(teacher)
     await meneger.save()
-    console.log('Generated Password:', password); // הדפסת הסיסמה לקונסולה
-    console.log(meneger.RequestList)
+
+
+    sendEmail(email, `The request has been sent`, `                      
+    Hello  ${firstName}  ${lastName}! \n
+            Your request to be a driving instructor at a school
+     in the ${area} area is being reviewed \n
+            A response will be received within 10 business days \n
+            This is your personal password:${password}
+           If accepted, we recommend changing the password 
+    the first time you log in to your personal area.\n Save the password and delete this email `)
+        .then(response => {
+            console.log('Email sent from Function One:', response);
+        })
+        .catch(error => {
+            console.error('Error sending email from Function One:', error);
+        });
+
+    // console.log('Generated Password:', password); // הדפסת הסיסמה לקונסולה
+    // console.log(meneger.RequestList)
     return res.status(200).json(meneger)
 
 }

@@ -97,7 +97,9 @@ const ADHome = () => {
                     setVisibleAdd={setVisibleAdd}
                     visibleAdd={visibleAdd}
                     setChange={setChange}
-                />
+                    setManagers={setManagers}
+                    />
+                    
             )}
 
             {visibleChange && selectedManager && (
@@ -110,7 +112,7 @@ const ADHome = () => {
                 />
             )}
 
-<style jsx="true">{`
+            <style jsx="true">{`
                 .custom-black-button {
                     background-color: black !important;
                     color: white !important;
@@ -134,32 +136,76 @@ const ADHome = () => {
                     overflow-x: auto;
                 }
 
-                .custom-table {
-                    table-layout: fixed;
-                    width: 100%;
-                    max-width: 800px;
-                    margin: 0 auto;
-                }
-
-                .custom-table th,
-                .custom-table td {
-                    white-space: normal;
-                    word-wrap: break-word;
-                    overflow-wrap: break-word;
-                    text-align: center;
-                }
-
-                .custom-table .p-column-header-content,
-                .custom-table .p-column-title {
+                .p-datatable .p-column-header-content {
                     justify-content: center;
                     text-align: center;
                 }
 
-                @media screen and (max-width: 600px) {
-                    .custom-table {
-                        font-size: 0.9rem;
-                    }
+                .p-datatable .p-column-title {
+                    width: 100%;
+                    text-align: center;
                 }
+
+                .p-datatable .p-column-header,
+                .p-datatable .p-column-body {
+                    text-align: center !important;
+                }
+
+                .p-datatable {
+                    table-layout: fixed;
+                    width: 800px !important;
+                }
+
+                ..p-datatable th,
+                .p-datatable td {
+                white-space: normal;
+                overflow-wrap: break-word;
+                 word-wrap: break-word;
+
+                 .card {
+    overflow-x: hidden !important;
+}
+
+.p-datatable {
+    width: 800px; /* קובע רוחב קבוע */
+    margin: 0 auto;
+    table-layout: fixed; /* מונע שינוי גודל עמודות לפי תוכן */
+}
+
+.p-datatable th,
+.p-datatable td {
+    white-space: normal; /* מרשה ירידת שורה */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: center;
+}
+
+}.p-datatable {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    table-layout: fixed;
+}
+
+.p-datatable th,
+.p-datatable td {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: center;
+}
+
+.card {
+    overflow-x: hidden !important;
+    padding: 1rem;
+}
+
+@media screen and (max-width: 600px) {
+    .p-datatable {
+        font-size: 0.9rem;
+    }
+}
+
             `}</style>
         </>
     );

@@ -33,6 +33,22 @@ const FormRegT = (props) => {
 
     const [showMessage, setShowMessage] = useState(false);
     const [formData, setFormData] = useState({});
+
+    const getValidationRules = (fieldName) => {
+        return fieldName === 'email' ? {
+            required: 'Email is required.',
+            pattern: { value: /^[A-Z0-9._%+-]+@(mby\.co\.il|gmail\.com)$/i,
+                message: 'Only emails ending with @mby.co.il or @gmail.com are allowed.'
+                 }
+        } : fieldName === 'phone' ? {
+            required: 'Phone number is required.',
+            pattern: { value: /^[0-9]{10}$/, message: 'Phone number must be 10 digits.' }
+        } : fieldName === 'numberID' ? {
+            required: 'ID number is required.',
+            pattern: { value: /^[0-9]{9}$/, message: 'ID number must be 9 digits.' }
+        } : { required: `${fieldName} is required.` };
+    };
+
     const [defaultValues, setDefaultValues] = useState({
         firstName: '',
         lastName: '',
@@ -210,7 +226,7 @@ const FormRegT = (props) => {
 
                             <div className="field">
                                 <span className="p-float-label" >
-                                    <Controller name="numberID" control={control} rules={{ required: 'numberID is required.' }} render={({ field, fieldState }) => (
+                                    <Controller name="numberID" control={control} rules={getValidationRules('numberID')} render={({ field, fieldState }) => (
                                         <InputText id={field.name} {...field} className={classNames({ 'p-invalid': fieldState.invalid })}
                                             onChange={(e) => (field.onChange(e.target.value), setDefaultValues(prevValues => ({ ...prevValues, numberID: e.target.value })))}
                                         />
@@ -237,7 +253,7 @@ const FormRegT = (props) => {
 
                             <div className="field">
                                 <span className="p-float-label" >
-                                    <Controller name="phone" control={control} rules={{ required: 'phone is required.' }} render={({ field, fieldState }) => (
+                                    <Controller name="phone" control={control} rules={getValidationRules('phone')} render={({ field, fieldState }) => (
                                         <InputText id={field.name} {...field} className={classNames({ 'p-invalid': fieldState.invalid })}
                                             onChange={(e) => (field.onChange(e.target.value), setDefaultValues(prevValues => ({ ...prevValues, phone: e.target.value })))}
                                         />
@@ -267,7 +283,7 @@ const FormRegT = (props) => {
                                 <span className="p-float-label p-input-icon-right " >
 
                                     <Controller name="email" control={control}
-                                        rules={{ required: 'Email is required.', pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, message: 'Invalid email address. E.g. example@email.com' } }}
+                                        rules={getValidationRules('email')}
                                         render={({ field, fieldState }) => (
                                             <InputText id={field.name} {...field} className={classNames({ 'p-invalid': fieldState.invalid })}
                                                 onChange={(e) => (field.onChange(e.target.value), setDefaultValues(prevValues => ({ ...prevValues, email: e.target.value })))}

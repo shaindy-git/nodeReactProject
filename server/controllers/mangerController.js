@@ -5,6 +5,8 @@ const Admin = require("../models/Admin")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const generatePassword = require('generate-password');
+const sendEmail = require('../nodemailer');
+const validateUserDetails=require("../validation")
 
 
 const addManager = async (req, res) => {
@@ -18,6 +20,9 @@ const addManager = async (req, res) => {
     // בדיקת שדות חובה
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !area) {
         return res.status(400).json({ message: "Fields are required" });
+    }
+    if(! validateUserDetails(phone, email, dateOfBirth, numberID)){
+        return res.status(400).json({ message: "The details are invalid." })
     }
 
     // בדיקת כפילות בשם משתמש
@@ -39,14 +44,14 @@ const addManager = async (req, res) => {
     if (doublarea) {
         return res.status(400).json({ message: "Area already assigned" });
     }
-    if ( (new Date() - new Date(dateOfBirth)) < 0) {
+    if ((new Date() - new Date(dateOfBirth)) < 0) {
         return res.status(400).json({ message: "Invalid date of birth" });
     }
-        
-       
+
+
     if ((new Date() - new Date(dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 50 * 31536000000) {//מציג את 1/1000 השניה בשנה
-        return res.status(400).json({ message: "The age is not appropriate, for a teacher the required age is between 50-70"})
-    
+        return res.status(400).json({ message: "The age is not appropriate, for a teacher the required age is between 50-70" })
+
     }
 
     // יצירת סיסמה אקראית
@@ -69,9 +74,25 @@ const addManager = async (req, res) => {
     if (manager) {
         // שליפת רשימת המנהלים המעודכנת
         const managers = await Manager.find()
-            .sort({ firstName: 1, lastName: 1 })
+            .sort({ area: 1, firstName: 1, lastName: 1 })
             .select('-password') // לא להחזיר את הסיסמאות
             .lean();
+
+
+
+        sendEmail(email, `You joined as the principal of a driving school in the area ${area}`, `Hello  ${firstName}  ${lastName}! \n
+            You joined as the principal of a driving school in the area ${area}\n
+            your password is:  ${password}. \n
+           The password is valid for 60 minutes, you must log in to your personal area and change it.\n
+                The username will be sent to you at the phone number:${phone} `)
+            .then(response => {
+                console.log('Email sent from Function One:', response);
+            })
+            .catch(error => {
+                console.error('Error sending email from Function One:', error);
+            });
+
+
 
         console.log('Generated Password:', password); // הדפסת הסיסמה לקונסולה
         return res.status(200).json({ managers });
@@ -90,8 +111,8 @@ const getAllManagers = async (req, res) => {
         return res.status(400).json({ message: 'No managers found' });
     }
     // החזרת רשימת המנהלים
-    
-    return res.status(200).json({ managers :managers});
+
+    return res.status(200).json({ managers: managers });
 }
 
 
@@ -103,11 +124,15 @@ const updateManager = async (req, res) => {
     if (!_id || !firstName || !lastName || !userName || !phone || !email) {
         return res.status(400).json({ message: 'fields are required' })
     }
-
+    if(! validateUserDetails(phone, email)){
+            return res.status(400).json({ message: "The details are invalid." })
+        }
     const manager = await Manager.findById(_id).exec()
     if (!manager) {
         return res.status(400).json({ message: 'Manager not found' })
     }
+
+    
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({
         userName: userName,
@@ -329,10 +354,10 @@ const changePassword = async (req, res) => {
 //         if ( (new Date() - new Date(dateOfBirth)) < 0) {
 //             return res.status(400).json({ message: "Invalid date of birth" });
 //         }
-           
+
 //         if ((new Date() - new Date(dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 50 * 31536000000) {//מציג את 1/1000 השניה בשנה
 //             return res.status(400).json({ message: "The age is not appropriate, for a teacher the required age is between 50-70"})
-        
+
 //         }
 
 //         const password = "RandomPassword" + generatePassword.generate({
@@ -364,7 +389,7 @@ const changePassword = async (req, res) => {
 
 //         try {
 //             console.log("1");
-            
+
 //             // נסיון למחוק את המנהל הישן
 //             await manager.deleteOne();
 //             console.log("2");
@@ -388,7 +413,7 @@ const changePassword = async (req, res) => {
 //             password: password,
 //             managers: managers
 //         });
-        
+
 
 //     } catch (error) {
 //         console.log("8");
@@ -416,6 +441,9 @@ const deleteManager = async (req, res) => {
         // בדיקת שדות נדרשים
         if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email) {
             return res.status(400).json({ message: "All replacement teacher fields are required" });
+        }
+        if(! validateUserDetails(phone, email, dateOfBirth, numberID)){
+            return res.status(400).json({ message: "The details are invalid." })
         }
 
         // בדיקת כפילויות בשם משתמש
@@ -474,9 +502,20 @@ const deleteManager = async (req, res) => {
         if (!newManager) {
             return res.status(400).json({ message: "Failed to create replacement teacher" });
         }
+        const manager1 = manager
 
         try {
             await manager.deleteOne();
+
+            sendEmail(manager1.email, `You are fired from running the driving school in the area. ${manager1.area}`, `Hello  ${manager1.firstName}  ${manager1.lastName}! \n
+                You are fired from running the driving school in the area. ${manager1.area}\n
+                Wishing you continued success. `)
+                .then(response => {
+                    console.log('Email sent from Function One:', response);
+                })
+                .catch(error => {
+                    console.error('Error sending email from Function One:', error);
+                });
         } catch (err) {
             await newManager.deleteOne();
             return res.status(500).json({ message: "Failed to delete old manager. New manager was removed to avoid duplication." });
@@ -484,8 +523,20 @@ const deleteManager = async (req, res) => {
 
         const managers = await Manager.find()
             .select('-password')
-            .sort({ firstName: 1 })
+            .sort({ area: 1, firstName: 1, lastName: 1 })
             .lean();
+
+        sendEmail(email, `You joined as the principal of a driving school in the area ${manager1.area}}`, `Hello  ${firstName}  ${lastName}! \n
+                You joined as the principal of a driving school in the area ${manager1.area}\n
+                your password is:  ${password}. \n
+                The password is valid for 60 minutes, you must log in to your personal area and change it.\n
+                The username will be sent to you at the phone number:${phone} `)
+            .then(response => {
+                console.log('Email sent from Function One:', response);
+            })
+            .catch(error => {
+                console.error('Error sending email from Function One:', error);
+            });
 
         return res.status(200).json({
             message: "Manager deleted successfully and teacher created in their place",
@@ -519,7 +570,7 @@ const getManagerById = async (req, res) => {
         return res.status(400).json({ message: "no accsess" })
     }
 
-    return res.status(200).json({ manager:manager});
+    return res.status(200).json({ manager: manager });
 }
 
 

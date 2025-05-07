@@ -29,6 +29,7 @@ import FormUpdate from './Components/Auth/FromUpdate'
 import { setToken } from './redux/tokenSlice';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { InputText } from "primereact/inputtext";
+import ImageCarousel from "./Components/images/ImageCarousel"
 
 import './styles/global.css'; 
 
@@ -327,6 +328,8 @@ const App = () => {
       {visibleU && accesstoken && (
         <FormUpdate visibleU={visibleU} setVisibleU={setVisibleU} />
       )}
+
+      <ImageCarousel></ImageCarousel>
 
 
 

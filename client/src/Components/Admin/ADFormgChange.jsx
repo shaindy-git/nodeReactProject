@@ -73,6 +73,7 @@ const ADFormgChange = (props) => {
                 props.setChange(res.data);
                 setNewManager(data); // שמור את הנתונים של המנהל החדש
                 setShowMessage(true);
+
             } else {
                 alert("Unexpected response from the server.");
             }
@@ -131,10 +132,23 @@ Password has been sent to email <b>{newManager.email}</b>.
                                         <Controller
                                             name={fieldName}
                                             control={control}
+                                            // rules={fieldName === 'email' ? {
+                                            //     required: 'Email is required.',
+                                            //     pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, message: 'Invalid email address. E.g. example@email.com' }
+                                            // } : { required: `${fieldName} is required.` }}
                                             rules={fieldName === 'email' ? {
                                                 required: 'Email is required.',
-                                                pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, message: 'Invalid email address. E.g. example@email.com' }
+                                                pattern: { value: /^[A-Z0-9._%+-]+@(mby\.co\.il|gmail\.com)$/i,
+                                                    message: 'Only emails ending with @mby.co.il or @gmail.com are allowed.'
+                                                     }
+                                            } : fieldName === 'phone' ? {
+                                                required: 'Phone number is required.',
+                                                pattern: { value: /^[0-9]{10}$/, message: 'Phone number must be 10 digits.' }
+                                            } : fieldName === 'numberID' ? {
+                                                required: 'ID number is required.',
+                                                pattern: { value: /^[0-9]{9}$/, message: 'ID number must be 9 digits.' }
                                             } : { required: `${fieldName} is required.` }}
+                                            
                                             render={({ field, fieldState }) => (
                                                 <InputText
                                                     id={field.name}

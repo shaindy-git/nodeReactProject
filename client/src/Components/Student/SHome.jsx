@@ -27,7 +27,7 @@ const SHome = () => {
     const [lessonsRemaining, setLessonsRemaining] = useState(0); // מספר שיעורים שנותרו
     const [area, setArea] = useState();
     const [test, setTest] = useState();
-    const [overlayContent, setOverlayContent] = useState(null); // תוכן דינמי עבור OverlayPanel
+    const [overlayContent, setOverlayContent] = useState(); // תוכן דינמי עבור OverlayPanel
     const [date, setDate] = useState(null);
     const navigate = useNavigate(); // שימוש ב-Hook לניווט
     const [status, setStatus] = useState()
@@ -36,10 +36,15 @@ const SHome = () => {
     const [visible, setVisible] = useState(false); // מצב להצגת חלון ה-SShowStudent
     const [specialDates, setSpecialDates] = useState([]);
     const [changeDate, setChangeDate] = useState(Date.now());
+    const [newDate, setNewDate] = useState(null);
+    const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+    const [newdate, setNewdate] = useState(""); // משתנה לאחסון התאריך
+    const [dateInput, setDateInput] = useState("");
+    const [errorMessage, setErrorMessage] = useState(""); // משתנה להודעות שגיאה
 
     const dateTemplate = (dateMeta) => {
         const formattedDate = `${dateMeta.year}-${String(dateMeta.month + 1).padStart(2, '0')}-${String(dateMeta.day).padStart(2, '0')}`;
-       
+
 
         if (specialDates.includes(formattedDate)) {
             return <span className="custom-special-date">{dateMeta.day}</span>;
@@ -48,6 +53,46 @@ const SHome = () => {
         return dateMeta.day;
     };
 
+
+
+    const isValidDate = (date) => {
+        const regex = /^\d{4}\/\d{2}\/\d{2}$/; // תבנית YYYY/MM/DD
+        return regex.test(date);
+    };
+    const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // הוספת 1 כי החודשים מתחילים מ-0
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
+    };
+
+
+    useEffect(() => {
+        console.log("dateInput עודכן:", dateInput);
+        // כאן תוכלי לעשות מה שצריך כשהוא משתנה
+    }, [dateInput]);
+
+    const SaveDate = (savedate) => {
+        debugger
+
+
+        console.log("SaveDate111", dateInput);
+
+        if (!isValidDate(savedate)) {
+            setErrorMessage("תאריך לא תקין. יש להזין תאריך בפורמט YYYY/MM/DD");
+            return; // לא עדכן את המשתנה אם התאריך לא תקין
+        }
+
+        // אם התאריך תקין, עדכן את המשתנה newdate
+        setNewdate(savedate);
+        setErrorMessage(""); // ניקוי הודעת השגיאה
+        console.log("Test confirmed with date:", savedate);
+
+        // רענון של OverlayPanel
+        overlayPanel.current.hide(); // סגירת ה-overlay panel אחרי שמאשרים את התאריך
+
+        setIsButtonEnabled(true); // ברגע שהכפתור הירוק נלחץ, מאשרים את הכפתור השני
+    };
 
     useEffect(() => {
         const getStudentById = async () => {
@@ -181,43 +226,97 @@ const SHome = () => {
     };
 
 
-    //יש לתת לתלמיד לבחור יום מהימים שהמורה פנוי בהם ואז צריך לשים לב שהתאריך נכנס כראוי ולא יום לפני או יום אחרי!!!!!!!!!!!!!!!!
-    const getTest = async (event) => {
 
+
+
+
+    const getTest = async (event) => {
         try {
             const res = await axios({
                 method: 'get',
                 url: 'http://localhost:7000/student/getTestDetails',
                 headers: { Authorization: "Bearer " + accesstoken },
             });
+
             if (res.status === 200) {
                 const { status, testDate, testHour } = res.data;
                 setStatus(status);
 
-
                 if (status === 'false') {
+                    let formattedDate;
                     setOverlayContent(
                         <div>
                             <p><strong>Test Status:</strong> You have not yet applied for a test</p>
-                            <Button
-                                label="Apply for Test"
-                                icon="pi pi-send"
-                                onClick={applyForTest}
-                                className="p-button"
-                                style={{
-                                    marginTop: "0.5rem",
-                                    width: "100%",
-                                    backgroundColor: "#000",
-                                    color: "#fff",
-                                    fontSize: "0.9rem",
-                                    textTransform: "none",
-                                    borderRadius: "12px",
-                                    border: "none",
-                                    marginTop: '1rem'
-                                }}
-                            />
+
+                            {/* שורה ראשונה - Calendar וכפתור Confirm */}
+                            <div className="flex gap-2 mb-4 items-end">
+                                <div className="flex-grow">
+                                    
+                                    <label htmlFor="dateInput" className="text-sm font-medium mb-1"></label>
+                                    <Calendar
+                                    
+                                        id="dateInput"
+                                        value={dateInput}
+                                        onChange={(e) => {
+                                            debugger
+                                            formattedDate = formatDate(e.value);
+                                            console.log("formatDate(e.value)", formatDate(e.value));
+                                            // המרת התאריך לפורמט הנכון
+                                            // setDateInput(formattedDate); // עדכון ה-state עם התאריך המפולח
+                                            // console.log("dateInput", dateInput);
+
+                                        }}
+                                        dateFormat="yy/mm/dd"
+                                        showIcon
+                                        className="w-full"
+                                        touchUI
+                                        placeholder="Select a date"
+                                    />
+                                </div>
+
+                                <div style={{ width: "100px" }}>
+                                    <Button
+                                        label="Confirm"
+                                        icon="pi pi-check"
+                                        onClick={() => SaveDate(formattedDate)}
+                                        className="p-button"
+                                        style={{
+                                            width: "100%",
+                                            backgroundColor: "#4CAF50",
+                                            color: "#fff",
+                                            fontSize: "0.9rem",
+                                            textTransform: "none",
+                                            borderRadius: "12px",
+                                            border: "none",
+                                            height: "40px"
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* שורה שניה - כפתור Apply for Test */}
+                            <div>
+                                <Button
+                                    label="Apply for Test"
+                                    icon="pi pi-send"
+                                    onClick={applyForTest}
+                                    className="p-button"
+                                    style={{
+                                        width: "100%",
+                                        backgroundColor: "#000",
+                                        color: "#fff",
+                                        fontSize: "0.9rem",
+                                        textTransform: "none",
+                                        borderRadius: "12px",
+                                        border: "none",
+                                        height: "40px"
+                                    }}
+                                    disabled={!isButtonEnabled}
+                                />
+                            </div>
                         </div>
                     );
+
                 } else if (status === 'request') {
                     setOverlayContent(
                         <p><strong>Test Status:</strong> A request has been submitted and will be processed as soon as possible</p>
@@ -243,20 +342,25 @@ const SHome = () => {
 
 
 
-
     // עלינו לבדוק את זה וגם לשנות את עיצוב הכפתור
     const applyForTest = async () => {
-
         try {
-            const selectedDate = new Date("2025/05/14");
+            const selectedDate = new Date(newdate); // המרה למבנה Date
+
+            if (isNaN(selectedDate)) {
+                toast.current.show({ severity: 'error', summary: 'Error', detail: 'Invalid date format', life: 3000 });
+                return;
+            }
+
+            const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+
             const res = await axios({
                 method: 'put',
                 url: 'http://localhost:7000/student/testRequest',
                 headers: { Authorization: "Bearer " + accesstoken },
-                data: {
-                    "date": `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
-                }
+                data: { date: formattedDate }
             });
+
             if (res.status === 200) {
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Test application sent successfully!', life: 3000 });
             }
@@ -265,6 +369,7 @@ const SHome = () => {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to apply for test. Please try again.', life: 3000 });
         }
     };
+
 
     // פונקציה שמייצרת את הכותרת של האדיטור (כפתורים לעיצוב)
     const renderHeader = () => {
@@ -387,10 +492,10 @@ const SHome = () => {
                 <Calendar
                     value={date}
                     onChange={(e) => {
-                        console.log("jjjj",e.value);
+
                         const selectedDate = e.value;
                         const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(1, '0')}`;
-                        console.log("jjjj",formattedDate);
+
                         setDate(formattedDate);
                         setDate(e.value)
                         setVisible(true);

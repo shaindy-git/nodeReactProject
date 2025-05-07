@@ -5,12 +5,17 @@ const Teacher = require("../models/Teacher")
 const Admin = require("../models/Admin")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const sendEmail = require('../nodemailer');
+const validateUserDetails=require("../validation")
 
 
 const addStudent = async (req, res) => {
     const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, password } = req.body
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !password) {
         return res.status(400).json({ message: "files are required" })
+    }
+    if(! validateUserDetails(phone, email, dateOfBirth, numberID)){
+        return res.status(400).json({ message: "The details are invalid." })
     }
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean()
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean()
@@ -84,6 +89,9 @@ const updateStudent = async (req, res) => {
 
     if (!_id || !firstName || !lastName || !userName || !phone || !email) {
         return res.status(400).json({ message: 'fields are required' })
+    }
+    if(! validateUserDetails(phone, email)){
+        return res.status(400).json({ message: "The details are invalid." })
     }
     const student = await Student.findById(_id).exec()
     if (!student) {

@@ -20,6 +20,8 @@ const FormUpdate = (props) => {
     const accesstoken = useSelector((state) => state.token.token);
     const decoded = accesstoken ? jwtDecode(accesstoken) : null;
 
+    
+
     const defaultValues = {
         firstName: decoded?.firstName || '',
         lastName: decoded?.lastName || '',
@@ -31,6 +33,18 @@ const FormUpdate = (props) => {
     const { control, formState: { errors }, handleSubmit, reset, setValue, getValues } = useForm({
         defaultValues: defaultValues
     });
+
+    const getValidationRules = (fieldName) => {
+        return fieldName === 'email' ? {
+            required: 'Email is required.',
+            pattern: { value: /^[A-Z0-9._%+-]+@(mby\.co\.il|gmai\.com)$/i,
+                message: ''
+                 }
+        } : fieldName === 'phone' ? {
+            required: 'Phone number is required.',
+            pattern: { value: /^[0-9]{10}$/, message: 'Phone number must be 10 digits.' }
+        }  : { required: `${fieldName} is required.` };
+    };
 
     useEffect(() => {
         // Set default values in the form (in case defaultValues are updated dynamically)
@@ -146,7 +160,7 @@ const FormUpdate = (props) => {
 
                             <div className="field">
                                 <span className="p-float-label">
-                                    <Controller name="phone" control={control} rules={{ required: 'Phone is required.' }} render={({ field, fieldState }) => (
+                                    <Controller name="phone" control={control} rules={getValidationRules('phone')} render={({ field, fieldState }) => (
                                         <InputText id={field.name}
                                             {...field}
                                             className={classNames({ 'p-invalid': fieldState.invalid })}
@@ -159,7 +173,7 @@ const FormUpdate = (props) => {
 
                             <div className="field">
                                 <span className="p-float-label">
-                                    <Controller name="email" control={control} rules={{ required: 'Email is required.', pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, message: 'Invalid email address.' } }} render={({ field, fieldState }) => (
+                                    <Controller name="email" control={control} rules={getValidationRules('email')} render={({ field, fieldState }) => (
                                         <InputText id={field.name}
                                             {...field}
                                             className={classNames({ 'p-invalid': fieldState.invalid })}

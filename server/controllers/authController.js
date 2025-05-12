@@ -229,7 +229,7 @@ const registerT = async (req, res) => {
             console.error('Error sending email from Function One:', error);
         });
 
-    // console.log('Generated Password:', password); // הדפסת הסיסמה לקונסולה
+    // console.log('Generated Password:', password); // הדפסת הסיסמה לצרכי פיתוח
     // console.log(meneger.RequestList)
     return res.status(200).json(meneger)
 

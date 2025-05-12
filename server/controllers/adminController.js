@@ -35,18 +35,16 @@ const addAdmin=async(req, res)=>{
 
 const getAllAreas = async (req, res) => {
     try {
-        // שליפת כל המנהלים מהמסד
+
         const managers = await Manager.find({}, { area: 1 }).lean();
 
-        // בדיקה האם נמצאו מנהלים
+
         if (!managers?.length) {
             return res.status(404).json({ message: 'No managers found' });
         }
 
-        // מיפוי האזורים של המנהלים
         const areas = managers.map(manager => manager.area);
 
-        // החזרת האזורים
         return res.status(200).json({ areas:areas });
     } catch (error) {
         console.error('Error fetching areas:', error.message);

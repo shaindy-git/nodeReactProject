@@ -10,14 +10,13 @@ const validateUserDetails=require("../validation")
 
 
 const addManager = async (req, res) => {
-    const { role } = req.user; // בדיקת תפקיד המשתמש המחובר
+    const { role } = req.user;
     if (role !== 'A') {
-        return res.status(400).json({ message: "No access" }); // אין הרשאות
+        return res.status(400).json({ message: "No access" }); 
     }
 
     const { firstName, lastName, userName, numberID, dateOfBirth, phone, email, area } = req.body;
 
-    // בדיקת שדות חובה
     if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email || !area) {
         return res.status(400).json({ message: "Fields are required" });
     }
@@ -25,7 +24,6 @@ const addManager = async (req, res) => {
         return res.status(400).json({ message: "The details are invalid." })
     }
 
-    // בדיקת כפילות בשם משתמש
     const doubleUserNameT = await Teacher.findOne({ userName: userName }).lean();
     const doubleUserNameM = await Manager.findOne({ userName: userName }).lean();
     const doubleUserNameS = await Student.findOne({ userName: userName }).lean();
@@ -39,7 +37,6 @@ const addManager = async (req, res) => {
         return res.status(400).json({ message: "Username already exists" });
     }
 
-    // בדיקת כפילות באזור
     const doublarea = await Manager.findOne({ area: area }).lean();
     if (doublarea) {
         return res.status(400).json({ message: "Area already assigned" });
@@ -54,7 +51,7 @@ const addManager = async (req, res) => {
 
     }
 
-    // יצירת סיסמה אקראית
+ 
     const password = "RandomPassword" + generatePassword.generate({
         length: 12,
         numbers: true,
@@ -63,19 +60,19 @@ const addManager = async (req, res) => {
         lowercase: true,
     });
 
-    // הצפנת הסיסמה
+ 
     const hashedPwd = await bcrypt.hash(password, 10);
 
-    // יצירת המנהל
+ 
     const manager = await Manager.create({
         firstName, lastName, userName, numberID, dateOfBirth, phone, email, password: hashedPwd, area
     });
 
     if (manager) {
-        // שליפת רשימת המנהלים המעודכנת
+   
         const managers = await Manager.find()
             .sort({ area: 1, firstName: 1, lastName: 1 })
-            .select('-password') // לא להחזיר את הסיסמאות
+            .select('-password')
             .lean();
 
 
@@ -94,7 +91,7 @@ const addManager = async (req, res) => {
 
 
 
-        console.log('Generated Password:', password); // הדפסת הסיסמה לקונסולה
+       //console.log('Generated Password:', password); // הדפסת הסיסמה לצרכי פיתוח
         return res.status(200).json({ managers });
     } else {
         return res.status(400).json({ message: 'Invalid Manager' });
@@ -102,15 +99,15 @@ const addManager = async (req, res) => {
 };
 
 const getAllManagers = async (req, res) => {
-    const { role } = req.user; // בדיקת תפקיד המשתמש המחובר
+    const { role } = req.user; 
     if (role !== 'A') {
-        return res.status(400).json({ message: "No access" }); // אין הרשאות
+        return res.status(400).json({ message: "No access" }); 
     }
-    const managers = await Manager.find({}, { password: 0 }).sort({ firstName: 1, lastName: 1 }).lean(); // שליפת כל המנהלים ללא סיסמאות
+    const managers = await Manager.find({}, { password: 0 }).sort({ firstName: 1, lastName: 1 }).lean();
     if (!managers) {
         return res.status(400).json({ message: 'No managers found' });
     }
-    // החזרת רשימת המנהלים
+ 
 
     return res.status(200).json({ managers: managers });
 }
@@ -159,8 +156,7 @@ const updateManager = async (req, res) => {
         manager.area = manager.area
 
     await manager.save()
-    // const managers = await Manager.find({}, { password: 0 }).sort({ firstNane: 1, lastName: 1 }).lean()
-    // return res.status(200).json({ managers, role: 'Manager' })
+
 
     const MInfo = {
         _id: manager._id,
@@ -193,7 +189,7 @@ const getRequestsByManagerId = async (req, res) => {
         return res.status(400).json({ message: 'no manager found' });
     }
 
-    // מחזיר את רשימת הבקשות
+
     res.status(200).json(manager.RequestList);
 
 
@@ -283,167 +279,13 @@ const changePassword = async (req, res) => {
     return res.status(200).json({ message: 'Password changed successfully.' })
 }
 
-//----------------------------------------------------
-
-// const deleteManager = async (req, res) => {
-//     try {
-//         const { role } = req.user;
-//         const { id } = req.params;
-
-//         // בדיקה אם מאפיינים חיוניים חסרים
-//         if (!role || !id) {
-//             return res.status(400).json({ message: "Role and ID are required" });
-//         }
-
-//         // בדיקה אם למשתמש יש הרשאות
-//         if (role !== 'A') {
-//             return res.status(403).json({ message: "No access" });
-//         }
-
-//         // בדיקה אם המנהל קיים
-//         const manager = await Manager.findById(id).exec();
-//         if (!manager) {
-//             return res.status(404).json({ message: "Manager not found" });
-//         }
-
-//         // מחיקת המנהל
-//         await manager.deleteOne();
-
-//         // שליפת כל המנהלים ללא השדה `password`
-//         const managers = await Manager.find()
-//             .select('-password') // החרגת שדה הסיסמה
-//             .sort({ firstName: 1 })
-//             .lean();
-
-//         return res.status(200).json({
-//             message: "Manager deleted successfully",
-//             managers: managers
-//         });
-//     } catch (error) {
-//         // טיפול בשגיאות
-//         console.error(error);
-//         return res.status(500).json({ message: "An error occurred while deleting the manager" });
-//     }
-// };
-
-
-
-// const deleteManager = async (req, res) => {
-//     try {
-//         const { role } = req.user;
-//         const { id } = req.params;
-//         const { firstName, lastName, userName, numberID, dateOfBirth, phone, email } = req.body;
-
-//         if (!role || !id) {
-//             return res.status(400).json({ message: "Role and ID are required" });
-//         }
-
-//         if (role !== 'A') {
-//             return res.status(403).json({ message: "No access" });
-//         }
-
-//         const manager = await Manager.findById(id).exec();
-//         if (!manager) {
-//             return res.status(404).json({ message: "Manager not found" });
-//         }
-
-//         if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email) {
-//             return res.status(400).json({ message: "All replacement teacher fields are required" });
-//         }
-
-//         const doubleUserNameT = await Teacher.findOne({ userName }).lean();
-//         const doubleUserNameM = await Manager.findOne({ userName }).lean();
-//         const doubleUserNameS = await Student.findOne({ userName }).lean();
-//         const doubleUserNameA = await Admin.findOne({ userName }).lean();
-
-//         const allManagers = await Manager.find().exec();
-//         const userExistsInRequests = allManagers.some(manager =>
-//             manager.RequestList.some(request => request.userName === userName)
-//         );
-
-//         if (doubleUserNameT || doubleUserNameM || doubleUserNameS || doubleUserNameA || userExistsInRequests) {
-//             return res.status(400).json({ message: "Username already exists" });
-//         }
-
-//         if ( (new Date() - new Date(dateOfBirth)) < 0) {
-//             return res.status(400).json({ message: "Invalid date of birth" });
-//         }
-
-//         if ((new Date() - new Date(dateOfBirth)) > 70 * 31536000000 || (new Date() - new Date(dateOfBirth)) < 50 * 31536000000) {//מציג את 1/1000 השניה בשנה
-//             return res.status(400).json({ message: "The age is not appropriate, for a teacher the required age is between 50-70"})
-
-//         }
-
-//         const password = "RandomPassword" + generatePassword.generate({
-//             length: 12,
-//             numbers: true,
-//             symbols: true,
-//             uppercase: true,
-//             lowercase: true,
-//         });
-
-//         const hashedPwd = await bcrypt.hash(password, 10);
-
-//         // יצירת מנהל חדש במקום המנהל
-//         const newManager = await Manager.create({
-//             firstName,
-//             lastName,
-//             userName,
-//             numberID,
-//             dateOfBirth,
-//             phone,
-//             email,
-//             password: hashedPwd,
-//             area: manager.area,
-//         });
-
-//         if (!newManager) {
-//             return res.status(400).json({ message: "Failed to create replacement teacher" });
-//         }
-
-//         try {
-//             console.log("1");
-
-//             // נסיון למחוק את המנהל הישן
-//             await manager.deleteOne();
-//             console.log("2");
-//         } catch (err) {
-//             console.log("3");
-//             // אם לא הצלחנו למחוק את המנהל, נמחק את המורה החדש
-//             await newManager.deleteOne();
-
-//             console.log("4");
-//             return res.status(500).json({ message: "Failed to delete old manager. New teacher was removed to avoid duplication." });
-//         }
-//         console.log("5");
-//         // שליפת רשימת מנהלים ללא סיסמא
-//         const managers = await Manager.find()
-//             .select('-password')
-//             .sort({ firstName: 1 })
-//             .lean();
-//             console.log("password",password)
-//         return res.status(200).json({
-//             message: "Manager deleted successfully and teacher created in their place",
-//             password: password,
-//             managers: managers
-//         });
-
-
-//     } catch (error) {
-//         console.log("8");
-//         console.error(error);
-//         return res.status(500).json({ message: "An error occurred while processing the request" });
-//     }
-// };
-
-
 const deleteManager = async (req, res) => {
     try {
         const { role } = req.user;
         const { id } = req.params;
         const { firstName, lastName, userName, numberID, dateOfBirth, phone, email } = req.body;
 
-        // בדיקה בסיסית
+     
         if (!role || !id) {
             return res.status(400).json({ message: "Role and ID are required" });
         }
@@ -452,7 +294,7 @@ const deleteManager = async (req, res) => {
             return res.status(403).json({ message: "No access" });
         }
 
-        // בדיקת שדות נדרשים
+    
         if (!firstName || !lastName || !userName || !numberID || !dateOfBirth || !phone || !email) {
             return res.status(400).json({ message: "All replacement teacher fields are required" });
         }
@@ -460,7 +302,7 @@ const deleteManager = async (req, res) => {
             return res.status(400).json({ message: "The details are invalid." })
         }
 
-        // בדיקת כפילויות בשם משתמש
+
         const doubleUserNameT = await Teacher.findOne({ userName }).lean();
         const doubleUserNameM = await Manager.findOne({ userName }).lean();
         const doubleUserNameS = await Student.findOne({ userName }).lean();
@@ -475,21 +317,20 @@ const deleteManager = async (req, res) => {
             return res.status(400).json({ message: "Username already exists" });
         }
 
-        // בדיקת תאריך
         const birthDate = new Date(dateOfBirth);
-        const age = (new Date() - birthDate) / 31536000000; // שנים
+        const age = (new Date() - birthDate) / 31536000000; 
 
         if (age < 50 || age > 70) {
             return res.status(400).json({ message: "The age is not appropriate, for a teacher the required age is between 50-70" });
         }
 
-        // כעת נשלוף את המנהל הקיים
+   
         const manager = await Manager.findById(id).exec();
         if (!manager) {
             return res.status(404).json({ message: "Manager not found" });
         }
 
-        // יצירת סיסמה והצפנה
+
         const password = "RandomPassword" + generatePassword.generate({
             length: 12,
             numbers: true,
@@ -500,7 +341,7 @@ const deleteManager = async (req, res) => {
 
         const hashedPwd = await bcrypt.hash(password, 10);
 
-        // יצירת מנהל חדש
+
         const newManager = await Manager.create({
             firstName,
             lastName,
@@ -564,7 +405,7 @@ const deleteManager = async (req, res) => {
     }
 };
 
-//----------------------------------------------------
+
 
 
 const getManagerById = async (req, res) => {

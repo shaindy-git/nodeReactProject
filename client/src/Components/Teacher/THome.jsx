@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 import { Toast } from 'primereact/toast';
 import TShowStudent from './TShowStudent';
-import TShowRequest from './TShowRequest'; // New Component for handling requests
+import TShowRequest from './TShowRequest'; 
 import { Calendar } from 'primereact/calendar';
 import TShowHours from './TShowHours';
 import { Card } from 'primereact/card';
@@ -31,10 +31,10 @@ const THome = () => {
     const [changeDate, setChangeDate] = useState(Date.now());
     const [first, setFirst] = useState(0);
     const [recommendations, setRecommendations] = useState([]);
-    const [requests, setRequests] = useState([]); // State for managing requests
-    const [changeRequests, setChangeRequests] = useState([]); // State to trigger requests updates
-    const [selectedRequest, setSelectedRequest] = useState(null); // Selected request state
-    const [visibleR, setVisibleR] = useState(false); // Visibility for request dialog
+    const [requests, setRequests] = useState([]); 
+    const [changeRequests, setChangeRequests] = useState([]); 
+    const [selectedRequest, setSelectedRequest] = useState(null); 
+    const [visibleR, setVisibleR] = useState(false); 
     const toast = useRef(null);
 
     const removeStudentFromList = (idToRemove) => {
@@ -95,45 +95,7 @@ const THome = () => {
         fetchDates();
     }, [accesstoken, changeDate]);
 
-    // useEffect(() => {
-    //     const fetchRecommendations = async () => {
-    //         try {
-    //             const recommendationsRes = await axios.get('http://localhost:7000/teacher/getAllRecommendations', {
-    //                 headers: { Authorization: "Bearer " + accesstoken },
-    //             });
-
-    //             if (recommendationsRes.status === 200 && recommendationsRes.data.recommendations) {
-    //                 setRecommendations(recommendationsRes.data.recommendations);
-    //             }
-    //         } catch (e) {
-    //             console.error("Error fetching recommendations:", e);
-    //         }
-    //     };
-
-    //     if (accesstoken) {
-    //         fetchRecommendations();
-    //     }
-    // }, [accesstoken]);
-
-    // useEffect(() => {
-    //     const fetchRequests = async () => {
-    //         try {
-    //             const requestRes = await axios.get('http://localhost:7000/teacher/getRequests', {
-    //                 headers: { Authorization: "Bearer " + accesstoken },
-    //             });
-
-    //             if (requestRes.status === 200 && requestRes.data.listOfRequires) {
-    //                 console.log("Requests fetched:", requestRes.data.listOfRequires);
-    //                 setRequests(requestRes.data.listOfRequires);
-    //             }
-    //         } catch (e) {
-    //             console.error("Error fetching requests:", e);
-    //         }
-    //     };
-
-    //     fetchRequests();
-    // }, [accesstoken, changeRequests]); // Added `changeRequests` as dependency
-
+    
     useEffect(()=>{
         const getTeatcherById = async () => {
             try {
@@ -160,12 +122,12 @@ const THome = () => {
 
     },[accesstoken,changeRequests])
 
-    // Show dialog when selectedRequest changes
+   
     useEffect(() => {
         if (selectedRequest) {
-            setVisibleR(true); // Open dialog only when a request is selected
+            setVisibleR(true); 
         } else {
-            setVisibleR(false); // Close dialog when no request is selected
+            setVisibleR(false); 
         }
     }, [selectedRequest]);
 
@@ -318,8 +280,6 @@ const THome = () => {
                             setVisibleD={setVisibleD}
                             visibleD={visibleD}
                             date={date}
-                            // setFullHours={setFullHours}
-                            // fullHours={fullHours}
                             setChangeDate={setChangeDate}
                             students={students}
                         />
@@ -332,7 +292,7 @@ const THome = () => {
                         filter
                         filterPlaceholder="Search Requests"
                         value={selectedRequest}
-                        onChange={(e) => setSelectedRequest(e.value)} // Update selected request
+                        onChange={(e) => setSelectedRequest(e.value)} 
                         options={
                             requests.length > 0
                                 ? requests.map((request) => ({
@@ -362,9 +322,8 @@ const THome = () => {
                                                 transition: "all 0.3s ease",
                                             }}
                                             aria-label="AddTest"
-                                            onClick={()=>{AddTest()}}// Call AddTest function
-                                            // onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#163366"}
-                                            // onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#204392"}
+                                            onClick={()=>{AddTest()}}
+                                         
                                         />
 
 
@@ -389,7 +348,7 @@ const THome = () => {
                                                 marginLeft:'0.8rem'
                                             }}
                                             aria-label="AddTest"
-                                            onClick={cancelTestRequest}// Call AddTest function
+                                            onClick={cancelTestRequest}
                                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#163366"}
                                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#204392"}
                                         />
@@ -424,7 +383,7 @@ const THome = () => {
                             subTitle="Recommendation"
                             className="shadow-2 border-round max-w-full"
                         >
-                            {/* הצגת ההמלצה המעוצבת */}
+                            
                             <div dangerouslySetInnerHTML={{ __html: recommendations[first].rec }} />
                         </Card>
                     ) : (

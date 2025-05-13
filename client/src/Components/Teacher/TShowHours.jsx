@@ -21,7 +21,7 @@ const TShowHours = (props) => {
         overlayPanel.current.toggle(event);
     
         console.log("Original Hour Object:", hour);
-        hour = typeof hour === "object" && hour.hour ? hour.hour : hour; // חילוץ השעה אם היא אובייקט
+        hour = typeof hour === "object" && hour.hour ? hour.hour : hour; 
         console.log("Converted Hour:", hour);
     
         console.log(alllessonsAndTest);
@@ -29,16 +29,16 @@ const TShowHours = (props) => {
         let spesipicHour = null;
         let student = null;
     
-        // לולאה אחת שמדפיסה, מחפשת את השעה הספציפית ומוצאת את התלמיד
+      
         alllessonsAndTest.forEach(item => {
             item.hours.forEach(element => {
                 console.log("Comparing:", element.hour, "with:", hour);
     
-                // חיפוש השעה הספציפית
+               
                 if (element.hour === hour) {
-                    spesipicHour = { ...element, date: item.date }; // שומר את השעה שנמצאה
+                    spesipicHour = { ...element, date: item.date }; 
     
-                    // חיפוש התלמיד לפי studentId
+                    
                     student = props.students.find(student => student._id === element.studentId);
                 }
             });
@@ -59,7 +59,7 @@ const TShowHours = (props) => {
             student.firstName,
             student.lastName);
     
-        // עדכון הנתונים של השעה הנבחרת
+        
         setSelectedHourDetails({
             hour: spesipicHour.hour,
             type: spesipicHour.typeOfHour,

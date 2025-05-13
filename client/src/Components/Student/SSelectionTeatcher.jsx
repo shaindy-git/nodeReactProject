@@ -14,32 +14,32 @@ const SSelectionTeatcher = (props) => {
     },
     title: {
       textAlign: "center",
-      color: "#222", // אפור כהה
+      color: "#222",
     },
     filters: {
       display: "flex",
       justifyContent: "center",
       gap: "20px",
       marginBottom: "20px",
-      flexWrap: "wrap", // מאפשר לסנן את התוכן כדי שיהיה מותאם למסכים קטנים
+      flexWrap: "wrap", 
     },
     select: {
       padding: "10px",
       borderRadius: "5px",
-      border: "1px solid #000", // גבול שחור
-      backgroundColor: "white", // רקע לבן
-      color: "black", // צבע טקסט שחור
+      border: "1px solid #000", 
+      backgroundColor: "white", 
+      color: "black", 
       fontWeight: "bold",
       cursor: "pointer",
       transition: "background-color 0.3s",
-      width: "100%", // ודא שהסלקטור יופיע על כל הרוחב במסכים קטנים
-      maxWidth: "250px", // מגביל את הרוחב המקסימלי של הסלקטור
+      width: "100%", 
+      maxWidth: "250px", 
     },
     teacherList: {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
-      gap: "20px", // Space between cards
-      justifyItems: "center", // Center cards in their grid cells
+      gap: "20px",
+      justifyItems: "center",
     },
     teacherCard: {
       padding: "20px",
@@ -48,8 +48,8 @@ const SSelectionTeatcher = (props) => {
       textAlign: "center",
       transition: "transform 0.3s, box-shadow 0.3s",
       cursor: "pointer",
-      width: "200px", // Fixed width for cards
-      height: "250px", // Fixed height for cards
+      width: "200px", 
+      height: "250px", 
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
@@ -60,25 +60,25 @@ const SSelectionTeatcher = (props) => {
     },
     teacherCardHover: {
       transform: "scale(1.05)",
-      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)", // הצללה אפרפרה
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)", 
     },
     teacherCardSelected: {
-      borderColor: "#666", // אפור כהה
-      backgroundColor: "#f5f5f5", // רקע אפרפר בהיר
+      borderColor: "#666", 
+      backgroundColor: "#f5f5f5", 
     },
     teacherPreview: {
       marginTop: "20px",
       padding: "20px",
-      border: "1px solid #666", // אפור כהה
+      border: "1px solid #666", 
       borderRadius: "10px",
-      backgroundColor: "#f5f5f5", // רקע אפרפר בהיר
+      backgroundColor: "#f5f5f5",
       color: "black",
     },
     button: {
       marginTop: "20px",
       padding: "10px 20px",
-      backgroundColor: "#000", // רקע שחור לכפתור
-      color: "white", // טקסט לבן
+      backgroundColor: "#000", 
+      color: "white", 
       border: "none",
       borderRadius: "5px",
       cursor: "pointer",
@@ -86,56 +86,56 @@ const SSelectionTeatcher = (props) => {
       transition: "background-color 0.3s",
     },
     buttonHover: {
-      backgroundColor: "#333", // רקע אפור כהה כאשר הכפתור על hover
+      backgroundColor: "#333", 
     },
     unavailable: {
-      backgroundColor: "#ccc", // אפור בהיר
-      color: "#666", // אפור כהה
+      backgroundColor: "#ccc", 
+      color: "#666", 
       cursor: "not-allowed",
     },
   
-    // מדיה קווארי לרספונסיביות
+    
     "@media (max-width: 1200px)": {
       teacherSelection: {
-        padding: "15px", // ריווח מותאם למסכים בינוניים
+        padding: "15px", 
       },
       select: {
-        width: "100%", // רוחב מלא במסכים קטנים יותר
+        width: "100%", 
       },
       teacherCard: {
-        width: "90%", // רוחב כרטיסים יהיה 90% במסכים קטנים
-        height: "auto", // גובה כרטיסים יסתגל לגודל התוכן
+        width: "90%", 
+        height: "auto",
       },
     },
   
     "@media (max-width: 768px)": {
       filters: {
-        flexDirection: "column", // כל הסלקטורים יעמדו אחד על השני
-        gap: "15px", // מרווח קטן יותר
+        flexDirection: "column", 
+        gap: "15px", 
       },
       teacherList: {
-        gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", // תצוגת כרטיסים מותאמת למסכים קטנים יותר
+        gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", 
       },
       teacherCard: {
-        width: "100%", // כרטיסים יתפוס את כל רוחב המסך במסכים בינוניים
+        width: "100%", 
       },
       button: {
-        width: "100%", // כפתור יתפוס את כל רוחב המסך
+        width: "100%", 
       },
     },
   
     "@media (max-width: 480px)": {
       teacherSelection: {
-        padding: "10px", // צמצום ריווח במסכים קטנים מאוד
+        padding: "10px",
       },
       select: {
-        width: "100%", // רוחב מלא
+        width: "100%", 
       },
       teacherCard: {
-        width: "100%", // כרטיסים יתפוס את כל רוחב המסך במסכים קטנים מאוד
+        width: "100%",
       },
       button: {
-        width: "100%", // כפתור יתפוס את כל רוחב המסך
+        width: "100%", 
       },
     },
   };
@@ -256,7 +256,7 @@ const SSelectionTeatcher = (props) => {
 
   const handleSelectTeacher = (teacher) => {
     if (teacher.listOfStudent.length > 3) {
-      // מורה עם מעל 3 תלמידים לא ניתן לבחור
+  
       toast.current.show({
         severity: "warn",
         summary: "Unavailable",

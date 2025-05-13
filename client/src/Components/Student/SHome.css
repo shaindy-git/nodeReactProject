@@ -1,8 +1,8 @@
 .custom-special-date {
-    background-color: white; /* רקע לבן */
-    color: black; /* טקסט שחור */
-    border: 2px solid #999; /* גבול אפור */
-    border-radius: 50%; /* עיגול */
+    background-color: white; 
+    color: black; 
+    border: 2px solid #999; 
+    border-radius: 50%; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,24 +12,24 @@
 }
 
 .custom-special-date:hover {
-    background-color: #666; /* אפור כהה בריחוף */
-    color: white; /* טקסט לבן בריחוף */
+    background-color: #666;
+    color: white; 
     cursor: pointer;
 }
 
-/* In your CSS file */
+
 .p-menubar {
-    background: transparent !important; /* Make menu background transparent */
+    background: transparent !important;
 }
 
 .p-menuitem {
-    padding: 0.5rem; /* Adjust padding as needed for a better layout */
+    padding: 0.5rem; 
 }
 
-/* Your specific styles to prevent the sidebar from stretching too far */
+
 .menu-container {
-    max-height: fit-content; /* Ensures the menu doesn’t stretch too long */
-    overflow: hidden; /* Prevent any overflow */
+    max-height: fit-content; 
+    overflow: hidden;
 }
 
 

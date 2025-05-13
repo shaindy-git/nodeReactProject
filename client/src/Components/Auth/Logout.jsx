@@ -10,10 +10,10 @@ const Logout = () => {
 
     useEffect(() => {
         dispatch(logOut());
-        navigate('/'); // או "/Auth/Auth" או כל נתיב אחר לקומפוננטה App שלך
+        navigate('/'); 
     }, [dispatch, navigate]);
 
-    return null; // אין תוכן להחזיר כאן
+    return null;
 }
 
 export default Logout;

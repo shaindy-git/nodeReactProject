@@ -98,8 +98,8 @@ const ADHome = () => {
                     visibleAdd={visibleAdd}
                     setChange={setChange}
                     setManagers={setManagers}
-                    />
-                    
+                />
+
             )}
 
             {visibleChange && selectedManager && (

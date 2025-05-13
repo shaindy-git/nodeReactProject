@@ -10,7 +10,7 @@ const TShowRequest = (props) => {
     const toast = useRef(null);
 
     const AddTest = async () => {
-        // Validate that the request contains necessary data
+       
         if (!props.request || !props.request.studentId || !props.request.date) {
             toast.current.show({
                 severity: "error",
@@ -29,22 +29,20 @@ const TShowRequest = (props) => {
                 data: {
                     "studentId": props.request.studentId,
                     "date": props.request.date,
-                    "hour": "13:00", // Fixed test hour
+                    "hour": "13:00", 
                 },
             });
             console.log("hhh");
             
 
             if (res.status === 200) {
-                // Remove the request from the list
+               
                 props.setRequests((prevRequests) =>
                     prevRequests.filter((req) => req._id !== props.request._id)
                 );
 
-                // Trigger additional updates if necessary
                 props.setChangeRequests((prev) => [...prev, res.data]);
 
-                // Show success message
                 toast.current.show({
                     severity: "success",
                     summary: "Success",
@@ -52,7 +50,7 @@ const TShowRequest = (props) => {
                     life: 2000,
                 });
 
-                // Close the dialog after a short delay
+                
                 setTimeout(() => props.setVisibleR(false), 2000);
             }
         } catch (e) {
@@ -73,7 +71,7 @@ const TShowRequest = (props) => {
                 header={`Request Details`}
                 visible={props.visibleR}
                 style={{ width: "30vw" }}
-                onHide={() => props.setVisibleR(false)} // Close dialog
+                onHide={() => props.setVisibleR(false)} 
                 dir="ltr"
                 footer={
                     <div className="dialog-footer" style={{ display: "flex", justifyContent: "flex-end" }}>

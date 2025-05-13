@@ -16,10 +16,10 @@ const MShowteacher = (props) => {
 
     useEffect(() => {
         if (props.teacher) {
-            Studentlist(); // קריאה לפונקציה כדי להביא תלמידים
+            Studentlist(); 
             
         }
-    }, [props.teacher]); // ההשפעה תקרה כאשר המורה משתנה
+    }, [props.teacher]); 
 
     const Studentlist = async () => {
         try {

@@ -7,22 +7,22 @@
 }
 
 .custom-button {
-    background-color: #204392 !important; /* צבע הרקע */
-    color: #ffffff !important; /* צבע הטקסט */
-    border: none !important; /* ללא מסגרת */
-    border-radius: 8px !important; /* פינות מעוגלות */
-    padding: 10px 20px !important; /* ריווח פנימי */
-    font-size: 1.1rem !important; /* גודל טקסט */
-    cursor: pointer !important; /* שינוי סמן העכבר */
-    transition: all 0.3s ease-in-out !important; /* אנימציה */
+    background-color: #204392 !important; 
+    color: #ffffff !important; 
+    border: none !important; 
+    border-radius: 8px !important; 
+    padding: 10px 20px !important; 
+    font-size: 1.1rem !important; 
+    cursor: pointer !important;
+    transition: all 0.3s ease-in-out !important; 
 }
 
 .custom-button:hover {
-    background-color: #163066 !important; /* צבע רקע בעת ריחוף */
-    transform: scale(1.05) !important; /* הגדלת הכפתור בעת ריחוף */
+    background-color: #163066 !important; 
+    transform: scale(1.05) !important; 
 }
 
 .custom-button:active {
-    background-color: #12254d !important; /* צבע רקע בעת לחיצה */
-    transform: scale(0.95) !important; /* הקטנת הכפתור בעת לחיצה */
+    background-color: #12254d !important; 
+    transform: scale(0.95) !important; 
 }

@@ -14,12 +14,6 @@ import { useNavigate } from 'react-router-dom';
 import './FromReg.css';
 
 
-// import './FromReg.css';
-
-
-
-
-
 const FormRegT = (props) => {
 
     const navigate = useNavigate();
